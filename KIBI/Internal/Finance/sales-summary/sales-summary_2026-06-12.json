@@ -1,0 +1,67 @@
+{
+  "source_file": "sales-records_2026-06-12.json",
+  "generated_from": "record_count=10",
+  "date_range": {
+    "min": "2026-05-03",
+    "max": "2026-05-28"
+  },
+  "note": "金額は販売記録に価格フィールドが無いため未算出。単価マスタ整備後に再集計する。",
+  "totals": {
+    "records": 10,
+    "units": 13
+  },
+  "by_channel": {
+    "香福論": {
+      "records": 5,
+      "units": 7
+    },
+    "直販": {
+      "records": 2,
+      "units": 3
+    },
+    "公式通販EC": {
+      "records": 2,
+      "units": 2
+    },
+    "テスター(無償・売上外)": {
+      "records": 1,
+      "units": 1
+    }
+  },
+  "by_category": {
+    "店頭売り上げ": {
+      "records": 3,
+      "units": 4
+    },
+    "直販": {
+      "records": 2,
+      "units": 3
+    },
+    "リモオーダー": {
+      "records": 2,
+      "units": 3
+    },
+    "公式通販": {
+      "records": 2,
+      "units": 2
+    },
+    "テスター": {
+      "records": 1,
+      "units": 1
+    }
+  },
+  "by_product_id": {
+    "sou-odori": {
+      "units": 4
+    },
+    "passed-down": {
+      "units": 4
+    },
+    "sealing-night": {
+      "units": 4
+    },
+    "mouillette-set": {
+      "units": 1
+    }
+  }
+}

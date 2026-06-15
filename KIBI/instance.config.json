@@ -1,0 +1,26 @@
+{
+  "instanceName": "KIBI",
+  "departments": [
+    { "key": "HQ",  "name": "社長室",            "role": "設計・発注・受入・統合・最終判断（内部監査兼任）", "noOutsourcing": true },
+    { "key": "SEC", "name": "秘書室",            "role": "管制塔（ord/tpr監視・tsk管理・ボード/ダッシュ維持）", "noOutsourcing": true },
+    { "key": "PLN", "name": "経営企画室",        "role": "成長ロードマップ・KPI・組織運営（社長直轄）", "noOutsourcing": true },
+    { "key": "BRD", "name": "ブランド戦略室",     "role": "理念・世界観の憲法（社長直轄）", "noOutsourcing": true },
+    { "key": "PRD", "name": "製品開発部",        "role": "調香・処方・5製品・次作開発（Tier0）", "noOutsourcing": true },
+    { "key": "WEB", "name": "EC・情報システム部", "role": "本番サイト・決済・在庫・セキュリティ・社内ツール保守", "noOutsourcing": false },
+    { "key": "MKT", "name": "マーケティング部",   "role": "4媒体・認知拡大・コンテンツ", "noOutsourcing": false },
+    { "key": "MED", "name": "広報部",            "role": "PR・メディア掲載・UGC・アドボケイト", "noOutsourcing": false },
+    { "key": "SLS", "name": "営業部",            "role": "卸・委託販売・実店舗提案・ポップアップ", "noOutsourcing": false },
+    { "key": "FIN", "name": "経理・財務部",       "role": "売上・原価・利益・税務（正本データは _Records）", "noOutsourcing": true },
+    { "key": "LGL", "name": "法務・コンプラ部",   "role": "規約・特商法・IFRA/薬機・商標", "noOutsourcing": true }
+  ],
+  "vendors": [
+    { "name": "Codex",       "type": "実装系", "hasAuditor": true,  "tierMax": 2, "strengths": "コード実装・テスト・差分照合・既存仕様準拠の機能追加", "status": "稼働" },
+    { "name": "Ollama",      "type": "整形系", "hasAuditor": false, "tierMax": 1, "strengths": "整形・要約・通知文生成・ダミーデータ処理（rate-limit退避先）", "status": "稼働" },
+    { "name": "Antigravity", "type": "実装系", "hasAuditor": true,  "tierMax": 2, "strengths": "コード/エージェント開発・補助・調査（agy CLI・Gemini3）。Google無料枠＝週次クォータ/料金変動に注意", "status": "採用" }
+  ],
+  "magi": [
+    { "persona": "CASPER",    "model": "Claude", "role": "経営・思想審査（KIBI憲章/世界観整合・情報保護・利益相反）。verdict集約・casper.md直記担当" },
+    { "persona": "MELCHIOR",  "model": "GPT",    "role": "仕様審査（発注書一致・受入基準充足・範囲外編集の有無）。別チャットで独立起動" },
+    { "persona": "BALTHASAR", "model": "GPT",    "role": "技術審査（実装品質・保守性・テスト可能性・セキュリティ）。別チャットで独立起動（改訂案: Antigravity/Gemini3へ置換検討）" }
+  ]
+}

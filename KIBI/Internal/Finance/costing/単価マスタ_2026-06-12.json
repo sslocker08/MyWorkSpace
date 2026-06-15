@@ -1,0 +1,19 @@
+{
+  "as_of": "2026-06-12",
+  "tax_basis": "消費税10%・免税事業者前提（税込＝売上計上）",
+  "manufacturing_cost_per_unit": 3100,
+  "products": [
+    { "id": "sou-odori",     "name": "SOU-ODORI",     "price_incl_tax": 14300, "price_ex_tax": 13000, "status": "発売済・完売" },
+    { "id": "sealing-night", "name": "SEALING NIGHT", "price_incl_tax": 14300, "price_ex_tax": 13000, "status": "発売済" },
+    { "id": "passed-down",   "name": "PASSED DOWN",   "price_incl_tax": 14300, "price_ex_tax": 13000, "status": "発売済" },
+    { "id": "hojicha",       "name": "04 HOJICHA",    "price_incl_tax": 14300, "price_ex_tax": 13000, "status": "計画" },
+    { "id": "peach-tea",     "name": "05 PEACH TEA",  "price_incl_tax": 14300, "price_ex_tax": 13000, "status": "計画" },
+    { "id": "mouillette-set","name": "MOUILLETTE SET","price_incl_tax": 100,   "price_ex_tax": 91,    "status": "テスターセット・別管理" }
+  ],
+  "channel_receipt_per_unit_at_14300": {
+    "直販":       { "deduction": "なし",        "net_received": 14300, "gross_profit": 11200 },
+    "公式通販EC": { "deduction": "Stripe3.6%",   "net_received": 13785, "shipping": 800, "gross_profit": 9885 },
+    "香福論":     { "deduction": "委託33%",      "net_received": 9581,  "gross_profit": 6481 }
+  },
+  "notes": ["上代は全コア製品一律¥14,300(税込)/¥13,000(税抜)。", "EC送料¥800は仮値。", "MOUILLETTE SETはサンプルで別管理。", "製造原価¥3,100は社長確定(fbk-hq-010・香料¥800)。粗利は旧¥3,000から各¥100/本低下。"]
+}
