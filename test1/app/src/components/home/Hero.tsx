@@ -107,7 +107,7 @@ export function Hero() {
             initial="hidden"
             animate="visible"
             custom={0.65}
-            className="flex items-center gap-6"
+            className="flex items-center gap-6 mb-16 md:mb-20"
           >
             <Link
               href="/shop"
@@ -122,6 +122,30 @@ export function Hero() {
             >
               Artisanat
             </Link>
+          </motion.div>
+
+          {/* Stats strip */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.85, duration: 0.6 }}
+            className="flex items-start gap-8 border-t border-encre/10 pt-6"
+          >
+            {[
+              { num: '12', label: 'artisans\nsélectionnés' },
+              { num: '7–14j', label: 'livraison\ndepuis le Japon' },
+              { num: '4', label: 'catégories\ncuratoriales' },
+            ].map(({ num, label }, i) => (
+              <div key={i} className="flex items-start gap-3">
+                {i > 0 && <span className="text-encre/15 mt-1">·</span>}
+                <div>
+                  <p className="font-cormorant text-2xl text-encre leading-none">{num}</p>
+                  <p className="font-dm text-[9px] tracking-[0.06em] text-brume mt-1 whitespace-pre-line leading-relaxed">
+                    {label}
+                  </p>
+                </div>
+              </div>
+            ))}
           </motion.div>
         </div>
       </div>

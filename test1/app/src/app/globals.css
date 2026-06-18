@@ -40,4 +40,15 @@
     font-family: var(--font-cormorant), Georgia, serif;
     font-style: italic;
   }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  .animate-marquee {
+    animation: marquee 32s linear infinite;
+  }
+  .animate-marquee-slow {
+    animation: marquee 52s linear infinite;
+  }
 }

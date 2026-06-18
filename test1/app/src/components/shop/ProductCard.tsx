@@ -15,13 +15,25 @@ export function ProductCard({ product }: ProductCardProps) {
     <Link href={`/shop/${product.slug}`} className="group block">
       {/* Image container — 3:4 ratio */}
       <div className="relative aspect-[3/4] overflow-hidden bg-brume/15 mb-4">
+        {/* Primary image */}
         <Image
           src={product.images[0]}
           alt={product.name.fr}
           fill
-          className="object-cover object-center transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+          className="object-cover object-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] group-hover:opacity-0"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
+
+        {/* Second image cross-fade on hover */}
+        {product.images[1] && (
+          <Image
+            src={product.images[1]}
+            alt=""
+            fill
+            className="object-cover object-center opacity-0 transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:opacity-100"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        )}
 
         {/* Hover overlay */}
         <motion.div

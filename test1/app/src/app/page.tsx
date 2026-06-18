@@ -1,12 +1,16 @@
 import { Hero } from '@/components/home/Hero'
+import { MarqueeBanner } from '@/components/home/MarqueeBanner'
 import { FeaturedGrid } from '@/components/home/FeaturedGrid'
+import { EditorialSpotlight } from '@/components/home/EditorialSpotlight'
 import { CulturalTeaser } from '@/components/home/CulturalTeaser'
 
 export default function HomePage() {
   return (
     <>
       <Hero />
+      <MarqueeBanner />
       <FeaturedGrid />
+      <EditorialSpotlight />
       <CulturalTeaser />
 
       {/* Category strip */}
