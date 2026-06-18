@@ -37,9 +37,20 @@ export function Footer() {
         <div>
           <p className="font-dm text-[11px] tracking-[0.12em] uppercase text-encre/50 mb-4">Informations</p>
           <ul className="flex flex-col gap-2">
-            {['Livraison & retours', 'À propos', 'Contact', 'Mentions légales'].map((label) => (
+            {[
+              { label: 'À propos', href: '/story' },
+              { label: 'Livraison & retours', href: null },
+              { label: 'Contact', href: null },
+              { label: 'Mentions légales', href: null },
+            ].map(({ label, href }) => (
               <li key={label}>
-                <span className="font-dm text-xs text-encre/40">{label}</span>
+                {href ? (
+                  <Link href={href} className="font-dm text-xs text-encre/70 hover:text-encre transition-colors">
+                    {label}
+                  </Link>
+                ) : (
+                  <span className="font-dm text-xs text-encre/30">{label}</span>
+                )}
               </li>
             ))}
           </ul>

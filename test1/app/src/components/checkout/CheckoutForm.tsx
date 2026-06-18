@@ -10,7 +10,7 @@ type Step = 'shipping' | 'payment' | 'success'
 export function CheckoutForm() {
   const [step, setStep] = useState<Step>('shipping')
   const [loading, setLoading] = useState(false)
-  const { items, total, items: cartItems } = useCart()
+  const { items, total } = useCart()
   const router = useRouter()
 
   function handleShipping(e: React.FormEvent) {
@@ -27,6 +27,21 @@ export function CheckoutForm() {
     setLoading(false)
     setStep('success')
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  if (items.length === 0 && step !== 'success') {
+    return (
+      <div className="flex flex-col items-center text-center py-16 gap-5">
+        <p className="font-cormorant italic text-3xl text-encre/50">Votre panier est vide.</p>
+        <p className="font-dm text-xs text-brume mb-2">空のカゴです</p>
+        <button
+          onClick={() => router.push('/shop')}
+          className="font-dm text-[12px] tracking-[0.1em] uppercase bg-encre text-ivoire px-6 py-3 hover:bg-argile transition-colors"
+        >
+          Découvrir la boutique
+        </button>
+      </div>
+    )
   }
 
   if (step === 'success') {
