@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { products, getProductsByCategory } from '@/lib/data/products'
 import { FilterBar } from './FilterBar'
@@ -12,6 +12,10 @@ interface ProductGridProps {
 
 export function ProductGrid({ initialCategory = 'all' }: ProductGridProps) {
   const [active, setActive] = useState(initialCategory)
+
+  useEffect(() => {
+    setActive(initialCategory)
+  }, [initialCategory])
 
   const filtered = useMemo(() => getProductsByCategory(active), [active])
 

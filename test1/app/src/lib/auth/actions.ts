@@ -79,6 +79,12 @@ export async function login(formData: FormData): Promise<LoginResult> {
 }
 
 export async function logout() {
-  cookies().delete(SESSION_COOKIE)
+  cookies().set(SESSION_COOKIE, '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/admin',
+    maxAge: 0,
+  })
   redirect('/admin/login')
 }
