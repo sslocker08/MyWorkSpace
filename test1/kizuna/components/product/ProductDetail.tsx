@@ -45,7 +45,10 @@ export function ProductDetail({ product, creator }: Props) {
           {/* Images */}
           <div className="sticky top-24">
             {/* Main image */}
-            <div className="relative aspect-[4/5] overflow-hidden bg-brume/10 mb-4">
+            <div
+              className="relative aspect-[4/5] overflow-hidden bg-brume/10 mb-4"
+              style={{ viewTransitionName: `product-img-${product.slug}` }}
+            >
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeImg}

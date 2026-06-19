@@ -1,9 +1,9 @@
 'use client'
 
 import Image from 'next/image'
-import Link from 'next/link'
 import { Product } from '@/types'
 import { categoryLabels } from '@/lib/data/products'
+import { TransitionLink } from '@/components/ui/TransitionLink'
 
 interface Props {
   product: Product
@@ -11,10 +11,15 @@ interface Props {
 }
 
 export function ProductCard({ product, accentColor = '#1A1612' }: Props) {
+  const vtName = `product-img-${product.slug}`
+
   return (
-    <Link href={`/products/${product.slug}`} className="group block">
+    <TransitionLink href={`/products/${product.slug}`} className="group block">
       {/* Image — 3:4 */}
-      <div className="relative aspect-[3/4] overflow-hidden bg-brume/15 mb-4">
+      <div
+        className="relative aspect-[3/4] overflow-hidden bg-brume/15 mb-4"
+        style={{ viewTransitionName: vtName }}
+      >
         <Image
           src={product.images[0]}
           alt={product.name.fr}
@@ -63,6 +68,6 @@ export function ProductCard({ product, accentColor = '#1A1612' }: Props) {
           {product.price} €
         </p>
       </div>
-    </Link>
+    </TransitionLink>
   )
 }

@@ -4,6 +4,9 @@ import './globals.css'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { CartDrawer } from '@/components/layout/CartDrawer'
+import { LenisProvider } from '@/components/providers/LenisProvider'
+import { Cursor } from '@/components/ui/Cursor'
+import { PageTransitionOverlay } from '@/components/ui/PageTransitionOverlay'
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -40,10 +43,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr" className={`${cormorant.variable} ${dm.variable} ${noto.variable}`}>
       <body className="bg-washi text-sumi antialiased">
-        <Header />
-        <main>{children}</main>
-        <Footer />
-        <CartDrawer />
+        <LenisProvider>
+          <Header />
+          <main>{children}</main>
+          <Footer />
+          <CartDrawer />
+          <Cursor />
+          <PageTransitionOverlay />
+        </LenisProvider>
       </body>
     </html>
   )

@@ -1,24 +1,86 @@
 'use client'
 
+import { useEffect, useRef } from 'react'
 import { motion, type Variants } from 'framer-motion'
-import Link from 'next/link'
 import Image from 'next/image'
+import { gsap, SplitText } from '@/lib/animation/gsap'
+import { MagneticButton } from '@/components/ui/MagneticButton'
+import { TransitionLink } from '@/components/ui/TransitionLink'
 
-// Public-domain ukiyo-e from Wikimedia Commons
 const UKIYOE_BG =
   'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Great_Wave_off_Kanagawa2.jpg/1280px-Great_Wave_off_Kanagawa2.jpg'
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1]
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 28 },
+  hidden: { opacity: 0, y: 22 },
   visible: (d = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.7, delay: d, ease: EASE } }),
 }
 
 export function Hero() {
+  const heroRef = useRef<HTMLElement>(null)
+  const bgRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const headlineRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!heroRef.current || !bgRef.current || !contentRef.current || !headlineRef.current) return
+
+    const ctx = gsap.context(() => {
+      // ── SplitText kinetic headline ──────────────────────────────────────
+      const headlines = headlineRef.current!.querySelectorAll<HTMLElement>('.hero-hl')
+      const splits = Array.from(headlines).map(
+        (el) => new SplitText(el, { type: 'chars', aria: 'auto' })
+      )
+      const chars = splits.flatMap((s) => s.chars)
+
+      gsap.set(headlineRef.current, { opacity: 1 })
+      gsap.from(chars, {
+        y: 56,
+        opacity: 0,
+        duration: 0.75,
+        stagger: { amount: 0.55, from: 'start' },
+        ease: 'power4.out',
+        delay: 0.15,
+        clearProps: 'transform,opacity',
+        onComplete: () => splits.forEach((s) => s.revert()),
+      })
+
+      // ── Background parallax ──────────────────────────────────────────────
+      gsap.to(bgRef.current, {
+        yPercent: -20,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+        },
+      })
+
+      // ── Content fade + drift on scroll ──────────────────────────────────
+      gsap.to(contentRef.current, {
+        yPercent: -14,
+        opacity: 0,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: 'top top',
+          end: '60% top',
+          scrub: true,
+        },
+      })
+    }, heroRef)
+
+    return () => ctx.revert()
+  }, [])
+
   return (
-    <section className="relative min-h-screen flex items-end pb-20 md:pb-28 overflow-hidden">
+    <section
+      ref={heroRef}
+      className="relative min-h-screen flex items-end pb-20 md:pb-28 overflow-hidden"
+    >
       {/* Ukiyo-e background */}
-      <div className="absolute inset-0">
+      <div ref={bgRef} className="absolute inset-0">
         <Image
           src={UKIYOE_BG}
           alt=""
@@ -27,45 +89,43 @@ export function Hero() {
           className="object-cover object-center opacity-30 mix-blend-multiply"
           sizes="100vw"
         />
-        {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-sumi/60 via-sumi/30 to-washi" />
         <div className="absolute inset-0 bg-gradient-to-r from-sumi/60 via-sumi/10 to-transparent" />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-[1400px] w-full mx-auto px-6 md:px-12">
+      <div ref={contentRef} className="relative z-10 max-w-[1400px] w-full mx-auto px-6 md:px-12">
         <div className="max-w-[640px]">
           {/* Label */}
           <motion.p
-            variants={fadeUp} initial="hidden" animate="visible" custom={0.1}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={0.1}
             className="font-dm text-[11px] tracking-[0.22em] uppercase text-washi/60 mb-8"
           >
             日本 × France · Trente créateurs · Lancement 2025
           </motion.p>
 
-          {/* Headline */}
-          <motion.h1
-            variants={fadeUp} initial="hidden" animate="visible" custom={0.25}
-            className="font-cormorant font-light italic text-5xl md:text-7xl lg:text-[88px] leading-[0.92] text-washi mb-3"
-          >
-            Le lien
-          </motion.h1>
-          <motion.h1
-            variants={fadeUp} initial="hidden" animate="visible" custom={0.35}
-            className="font-cormorant font-light italic text-5xl md:text-7xl lg:text-[88px] leading-[0.92] text-washi mb-3"
-          >
-            qui unit
-          </motion.h1>
-          <motion.h1
-            variants={fadeUp} initial="hidden" animate="visible" custom={0.45}
-            className="font-cormorant font-light italic text-5xl md:text-7xl lg:text-[88px] leading-[0.92] text-kincha mb-8"
-          >
-            deux mondes.
-          </motion.h1>
+          {/* Headline — GSAP SplitText, initially hidden */}
+          <div ref={headlineRef} style={{ opacity: 0 }}>
+            <h1 className="hero-hl font-cormorant font-light italic text-5xl md:text-7xl lg:text-[88px] leading-[0.92] text-washi mb-3 overflow-hidden">
+              Le lien
+            </h1>
+            <h1 className="hero-hl font-cormorant font-light italic text-5xl md:text-7xl lg:text-[88px] leading-[0.92] text-washi mb-3 overflow-hidden">
+              qui unit
+            </h1>
+            <h1 className="hero-hl font-cormorant font-light italic text-5xl md:text-7xl lg:text-[88px] leading-[0.92] text-kincha mb-8 overflow-hidden">
+              deux mondes.
+            </h1>
+          </div>
 
           {/* JP subtitle */}
           <motion.p
-            variants={fadeUp} initial="hidden" animate="visible" custom={0.52}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={0.6}
             className="font-noto text-sm text-washi/50 mb-6"
           >
             職人の手仕事をパリの暮らしへ。
@@ -73,7 +133,10 @@ export function Hero() {
 
           {/* Body */}
           <motion.p
-            variants={fadeUp} initial="hidden" animate="visible" custom={0.6}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={0.7}
             className="font-dm text-sm text-washi/60 leading-relaxed max-w-[440px] mb-10"
           >
             Trente artisans, designers et producteurs japonais — sélectionnés pour leur excellence
@@ -82,22 +145,30 @@ export function Hero() {
 
           {/* CTA */}
           <motion.div
-            variants={fadeUp} initial="hidden" animate="visible" custom={0.7}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={0.8}
             className="flex items-center gap-6"
           >
-            <Link
-              href="/creators"
-              className="inline-flex items-center gap-3 bg-washi text-sumi px-8 py-3.5 font-dm text-[12px] tracking-[0.14em] uppercase hover:bg-kincha hover:text-washi transition-colors duration-350"
-            >
-              Découvrir les créateurs
-              <span className="text-[10px]">→</span>
-            </Link>
-            <Link
-              href="/products"
-              className="font-dm text-[12px] tracking-[0.1em] uppercase text-washi/50 hover:text-washi transition-colors border-b border-washi/20 hover:border-washi pb-0.5"
-            >
-              Boutique
-            </Link>
+            <MagneticButton strength={0.25}>
+              <TransitionLink
+                href="/creators"
+                className="inline-flex items-center gap-3 bg-washi text-sumi px-8 py-3.5 font-dm text-[12px] tracking-[0.14em] uppercase hover:bg-kincha hover:text-washi transition-colors duration-350"
+              >
+                Découvrir les créateurs
+                <span className="text-[10px]">→</span>
+              </TransitionLink>
+            </MagneticButton>
+
+            <MagneticButton strength={0.2}>
+              <TransitionLink
+                href="/products"
+                className="font-dm text-[12px] tracking-[0.1em] uppercase text-washi/50 hover:text-washi transition-colors border-b border-washi/20 hover:border-washi pb-0.5"
+              >
+                Boutique
+              </TransitionLink>
+            </MagneticButton>
           </motion.div>
         </div>
 
@@ -105,7 +176,7 @@ export function Hero() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.0, duration: 0.6 }}
+          transition={{ delay: 1.1, duration: 0.6 }}
           className="mt-16 flex items-start gap-8 border-t border-washi/15 pt-6"
         >
           {[
@@ -130,7 +201,7 @@ export function Hero() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.4, duration: 0.5 }}
+        transition={{ delay: 1.5, duration: 0.5 }}
         className="absolute bottom-8 right-12 hidden md:flex flex-col items-center gap-2"
       >
         <motion.div

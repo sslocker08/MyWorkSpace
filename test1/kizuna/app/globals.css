@@ -23,12 +23,49 @@ body {
 .animate-marquee      { animation: marquee 36s linear infinite; }
 .animate-marquee-slow { animation: marquee 60s linear infinite; }
 
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* ─── View Transitions ──────────────────────────────────────────────────── */
+
+@keyframes vt-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes vt-slide-up {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
 }
 
-@keyframes introReveal {
-  0%   { clip-path: inset(0 100% 0 0); }
-  100% { clip-path: inset(0 0% 0 0); }
+/* Product image morphs smoothly between card and detail */
+::view-transition-old(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(root) {
+  animation: vt-fade-in 0.35s ease both;
+  mix-blend-mode: normal;
+}
+
+/* Named transition: product image shared element */
+[style*="view-transition-name: product-img"] {
+  will-change: transform;
+}
+::view-transition-old(product-img) {
+  animation: none;
+}
+::view-transition-new(product-img) {
+  animation: none;
+}
+
+/* ─── GSAP SplitText helper ─────────────────────────────────────────────── */
+.split-parent { overflow: hidden; }
+
+/* ─── Lenis scroll behaviour ─────────────────────────────────────────────── */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
 }
