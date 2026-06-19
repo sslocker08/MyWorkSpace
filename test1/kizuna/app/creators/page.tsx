@@ -59,10 +59,9 @@ function CreatorCard({ creator, index }: { creator: typeof creators[0]; index: n
           className="w-5 h-px mb-2.5 transition-all duration-500 group-hover:w-8"
           style={{ backgroundColor: creator.accentColor }}
         />
-        <p className="font-cormorant text-xl text-sumi leading-tight">{creator.brandName.fr}</p>
-        <p className="font-noto text-[10px] text-sumi/40 mt-0.5">{creator.brandName.ja}</p>
-        <p className="font-dm text-xs text-brume mt-1.5">{creator.name}</p>
-        <p className="font-dm text-[10px] text-brume/60">{creator.location}</p>
+        <p className="font-shippori text-lg text-sumi leading-tight">{creator.brandName.ja}</p>
+        <p className="font-dm text-[10px] tracking-[0.1em] uppercase text-sumi/40 mt-0.5">{creator.brandName.fr}</p>
+        <p className="font-dm text-xs text-kiri mt-1.5">{creator.name} · {creator.location}</p>
       </Link>
     </motion.div>
   )
@@ -77,10 +76,11 @@ export default function CreatorsPage() {
     <>
       {/* Header */}
       <section className="pt-32 md:pt-40 pb-16 max-w-[1400px] mx-auto px-6 md:px-12">
-        <p className="font-dm text-[10px] tracking-[0.22em] uppercase text-brume mb-4">
-          Créateurs · クリエイター
-        </p>
-        <h1 className="font-cormorant font-light italic text-5xl md:text-7xl text-sumi mb-6">
+        <div className="flex items-center gap-3 mb-4">
+          <span className="font-noto text-xs text-shu">職人</span>
+          <span className="font-dm text-[9px] tracking-[0.22em] uppercase text-sumi/25">Créateurs</span>
+        </div>
+        <h1 className="font-zen font-bold text-5xl md:text-7xl text-sumi mb-6">
           Trente artisans<br className="hidden md:block" /> d&apos;exception.
         </h1>
         <p className="font-dm text-sm text-sumi/50 max-w-[480px] leading-relaxed">
@@ -122,7 +122,7 @@ export default function CreatorsPage() {
 
         {filtered.length === 0 && (
           <div className="text-center py-20">
-            <p className="font-cormorant italic text-2xl text-sumi/30">Aucun créateur trouvé.</p>
+            <p className="font-zen text-2xl text-sumi/30">Aucun créateur trouvé.</p>
           </div>
         )}
       </div>

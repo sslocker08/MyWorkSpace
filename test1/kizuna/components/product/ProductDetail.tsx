@@ -28,14 +28,14 @@ export function ProductDetail({ product, creator }: Props) {
     <div className="min-h-screen pt-20">
       {/* Breadcrumb */}
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 pt-8 pb-4">
-        <nav className="flex items-center gap-2 font-dm text-[11px] tracking-[0.08em] uppercase text-sumi/40">
+        <nav className="flex items-center gap-2 font-dm text-[11px] tracking-[0.08em] uppercase text-sumi/35">
           <Link href="/products" className="hover:text-sumi transition-colors">Boutique</Link>
           <span>·</span>
           <Link href={`/creators/${creator.slug}`} className="hover:text-sumi transition-colors">
             {creator.brandName.fr}
           </Link>
           <span>·</span>
-          <span className="text-sumi/70">{product.name.fr}</span>
+          <span className="text-sumi/60">{product.name.fr}</span>
         </nav>
       </div>
 
@@ -46,7 +46,7 @@ export function ProductDetail({ product, creator }: Props) {
           <div className="sticky top-24">
             {/* Main image */}
             <div
-              className="relative aspect-[4/5] overflow-hidden bg-brume/10 mb-4"
+              className="relative aspect-[4/5] overflow-hidden bg-sumi/5 mb-4 border border-sumi/8"
               style={{ viewTransitionName: `product-img-${product.slug}` }}
             >
               <AnimatePresence mode="wait">
@@ -68,11 +68,8 @@ export function ProductDetail({ product, creator }: Props) {
                   />
                 </motion.div>
               </AnimatePresence>
-              {/* Brand accent stripe */}
-              <div
-                className="absolute left-0 top-0 bottom-0 w-1"
-                style={{ backgroundColor: creator.accentColor }}
-              />
+              {/* 朱 accent stripe */}
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-shu" />
             </div>
 
             {/* Thumbnails */}
@@ -82,8 +79,8 @@ export function ProductDetail({ product, creator }: Props) {
                   <button
                     key={i}
                     onClick={() => setActiveImg(i)}
-                    className={`relative w-16 h-20 overflow-hidden transition-all duration-200 ${
-                      activeImg === i ? 'ring-2 ring-sumi' : 'opacity-50 hover:opacity-80'
+                    className={`relative w-16 h-20 overflow-hidden transition-all duration-200 border ${
+                      activeImg === i ? 'border-shu' : 'border-sumi/10 opacity-50 hover:opacity-80'
                     }`}
                   >
                     <Image src={img} alt="" fill className="object-cover" sizes="64px" />
@@ -98,33 +95,29 @@ export function ProductDetail({ product, creator }: Props) {
             {/* Creator link */}
             <Link
               href={`/creators/${creator.slug}`}
-              className="inline-flex items-center gap-2 mb-6 group"
+              className="inline-flex items-center gap-3 mb-6 group"
             >
-              <div
-                className="w-6 h-px transition-all duration-300 group-hover:w-10"
-                style={{ backgroundColor: creator.accentColor }}
-              />
-              <span className="font-dm text-[11px] tracking-[0.14em] uppercase text-brume group-hover:text-sumi transition-colors">
+              <div className="w-6 h-px bg-shu transition-all duration-300 group-hover:w-10" />
+              <span className="font-dm text-[11px] tracking-[0.14em] uppercase text-kiri group-hover:text-sumi transition-colors">
                 {creator.brandName.fr}
               </span>
             </Link>
 
-            {/* Name */}
-            <h1 className="font-cormorant font-light italic text-4xl md:text-5xl text-sumi leading-[1.05] mb-1">
+            {/* Japanese name primary */}
+            <p className="font-shippori text-2xl text-sumi mb-1">{product.name.ja}</p>
+
+            {/* French name */}
+            <h1 className="font-zen font-bold text-4xl md:text-5xl text-sumi leading-[1.05] mb-6">
               {product.name.fr}
             </h1>
-            <p className="font-noto text-sm text-sumi/40 mb-6">{product.name.ja}</p>
 
             {/* Price */}
-            <p
-              className="font-cormorant text-4xl mb-8"
-              style={{ color: creator.accentColor }}
-            >
+            <p className="font-zen text-4xl text-kin mb-8">
               {product.price.toLocaleString('fr-FR')} €
             </p>
 
             {/* Short description */}
-            <p className="font-dm text-sm text-sumi/60 leading-relaxed mb-8 border-l-2 pl-4" style={{ borderColor: creator.accentColor }}>
+            <p className="font-dm text-sm text-sumi/60 leading-relaxed mb-8 border-l-2 border-shu pl-4">
               {product.shortDescription.fr}
             </p>
 
@@ -134,8 +127,8 @@ export function ProductDetail({ product, creator }: Props) {
               onClick={handleAdd}
               className="w-full py-4 font-dm text-[12px] tracking-[0.16em] uppercase transition-colors duration-300 mb-4"
               style={{
-                backgroundColor: added ? creator.accentColor : '#1A1612',
-                color: '#F2EBE0',
+                backgroundColor: added ? '#9B2335' : '#12100E',
+                color: '#F5F0E8',
               }}
             >
               {added ? '✓ Ajouté au panier' : 'Ajouter au panier'}
@@ -143,7 +136,7 @@ export function ProductDetail({ product, creator }: Props) {
 
             {/* Shipping info */}
             <div className="flex items-center gap-3 py-4 border-t border-sumi/8">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-brume shrink-0">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-kiri shrink-0">
                 <path d="M5 12H19M19 12L13 6M19 12L13 18" />
               </svg>
               <p className="font-dm text-xs text-sumi/40">
@@ -153,9 +146,10 @@ export function ProductDetail({ product, creator }: Props) {
 
             {/* Story */}
             <div className="mt-8 pt-8 border-t border-sumi/8">
-              <p className="font-dm text-[10px] tracking-[0.18em] uppercase text-brume mb-4">
-                L&apos;histoire · 物語
-              </p>
+              <div className="flex items-center gap-3 mb-5">
+                <span className="font-noto text-xs text-shu">物語</span>
+                <span className="font-dm text-[9px] tracking-[0.22em] uppercase text-sumi/25">L&apos;histoire</span>
+              </div>
               <p className="font-dm text-sm text-sumi/65 leading-relaxed mb-4">{product.story.fr}</p>
               <p className="font-noto text-xs text-sumi/30 leading-relaxed">{product.story.ja}</p>
             </div>
@@ -165,7 +159,7 @@ export function ProductDetail({ product, creator }: Props) {
               {product.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="font-dm text-[10px] tracking-[0.1em] uppercase px-3 py-1.5 border border-sumi/10 text-sumi/50"
+                  className="font-dm text-[10px] tracking-[0.1em] uppercase px-3 py-1.5 border border-sumi/10 text-sumi/40"
                 >
                   {tag}
                 </span>
@@ -176,25 +170,16 @@ export function ProductDetail({ product, creator }: Props) {
       </div>
 
       {/* Creator CTA */}
-      <div
-        className="mt-20 py-16 text-center"
-        style={{ backgroundColor: creator.palette.surface }}
-      >
-        <p className="font-noto text-xs mb-2" style={{ color: `${creator.palette.text}50` }}>
-          {creator.brandName.ja}
-        </p>
-        <h3
-          className="font-cormorant italic text-3xl mb-4"
-          style={{ color: creator.palette.text }}
-        >
+      <div className="mt-20 py-16 bg-ai text-center">
+        <p className="font-noto text-sm text-washi/30 mb-1">{creator.brandName.ja}</p>
+        <h3 className="font-zen font-bold text-3xl text-washi mb-6">
           Découvrir {creator.brandName.fr}
         </h3>
         <Link
           href={`/creators/${creator.slug}`}
-          className="inline-flex items-center gap-3 font-dm text-[12px] tracking-[0.14em] uppercase px-7 py-3.5 transition-colors duration-300"
-          style={{ backgroundColor: creator.accentColor, color: creator.palette.bg }}
+          className="inline-flex items-center gap-3 font-dm text-[12px] tracking-[0.14em] uppercase px-7 py-3.5 bg-shu text-washi hover:bg-beni transition-colors duration-300"
         >
-          Voir tous les créations →
+          Voir toutes les créations →
         </Link>
       </div>
     </div>

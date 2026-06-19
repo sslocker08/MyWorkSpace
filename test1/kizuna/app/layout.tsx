@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Cormorant_Garamond, DM_Sans, Noto_Serif_JP } from 'next/font/google'
+import { Zen_Old_Mincho, Shippori_Mincho, DM_Sans, Noto_Serif_JP } from 'next/font/google'
 import './globals.css'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
@@ -8,11 +8,20 @@ import { LenisProvider } from '@/components/providers/LenisProvider'
 import { Cursor } from '@/components/ui/Cursor'
 import { PageTransitionOverlay } from '@/components/ui/PageTransitionOverlay'
 
-const cormorant = Cormorant_Garamond({
+const zen = Zen_Old_Mincho({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600'],
-  variable: '--font-cormorant',
+  weight: ['400', '700', '900'],
+  variable: '--font-zen',
   display: 'swap',
+  preload: false,
+})
+
+const shippori = Shippori_Mincho({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-shippori',
+  display: 'swap',
+  preload: false,
 })
 
 const dm = DM_Sans({
@@ -41,7 +50,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`${cormorant.variable} ${dm.variable} ${noto.variable}`}>
+    <html lang="fr" className={`${zen.variable} ${shippori.variable} ${dm.variable} ${noto.variable}`}>
       <body className="bg-washi text-sumi antialiased">
         <LenisProvider>
           <Header />

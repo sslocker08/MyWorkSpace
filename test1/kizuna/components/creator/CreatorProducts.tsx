@@ -25,11 +25,12 @@ export function CreatorProducts({ creator, products }: Props) {
         className="flex items-center justify-between mb-12"
       >
         <div>
-          <p className="font-dm text-[10px] tracking-[0.22em] uppercase text-brume mb-2">
-            Créations · 作品
-          </p>
+          <div className="flex items-center gap-3 mb-3">
+            <span className="font-noto text-xs text-shu">作品</span>
+            <span className="font-dm text-[9px] tracking-[0.22em] uppercase text-sumi/25">Créations</span>
+          </div>
           <h2
-            className="font-cormorant font-light italic text-3xl md:text-4xl text-sumi"
+            className="font-zen font-bold text-3xl md:text-4xl text-sumi"
           >
             Les œuvres de {creator.brandName.fr}
           </h2>

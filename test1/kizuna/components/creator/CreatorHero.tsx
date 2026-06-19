@@ -56,7 +56,7 @@ export function CreatorHero({ creator }: Props) {
             ← Créateurs
           </Link>
           <span className="text-sumi/20 text-xs">·</span>
-          <span className="font-dm text-[11px] tracking-[0.12em] uppercase" style={{ color: creator.accentColor }}>
+          <span className="font-dm text-[11px] tracking-[0.12em] uppercase text-shu">
             {categoryLabels[creator.category]?.fr}
           </span>
         </motion.div>
@@ -65,27 +65,28 @@ export function CreatorHero({ creator }: Props) {
           {/* Creator name */}
           <motion.p
             variants={fadeUp} initial="hidden" animate="visible" custom={0.1}
-            className="font-dm text-[11px] tracking-[0.2em] uppercase mb-3"
-            style={{ color: creator.accentColor }}
+            className="font-dm text-[11px] tracking-[0.2em] uppercase text-shu mb-3"
           >
             {creator.name} · {creator.location}
           </motion.p>
 
-          {/* Brand name */}
+          {/* Japanese brand name */}
+          <motion.p
+            variants={fadeUp} initial="hidden" animate="visible" custom={0.18}
+            className="font-shippori text-2xl mb-1"
+            style={{ color: creator.palette.text }}
+          >
+            {creator.brandName.ja}
+          </motion.p>
+
+          {/* French brand name */}
           <motion.h1
-            variants={fadeUp} initial="hidden" animate="visible" custom={0.2}
-            className="font-cormorant font-light italic text-5xl md:text-7xl leading-[0.95] mb-2"
+            variants={fadeUp} initial="hidden" animate="visible" custom={0.24}
+            className="font-zen font-bold text-5xl md:text-7xl leading-[0.95] mb-8"
             style={{ color: creator.palette.text }}
           >
             {creator.brandName.fr}
           </motion.h1>
-          <motion.p
-            variants={fadeUp} initial="hidden" animate="visible" custom={0.28}
-            className="font-noto text-sm mb-8"
-            style={{ color: `${creator.palette.text}60` }}
-          >
-            {creator.brandName.ja}
-          </motion.p>
 
           {/* Brand concept */}
           <motion.p
@@ -99,12 +100,10 @@ export function CreatorHero({ creator }: Props) {
           {/* CTA */}
           <motion.div
             variants={fadeUp} initial="hidden" animate="visible" custom={0.48}
-            className="flex items-center gap-6"
           >
             <a
               href="#products"
-              className="inline-flex items-center gap-3 px-7 py-3.5 font-dm text-[12px] tracking-[0.14em] uppercase transition-colors duration-300"
-              style={{ backgroundColor: creator.accentColor, color: creator.palette.bg }}
+              className="inline-flex items-center gap-3 px-7 py-3.5 font-dm text-[12px] tracking-[0.14em] uppercase bg-shu text-washi hover:bg-beni transition-colors duration-300"
             >
               Voir les créations →
             </a>

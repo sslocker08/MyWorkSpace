@@ -60,15 +60,13 @@ export function CreatorConcept({ creator }: Props) {
               匠
             </span>
 
-            <p
-              className="font-dm text-[10px] tracking-[0.2em] uppercase mb-5"
-              style={{ color: creator.accentColor }}
-            >
-              L&apos;histoire · {creator.brandName.ja}
-            </p>
+            <div className="flex items-center gap-3 mb-5">
+              <span className="font-noto text-xs text-shu">{creator.brandName.ja}</span>
+              <span className="font-dm text-[9px] tracking-[0.22em] uppercase text-sumi/25">L&apos;histoire</span>
+            </div>
 
             <h2
-              className="font-cormorant font-light italic text-4xl md:text-5xl leading-[1.05] mb-6"
+              className="font-zen font-bold text-4xl md:text-5xl leading-[1.05] mb-6"
               style={{ color: creator.palette.text }}
             >
               {creator.name}
@@ -83,7 +81,7 @@ export function CreatorConcept({ creator }: Props) {
 
             <p
               className="font-noto text-xs leading-relaxed border-l-2 pl-4"
-              style={{ borderColor: creator.accentColor, color: `${creator.palette.text}50` }}
+              style={{ borderColor: '#C94B2A', color: `${creator.palette.text}50` }}
             >
               {creator.story.ja}
             </p>
@@ -91,14 +89,14 @@ export function CreatorConcept({ creator }: Props) {
             {/* Location + category */}
             <div className="flex items-center gap-6 mt-8 pt-8 border-t border-sumi/10">
               <div>
-                <p className="font-dm text-[9px] tracking-[0.1em] uppercase text-brume/60 mb-1">Localisation</p>
-                <p className="font-cormorant text-lg" style={{ color: creator.palette.text }}>
+                <p className="font-dm text-[9px] tracking-[0.1em] uppercase text-kiri/60 mb-1">Localisation</p>
+                <p className="font-shippori text-lg" style={{ color: creator.palette.text }}>
                   {creator.location}
                 </p>
               </div>
               <div>
-                <p className="font-dm text-[9px] tracking-[0.1em] uppercase text-brume/60 mb-1">Domaine</p>
-                <p className="font-cormorant text-lg" style={{ color: creator.palette.text }}>
+                <p className="font-dm text-[9px] tracking-[0.1em] uppercase text-kiri/60 mb-1">Domaine</p>
+                <p className="font-shippori text-lg" style={{ color: creator.palette.text }}>
                   {creator.brandConcept.ja.slice(0, 30)}
                 </p>
               </div>

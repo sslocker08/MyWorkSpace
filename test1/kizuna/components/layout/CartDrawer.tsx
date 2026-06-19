@@ -33,7 +33,7 @@ export function CartDrawer() {
             {/* Header */}
             <div className="flex items-center justify-between px-8 py-6 border-b border-sumi/8">
               <div>
-                <p className="font-cormorant italic text-xl text-sumi">Votre panier</p>
+                <p className="font-zen text-xl text-sumi">Votre panier</p>
                 <p className="font-noto text-[10px] text-sumi/40 mt-0.5">お買い物かご</p>
               </div>
               <button onClick={close} className="text-sumi/40 hover:text-sumi transition-colors">
@@ -48,14 +48,14 @@ export function CartDrawer() {
               {items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
                   <p className="font-noto text-4xl text-sumi/10">空</p>
-                  <p className="font-cormorant italic text-lg text-sumi/40">Votre panier est vide</p>
+                  <p className="font-zen text-lg text-sumi/40">Votre panier est vide</p>
                   <p className="font-dm text-xs text-sumi/30">Découvrez nos créateurs</p>
                 </div>
               ) : (
                 <ul className="space-y-6">
                   {items.map(({ product, quantity }) => (
                     <li key={product.id} className="flex gap-4">
-                      <div className="relative w-20 h-24 shrink-0 overflow-hidden bg-brume/10">
+                      <div className="relative w-20 h-24 shrink-0 overflow-hidden bg-sumi/8">
                         <Image
                           src={product.images[0]}
                           alt={product.name.fr}
@@ -65,7 +65,7 @@ export function CartDrawer() {
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-cormorant text-base text-sumi leading-tight truncate">
+                        <p className="font-shippori text-base text-sumi leading-tight truncate">
                           {product.name.fr}
                         </p>
                         <p className="font-noto text-[10px] text-sumi/40 mt-0.5 truncate">
@@ -84,7 +84,7 @@ export function CartDrawer() {
                               className="w-7 h-7 flex items-center justify-center text-sumi/50 hover:text-sumi transition-colors text-sm"
                             >+</button>
                           </div>
-                          <p className="font-dm text-sm text-kincha">
+                          <p className="font-dm text-sm text-kin">
                             {(product.price * quantity).toLocaleString('fr-FR')} €
                           </p>
                         </div>
@@ -109,7 +109,7 @@ export function CartDrawer() {
               <div className="px-8 py-6 border-t border-sumi/8">
                 <div className="flex items-center justify-between mb-4">
                   <p className="font-dm text-xs tracking-[0.08em] uppercase text-sumi/50">Total</p>
-                  <p className="font-cormorant text-2xl text-sumi">{total().toLocaleString('fr-FR')} €</p>
+                  <p className="font-zen text-2xl text-sumi">{total().toLocaleString('fr-FR')} €</p>
                 </div>
                 <p className="font-dm text-[10px] text-sumi/30 mb-5">
                   Livraison calculée à l&apos;étape suivante · Expédition depuis le Japon 7–14 jours
@@ -117,7 +117,7 @@ export function CartDrawer() {
                 <Link
                   href="/checkout"
                   onClick={close}
-                  className="block w-full bg-sumi text-washi py-4 text-center font-dm text-[12px] tracking-[0.14em] uppercase hover:bg-kon transition-colors duration-300"
+                  className="block w-full bg-sumi text-washi py-4 text-center font-dm text-[12px] tracking-[0.14em] uppercase hover:bg-ai transition-colors duration-300"
                 >
                   Passer commande →
                 </Link>

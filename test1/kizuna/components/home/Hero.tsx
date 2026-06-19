@@ -47,7 +47,7 @@ export function Hero() {
 
       // ── Background parallax ──────────────────────────────────────────────
       gsap.to(bgRef.current, {
-        yPercent: -20,
+        yPercent: -18,
         ease: 'none',
         scrollTrigger: {
           trigger: heroRef.current,
@@ -79,43 +79,56 @@ export function Hero() {
       ref={heroRef}
       className="relative min-h-screen flex items-end pb-20 md:pb-28 overflow-hidden"
     >
-      {/* Ukiyo-e background */}
+      {/* Ukiyo-e background — full color, no blend-multiply */}
       <div ref={bgRef} className="absolute inset-0">
         <Image
           src={UKIYOE_BG}
           alt=""
           fill
           priority
-          className="object-cover object-center opacity-30 mix-blend-multiply"
+          className="object-cover object-center opacity-55"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-sumi/60 via-sumi/30 to-washi" />
-        <div className="absolute inset-0 bg-gradient-to-r from-sumi/60 via-sumi/10 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-sumi/85 via-sumi/50 to-sumi/90" />
+        <div className="absolute inset-0 bg-gradient-to-r from-sumi/80 via-sumi/30 to-transparent" />
+      </div>
+
+      {/* Decorative vertical 絆 — ghost watermark right side */}
+      <div
+        className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 select-none pointer-events-none"
+        aria-hidden="true"
+      >
+        <p
+          className="font-noto font-bold text-washi/5 leading-none"
+          style={{ fontSize: 'clamp(100px, 18vw, 240px)', writingMode: 'vertical-rl' }}
+        >
+          絆
+        </p>
       </div>
 
       {/* Content */}
       <div ref={contentRef} className="relative z-10 max-w-[1400px] w-full mx-auto px-6 md:px-12">
-        <div className="max-w-[640px]">
+        <div className="max-w-[680px]">
           {/* Label */}
           <motion.p
             variants={fadeUp}
             initial="hidden"
             animate="visible"
             custom={0.1}
-            className="font-dm text-[11px] tracking-[0.22em] uppercase text-washi/60 mb-8"
+            className="font-dm text-[10px] tracking-[0.30em] uppercase text-washi/35 mb-8"
           >
-            日本 × France · Trente créateurs · Lancement 2025
+            絆プロジェクト · Japan × France · 2025
           </motion.p>
 
           {/* Headline — GSAP SplitText, initially hidden */}
           <div ref={headlineRef} style={{ opacity: 0 }}>
-            <h1 className="hero-hl font-cormorant font-light italic text-5xl md:text-7xl lg:text-[88px] leading-[0.92] text-washi mb-3 overflow-hidden">
+            <h1 className="hero-hl font-zen font-bold text-5xl md:text-7xl lg:text-[88px] leading-[0.92] text-washi mb-3 overflow-hidden">
               Le lien
             </h1>
-            <h1 className="hero-hl font-cormorant font-light italic text-5xl md:text-7xl lg:text-[88px] leading-[0.92] text-washi mb-3 overflow-hidden">
+            <h1 className="hero-hl font-zen font-bold text-5xl md:text-7xl lg:text-[88px] leading-[0.92] text-washi mb-3 overflow-hidden">
               qui unit
             </h1>
-            <h1 className="hero-hl font-cormorant font-light italic text-5xl md:text-7xl lg:text-[88px] leading-[0.92] text-kincha mb-8 overflow-hidden">
+            <h1 className="hero-hl font-zen font-bold text-5xl md:text-7xl lg:text-[88px] leading-[0.92] text-kin mb-8 overflow-hidden">
               deux mondes.
             </h1>
           </div>
@@ -137,7 +150,7 @@ export function Hero() {
             initial="hidden"
             animate="visible"
             custom={0.7}
-            className="font-dm text-sm text-washi/60 leading-relaxed max-w-[440px] mb-10"
+            className="font-dm text-sm text-washi/55 leading-relaxed max-w-[440px] mb-10"
           >
             Trente artisans, designers et producteurs japonais — sélectionnés pour leur excellence
             et leur dialogue avec l&apos;esthétique française.
@@ -154,7 +167,7 @@ export function Hero() {
             <MagneticButton strength={0.25}>
               <TransitionLink
                 href="/creators"
-                className="inline-flex items-center gap-3 bg-washi text-sumi px-8 py-3.5 font-dm text-[12px] tracking-[0.14em] uppercase hover:bg-kincha hover:text-washi transition-colors duration-350"
+                className="inline-flex items-center gap-3 bg-shu text-washi px-8 py-3.5 font-dm text-[12px] tracking-[0.14em] uppercase hover:bg-beni transition-colors duration-350"
               >
                 Découvrir les créateurs
                 <span className="text-[10px]">→</span>
@@ -164,7 +177,7 @@ export function Hero() {
             <MagneticButton strength={0.2}>
               <TransitionLink
                 href="/products"
-                className="font-dm text-[12px] tracking-[0.1em] uppercase text-washi/50 hover:text-washi transition-colors border-b border-washi/20 hover:border-washi pb-0.5"
+                className="font-dm text-[12px] tracking-[0.1em] uppercase text-washi/45 hover:text-washi transition-colors border-b border-washi/20 hover:border-washi pb-0.5"
               >
                 Boutique
               </TransitionLink>
@@ -177,7 +190,7 @@ export function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.1, duration: 0.6 }}
-          className="mt-16 flex items-start gap-8 border-t border-washi/15 pt-6"
+          className="mt-16 flex items-start gap-8 border-t border-washi/10 pt-6"
         >
           {[
             { num: '30', label: 'créateurs\nsélectionnés' },
@@ -187,8 +200,8 @@ export function Hero() {
             <div key={i} className="flex items-start gap-3">
               {i > 0 && <span className="text-washi/15 mt-1">·</span>}
               <div>
-                <p className="font-cormorant text-2xl text-washi leading-none">{num}</p>
-                <p className="font-dm text-[9px] tracking-[0.06em] text-washi/40 mt-1 whitespace-pre-line leading-relaxed">
+                <p className="font-zen text-2xl text-washi leading-none">{num}</p>
+                <p className="font-dm text-[9px] tracking-[0.06em] text-washi/35 mt-1 whitespace-pre-line leading-relaxed">
                   {label}
                 </p>
               </div>

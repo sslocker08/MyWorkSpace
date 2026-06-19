@@ -30,7 +30,7 @@ const concepts = [
   },
 ]
 
-// ─── Mobile: vertical layout with enhanced scroll animations ────────────────
+// ─── Mobile: vertical layout ────────────────────────────────────────────────
 
 function ConceptItemMobile({ item, index }: { item: (typeof concepts)[0]; index: number }) {
   const ref = useRef(null)
@@ -40,7 +40,7 @@ function ConceptItemMobile({ item, index }: { item: (typeof concepts)[0]; index:
   return (
     <div
       ref={ref}
-      className={`grid grid-cols-1 lg:grid-cols-2 gap-0 items-stretch min-h-[480px]`}
+      className={`grid grid-cols-1 lg:grid-cols-2 gap-0 items-stretch min-h-[480px] border-t border-sumi/10`}
     >
       <motion.div
         initial={{ opacity: 0, x: isEven ? -40 : 40 }}
@@ -53,12 +53,17 @@ function ConceptItemMobile({ item, index }: { item: (typeof concepts)[0]; index:
         <img
           src={item.ukiyoe}
           alt=""
-          className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-multiply"
+          className="absolute inset-0 w-full h-full object-cover opacity-70"
         />
-        <div className="absolute inset-0 bg-sumi/30" />
-        <p className="absolute bottom-6 right-8 font-cormorant text-[80px] leading-none text-washi/10 select-none">
+        <div className="absolute inset-0 bg-sumi/40" />
+        {/* Number watermark */}
+        <p className="absolute bottom-6 right-8 font-zen font-bold text-[80px] leading-none text-washi/8 select-none">
           {item.num}
         </p>
+        {/* 朱 number tag */}
+        <div className="absolute top-6 left-6">
+          <span className="font-dm text-[10px] tracking-[0.22em] text-shu">{item.num}</span>
+        </div>
       </motion.div>
 
       <motion.div
@@ -69,10 +74,11 @@ function ConceptItemMobile({ item, index }: { item: (typeof concepts)[0]; index:
           isEven ? 'lg:order-2' : 'lg:order-1'
         }`}
       >
-        <p className="font-dm text-[10px] tracking-[0.22em] uppercase text-brume mb-4">
-          {item.num} · {item.title.ja}
+        <p className="font-noto text-xs text-shu mb-2">{item.title.ja}</p>
+        <p className="font-dm text-[9px] tracking-[0.22em] uppercase text-sumi/30 mb-4">
+          {item.num}
         </p>
-        <h3 className="font-cormorant font-light italic text-4xl md:text-5xl text-sumi mb-6 leading-[1.1]">
+        <h3 className="font-zen font-bold text-4xl md:text-5xl text-sumi mb-6 leading-[1.1]">
           {item.title.fr}
         </h3>
         <p className="font-dm text-sm text-sumi/60 leading-relaxed max-w-[400px]">{item.body}</p>
@@ -96,7 +102,6 @@ function ConceptScrollDesktop() {
 
     const ctx = gsap.context(() => {
       gsap.to(trackRef.current, {
-        // Move track left so each successive 100vw-wide panel is revealed
         x: () => -(trackRef.current!.offsetWidth - window.innerWidth),
         ease: 'none',
         scrollTrigger: {
@@ -147,24 +152,30 @@ function ConceptScrollDesktop() {
                   <img
                     src={item.ukiyoe}
                     alt=""
-                    className="absolute inset-0 w-full h-full object-cover opacity-55 mix-blend-multiply"
+                    className="absolute inset-0 w-full h-full object-cover opacity-70"
                   />
                   <div className="absolute inset-0 bg-sumi/35" />
-                  <p className="absolute bottom-10 right-12 font-cormorant text-[130px] leading-none text-washi/8 select-none pointer-events-none">
+                  {/* Large ghost number */}
+                  <p className="absolute bottom-10 right-12 font-zen font-bold text-[130px] leading-none text-washi/6 select-none pointer-events-none">
                     {item.num}
                   </p>
+                  {/* 朱 number label */}
+                  <div className="absolute top-10 left-10">
+                    <span className="font-dm text-[11px] tracking-[0.28em] text-shu">{item.num}</span>
+                  </div>
                 </div>
 
                 {/* Text side */}
                 <div
-                  className={`bg-washi flex flex-col justify-center px-16 xl:px-24 py-20 ${
+                  className={`bg-washi flex flex-col justify-center px-16 xl:px-24 py-20 border-l border-sumi/10 ${
                     isEven ? 'order-2' : 'order-1'
                   }`}
                 >
-                  <p className="font-dm text-[10px] tracking-[0.24em] uppercase text-brume mb-5">
-                    {item.num} · {item.title.ja}
+                  <p className="font-noto text-sm text-shu mb-2">{item.title.ja}</p>
+                  <p className="font-dm text-[9px] tracking-[0.28em] uppercase text-sumi/25 mb-5">
+                    {item.num} — Notre Philosophie
                   </p>
-                  <h3 className="font-cormorant font-light italic text-5xl xl:text-6xl text-sumi mb-6 leading-[1.1]">
+                  <h3 className="font-zen font-bold text-5xl xl:text-6xl text-sumi mb-6 leading-[1.05]">
                     {item.title.fr}
                   </h3>
                   <p className="font-dm text-sm text-sumi/60 leading-relaxed max-w-[420px]">
@@ -176,7 +187,7 @@ function ConceptScrollDesktop() {
           })}
         </div>
 
-        {/* Progress dots — float above the track */}
+        {/* Progress dots */}
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-3 z-10">
           {concepts.map((_, i) => (
             <div
@@ -208,7 +219,7 @@ export function ConceptScroll() {
           initial={{ opacity: 0 }}
           animate={labelInView ? { opacity: 1 } : {}}
           transition={{ duration: 0.5 }}
-          className="font-dm text-[10px] tracking-[0.22em] uppercase text-kincha"
+          className="font-dm text-[10px] tracking-[0.22em] uppercase text-shu"
         >
           Notre philosophie
         </motion.span>

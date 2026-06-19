@@ -40,8 +40,11 @@ export default function ProductsPage() {
     <>
       {/* Header */}
       <section className="pt-32 md:pt-40 pb-16 max-w-[1400px] mx-auto px-6 md:px-12">
-        <p className="font-dm text-[10px] tracking-[0.22em] uppercase text-brume mb-4">Boutique · 商品一覧</p>
-        <h1 className="font-cormorant font-light italic text-5xl md:text-7xl text-sumi mb-6">
+        <div className="flex items-center gap-3 mb-4">
+          <span className="font-noto text-xs text-shu">商品一覧</span>
+          <span className="font-dm text-[9px] tracking-[0.22em] uppercase text-sumi/25">Boutique</span>
+        </div>
+        <h1 className="font-zen font-bold text-5xl md:text-7xl text-sumi mb-6">
           Les créations.
         </h1>
         <p className="font-dm text-sm text-sumi/50 max-w-[440px] leading-relaxed">
@@ -64,7 +67,7 @@ export default function ProductsPage() {
                 {cat.label}
               </button>
             ))}
-            <span className="ml-auto font-dm text-[11px] text-brume">
+            <span className="ml-auto font-dm text-[11px] text-kiri">
               {filtered.length} pièces
             </span>
           </div>

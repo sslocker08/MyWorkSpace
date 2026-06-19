@@ -11,11 +11,8 @@ export function Intro({ onComplete }: IntroProps) {
   const [phase, setPhase] = useState<0 | 1 | 2>(0)
 
   useEffect(() => {
-    // Phase 0 → 1: show kanji + tagline after 300ms
     const t1 = setTimeout(() => setPhase(1), 300)
-    // Phase 1 → 2: start exit after 2.5s
     const t2 = setTimeout(() => setPhase(2), 2800)
-    // Unmount after exit animation
     const t3 = setTimeout(onComplete, 3600)
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
   }, [onComplete])
@@ -38,8 +35,7 @@ export function Intro({ onComplete }: IntroProps) {
             className="relative mb-6"
           >
             <p className="font-noto text-[120px] md:text-[180px] text-washi leading-none select-none">絆</p>
-            {/* Glow behind */}
-            <div className="absolute inset-0 blur-3xl bg-kincha/15 -z-10 scale-150" />
+            <div className="absolute inset-0 blur-3xl bg-kin/15 -z-10 scale-150" />
           </motion.div>
 
           {/* French tagline */}
@@ -47,7 +43,7 @@ export function Intro({ onComplete }: IntroProps) {
             initial={{ opacity: 0, y: 12 }}
             animate={phase >= 1 ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.65, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="font-cormorant italic text-xl md:text-2xl text-washi/70 tracking-wide"
+            className="font-zen text-xl md:text-2xl text-washi/70 tracking-wide"
           >
             Le lien entre deux mondes.
           </motion.p>
@@ -67,7 +63,7 @@ export function Intro({ onComplete }: IntroProps) {
             initial={{ scaleX: 0 }}
             animate={phase >= 1 ? { scaleX: 1 } : {}}
             transition={{ duration: 1.2, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute bottom-12 left-1/2 -translate-x-1/2 w-[120px] h-px bg-washi/20 origin-left"
+            className="absolute bottom-12 left-1/2 -translate-x-1/2 w-[120px] h-px bg-kin/30 origin-left"
           />
         </motion.div>
       )}

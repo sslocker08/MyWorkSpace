@@ -20,8 +20,9 @@ export function CreatorInterview({ creator }: Props) {
         transition={{ duration: 0.4 }}
         className="flex items-center gap-6 mb-12"
       >
-        <span className="font-dm text-[10px] tracking-[0.22em] uppercase text-brume">
-          Entretien · インタビュー
+        <span className="font-noto text-xs text-shu">インタビュー</span>
+        <span className="font-dm text-[9px] tracking-[0.22em] uppercase text-sumi/25">
+          Entretien
         </span>
         <span className="flex-1 h-px bg-sumi/10" />
       </motion.div>
@@ -36,11 +37,11 @@ export function CreatorInterview({ creator }: Props) {
             className="mb-10 pb-10 border-b border-sumi/8 last:border-0"
           >
             {/* Question */}
-            <p className="font-dm text-xs tracking-[0.06em] text-brume mb-4">
+            <p className="font-dm text-xs tracking-[0.06em] text-kiri mb-4">
               — {item.q}
             </p>
             {/* Answer FR */}
-            <p className="font-cormorant italic text-2xl md:text-3xl text-sumi leading-relaxed mb-3">
+            <p className="font-zen text-2xl md:text-3xl text-sumi leading-relaxed mb-3">
               &laquo; {item.a.fr} &raquo;
             </p>
             {/* Answer JA */}

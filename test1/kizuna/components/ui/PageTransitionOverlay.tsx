@@ -31,7 +31,7 @@ export function PageTransitionOverlay() {
     <div
       ref={overlayRef}
       id="page-transition-overlay"
-      className="fixed inset-0 z-[200] bg-sumi pointer-events-none"
+      className="fixed inset-0 z-[200] bg-ai pointer-events-none"
       style={{ transform: 'scaleY(0)' }}
       aria-hidden="true"
     />

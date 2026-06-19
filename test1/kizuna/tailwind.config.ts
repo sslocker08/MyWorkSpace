@@ -9,18 +9,21 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        washi:  '#F2EBE0',
-        sumi:   '#1A1612',
-        beni:   '#C4464A',
-        kon:    '#2C4470',
-        kincha: '#C08228',
-        take:   '#4A7C59',
-        brume:  '#A9A49C',
+        washi:  '#F5F0E8',  // 和紙
+        sumi:   '#12100E',  // 墨
+        ai:     '#1C3A5E',  // 藍
+        shu:    '#C94B2A',  // 朱
+        kin:    '#B8960C',  // 金
+        asagi:  '#4A8BA8',  // 浅葱
+        beni:   '#9B2335',  // 紅
+        moku:   '#6B5744',  // 木
+        kiri:   '#C8C4BC',  // 霧
       },
       fontFamily: {
-        cormorant: ['var(--font-cormorant)', 'Georgia', 'serif'],
-        dm:        ['var(--font-dm-sans)', 'sans-serif'],
-        noto:      ['var(--font-noto)', 'serif'],
+        zen:      ['var(--font-zen)', 'serif'],
+        shippori: ['var(--font-shippori)', 'serif'],
+        dm:       ['var(--font-dm-sans)', 'sans-serif'],
+        noto:     ['var(--font-noto)', 'serif'],
       },
       transitionDuration: {
         '350': '350ms',
