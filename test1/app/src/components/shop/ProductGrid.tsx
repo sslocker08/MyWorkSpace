@@ -17,6 +17,7 @@ export function ProductGrid({ initialCategory = 'all' }: ProductGridProps) {
     setActive(initialCategory)
   }, [initialCategory])
 
+
   const filtered = useMemo(() => getProductsByCategory(active), [active])
 
   return (
