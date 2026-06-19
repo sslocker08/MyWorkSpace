@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MILLENNIUM PARADE</title>
+  <link rel="stylesheet" href="styles/global.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://esm.sh/three@0.167.1",
+      "three/addons/": "https://esm.sh/three@0.167.1/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <!-- WebGL canvas — fullscreen fixed underneath everything -->
+  <canvas id="gl-canvas"></canvas>
+
+  <!-- Navigation overlay -->
+  <nav id="nav">
+    <a id="logo" href="?p=top">
+      <span id="logo-text" data-i18n="nav.logo">MILLENNIUM PARADE</span>
+    </a>
+    <ul id="nav-links">
+      <li><a href="?p=top"     data-i18n="nav.top">TOP</a></li>
+      <li><a href="?p=works"   data-i18n="nav.works">WORKS</a></li>
+      <li><a href="?p=newtown" data-i18n="nav.newtown">NEW TOWN</a></li>
+      <li><a href="?p=join"    data-i18n="nav.join">JOIN US</a></li>
+    </ul>
+    <button id="lang-toggle" aria-label="Toggle language">EN</button>
+  </nav>
+
+  <!-- Page overlays — each page module populates its own container -->
+  <div id="overlay-top" class="page-overlay" data-page="top">
+    <div class="overlay-inner">
+      <p class="heading-sm" data-i18n="top.label"></p>
+      <h1 class="heading-xl" data-i18n="top.heading"></h1>
+      <p class="body-copy" data-i18n="top.sub"></p>
+    </div>
+  </div>
+
+  <div id="overlay-works" class="page-overlay" data-page="works">
+    <div class="overlay-inner">
+      <p class="heading-sm" data-i18n="works.label"></p>
+      <h2 class="heading-xl" data-i18n="works.heading"></h2>
+      <p class="body-copy" data-i18n="works.sub"></p>
+      <div id="album-meta"></div>
+    </div>
+    <p class="scroll-hint" data-i18n="works.scroll"></p>
+  </div>
+
+  <div id="overlay-newtown" class="page-overlay" data-page="newtown">
+    <div class="overlay-inner">
+      <p class="heading-sm" data-i18n="newtown.label"></p>
+      <h2 class="heading-xl" data-i18n="newtown.heading"></h2>
+      <p class="body-copy" data-i18n="newtown.sub"></p>
+      <p class="body-copy body-copy--sm" data-i18n="newtown.body"></p>
+    </div>
+  </div>
+
+  <div id="overlay-join" class="page-overlay" data-page="join">
+    <div class="overlay-inner">
+      <p class="heading-sm" data-i18n="join.label"></p>
+      <h2 class="heading-xl" data-i18n="join.heading"></h2>
+      <p class="body-copy" data-i18n="join.sub"></p>
+      <p class="body-copy body-copy--sm" data-i18n="join.body"></p>
+      <a href="mailto:join@millennium-parade.jp" class="join-cta" data-i18n="join.cta"></a>
+    </div>
+  </div>
+
+  <!-- Loading screen -->
+  <div id="loading">
+    <div id="loading-inner">
+      <p id="loading-label">MILLENNIUM PARADE</p>
+      <div id="loading-bar"><div id="loading-fill"></div></div>
+    </div>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
