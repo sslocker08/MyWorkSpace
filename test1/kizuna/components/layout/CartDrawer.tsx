@@ -43,8 +43,8 @@ export function CartDrawer() {
               </button>
             </div>
 
-            {/* Items */}
-            <div className="flex-1 overflow-y-auto px-8 py-6">
+            {/* Items — data-lenis-prevent stops Lenis intercepting wheel/touch inside the drawer */}
+            <div className="flex-1 overflow-y-auto px-8 py-6" data-lenis-prevent>
               {items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
                   <p className="font-noto text-4xl text-sumi/10">空</p>

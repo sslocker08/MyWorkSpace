@@ -45,8 +45,13 @@ export function Cursor() {
     const onDown = () => gsap.to(ring, { scale: 0.75, duration: 0.1, overwrite: 'auto' })
     const onUp = () => gsap.to(ring, { scale: 1, duration: 0.4, ease: 'elastic.out(1, 0.5)', overwrite: 'auto' })
 
+    // WeakSet tracks which elements already have listeners so re-running bindHovers
+    // on DOM mutations (cart open/close, page transitions) never attaches duplicates.
+    const bound = new WeakSet<Element>()
     function bindHovers() {
       document.querySelectorAll<Element>('a, button, [data-cursor-hover]').forEach(el => {
+        if (bound.has(el)) return
+        bound.add(el)
         el.addEventListener('mouseenter', onHoverIn)
         el.addEventListener('mouseleave', onHoverOut)
       })
