@@ -2,6 +2,11 @@
 pytest>=8.0
 pytest-asyncio>=0.23
 freezegun>=1.4
+# Realtime event-bus tests run against an in-memory Redis so they need no live
+# server / network. fakeredis implements the redis.asyncio API surface we use
+# (incr/rpush/ltrim/lrange/pubsub/publish). The tests skip or fall back to mocks
+# if fakeredis is not importable, so this stays optional.
+fakeredis>=2.0
 # Mirror the reproducibility pins from requirements.txt (see the comment there):
 # numpy 1.x line + pandas 2.2.x line freeze RNG and rolling/EMA semantics so the
 # test suite is byte-stable across environments. Defense-in-depth; the trigger

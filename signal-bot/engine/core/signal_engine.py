@@ -124,6 +124,7 @@ async def scan_ticker(
             _apply_update(existing, signal)
             await db.commit()
             await db.refresh(existing)
+            await _publish_event(existing, "signal.updated")
             return existing
 
         db.add(signal)
@@ -140,12 +141,30 @@ async def scan_ticker(
                 _apply_update(existing, signal)
                 await db.commit()
                 await db.refresh(existing)
+                await _publish_event(existing, "signal.updated")
                 return existing
             # No row found on retry (e.g. the other txn rolled back) — re-raise.
             raise
         await db.refresh(signal)
+        await _publish_event(signal, "signal.created")
 
     return signal
+
+
+async def _publish_event(signal: Signal, event_type: str) -> None:
+    """Push a committed signal to the realtime SSE backplane.
+
+    MUST never break the scan: a Redis outage (or any publish error) is logged
+    and swallowed so scan_ticker's behavior and return type are unchanged whether
+    or not Redis is up (realtime-live-backend §9). publish_signal is already
+    internally degradation-safe; this extra try/except is belt-and-suspenders.
+    """
+    try:
+        from core.event_bus import publish_signal
+
+        await publish_signal(signal, event_type)
+    except Exception as e:  # noqa: BLE001 - realtime publish must not break a scan
+        logger.warning("Realtime publish failed for %s (ignored): %s", signal.ticker, e)
 
 
 async def _find_active(
@@ -217,4 +236,17 @@ async def scan_universe(
     await asyncio.gather(*[scan_one(t) for t in tickers])
     results.sort(key=lambda s: s.score, reverse=True)
     logger.info(f"Scan complete: {len(results)} signals from {len(tickers)} tickers")
+
+    # Tell live clients the scan finished (lets a dashboard clear a "scanning…"
+    # state). Degradation-safe: a Redis outage must not affect the scan result.
+    try:
+        from core.event_bus import get_event_bus
+
+        await get_event_bus().publish(
+            "scan.completed",
+            {"market": market, "ticker_count": len(tickers), "signal_count": len(results)},
+        )
+    except Exception as e:  # noqa: BLE001 - realtime publish must not break the scan
+        logger.warning("Realtime scan.completed publish failed (ignored): %s", e)
+
     return results

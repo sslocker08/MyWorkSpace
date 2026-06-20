@@ -68,6 +68,21 @@ Each item names the location, why it's acceptable now, and the trigger for fixin
   no live capital. **Fix before**: Phase-5 — calibrate against backtested
   regime-conditional returns; consider confidence-weighted category vote.
 
+### KL-9 — realtime SSE residuals (non-blocking)
+- **Where**: `routes/stream.py`, `core/event_bus.py`.
+- Disconnect detection latency ~15s (bounded by heartbeat) — acceptable for this feed.
+- Double keep-alive (own 15s ping + sse-starlette ping=15) — harmless redundancy.
+- No app-level bounded per-connection queue; backpressure is delegated to uvicorn's
+  TCP socket buffer (adversarial review confirmed this BOUNDS per-connection memory —
+  not an unbounded-growth hazard). A bounded coalescing queue would only improve
+  fairness, not safety.
+- Tests use fakeredis (in-memory); real multi-worker pub/sub fan-out and sse-starlette
+  HTTP framing are not exercised in CI. **Fix before** production: an integration test
+  against a real Redis + multi-worker.
+- seq-space reset blind spot (Redis flush/restart → silent event drop) was CLOSED:
+  `replay_since` now emits RESYNC when last_id > newest buffered seq. A server
+  epoch/run-id prefix on seq would make this fully robust (deferred).
+
 ### KL-7 — rate limiter is per-worker / in-memory
 - **Where**: `routes/scanner.py`. Best-effort, resets on restart, not shared across
   workers. **Fix before** production: move to a Redis-backed limiter (defense-in-depth
