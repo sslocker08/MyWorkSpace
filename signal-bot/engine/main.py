@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from core.config import settings
 from core.database import engine, create_tables
 from core.event_bus import get_event_bus
-from routes import signals, scanner, market_intel, sectors, anomaly, health, stream
+from routes import signals, scanner, market_intel, sectors, anomaly, health, stream, ohlcv
 from scheduler.main import start_scheduler, stop_scheduler
 
 logging.basicConfig(level=settings.log_level)
@@ -57,3 +57,4 @@ app.include_router(market_intel.router, prefix="/api/market-intel", tags=["marke
 app.include_router(sectors.router, prefix="/api/sectors", tags=["sectors"])
 app.include_router(anomaly.router, prefix="/api/anomaly", tags=["anomaly"])
 app.include_router(stream.router, prefix="/api/stream", tags=["stream"])
+app.include_router(ohlcv.router, prefix="/api/ohlcv", tags=["ohlcv"])

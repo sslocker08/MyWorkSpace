@@ -83,6 +83,13 @@ Each item names the location, why it's acceptable now, and the trigger for fixin
   `replay_since` now emits RESYNC when last_id > newest buffered seq. A server
   epoch/run-id prefix on seq would make this fully robust (deferred).
 
+### KL-10 — frontend realtime refetch not debounced
+- **Where**: `web/hooks/useSignalStream.ts`. On `scan.completed`/`resync` the hook
+  REST-refetches rankings; it has a single-in-flight guard but no debounce, so a
+  burst of completed-scan events triggers serial refetches.
+- **Why acceptable now**: each refetch is guarded and cheap; dashboard cadence is low.
+  **Fix before** high-frequency scanning: add a trailing debounce.
+
 ### KL-7 — rate limiter is per-worker / in-memory
 - **Where**: `routes/scanner.py`. Best-effort, resets on restart, not shared across
   workers. **Fix before** production: move to a Redis-backed limiter (defense-in-depth
