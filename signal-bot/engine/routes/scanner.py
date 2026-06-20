@@ -1,10 +1,8 @@
 """Scanner trigger endpoint."""
 import asyncio
 import logging
-from fastapi import APIRouter, BackgroundTasks, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, BackgroundTasks
 
-from core.database import get_db
 from core.signal_engine import scan_universe
 from universe import UniverseManager
 
@@ -18,9 +16,13 @@ _scan_lock = asyncio.Lock()
 async def trigger_scan(
     background_tasks: BackgroundTasks,
     limit: int = 100,
-    db: AsyncSession = Depends(get_db),
 ):
-    """Trigger a manual market scan in the background."""
+    """Trigger a manual market scan in the background.
+
+    The scan runs after this request returns, so it must not borrow the
+    request-scoped DB session (it would already be closed). scan_universe
+    opens its own per-task sessions internally.
+    """
     if _scan_lock.locked():
         return {"status": "busy", "message": "Scan already in progress"}
 
@@ -28,7 +30,7 @@ async def trigger_scan(
         async with _scan_lock:
             try:
                 tickers = await _universe.get_high_priority_tickers(limit)
-                signals = await scan_universe(tickers, db=db)
+                signals = await scan_universe(tickers)
                 logger.info(f"Manual scan complete: {len(signals)} signals")
             except Exception as e:
                 logger.error(f"Scan failed: {e}")

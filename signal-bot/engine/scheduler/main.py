@@ -13,24 +13,24 @@ _scheduler: AsyncIOScheduler = None
 
 async def _run_scan():
     """Periodic scan job."""
-    from core.database import AsyncSessionLocal
     from core.signal_engine import scan_universe
     from universe import UniverseManager
 
     universe = UniverseManager()
     tickers = await universe.get_high_priority_tickers(200)
 
-    async with AsyncSessionLocal() as db:
-        try:
-            signals = await scan_universe(tickers, db=db)
-            logger.info(f"Scheduled scan: {len(signals)} signals from {len(tickers)} tickers")
+    try:
+        # scan_universe opens its own per-task sessions; expire_on_commit=False
+        # keeps the returned Signals' attributes readable after their sessions close.
+        signals = await scan_universe(tickers)
+        logger.info(f"Scheduled scan: {len(signals)} signals from {len(tickers)} tickers")
 
-            # Send Telegram notifications for high-score signals
-            high_score = [s for s in signals if s.score >= 75]
-            if high_score:
-                await _notify_telegram(high_score)
-        except Exception as e:
-            logger.error(f"Scheduled scan failed: {e}")
+        # Send Telegram notifications for high-score signals
+        high_score = [s for s in signals if s.score >= 75]
+        if high_score:
+            await _notify_telegram(high_score)
+    except Exception as e:
+        logger.error(f"Scheduled scan failed: {e}")
 
 
 async def _notify_telegram(signals: list):

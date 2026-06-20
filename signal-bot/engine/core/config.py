@@ -40,9 +40,10 @@ class Settings(BaseSettings):
     # Risk
     portfolio_risk_pct: float = 0.01  # 1% per trade
     atr_sl_multiplier: float = 1.5
-    atr_tp1_multiplier: float = 1.0
-    atr_tp2_multiplier: float = 2.0
-    atr_tp3_multiplier: float = 3.0
+    atr_tp1_multiplier: float = 1.5
+    atr_tp2_multiplier: float = 3.0   # RR (tp2/sl) = 3.0 / 1.5 = 2.0, clears min_risk_reward gate
+    atr_tp3_multiplier: float = 4.5
+    min_risk_reward: float = 1.5      # reject setups below this RR (uses tp2 distance)
 
 
 settings = Settings()

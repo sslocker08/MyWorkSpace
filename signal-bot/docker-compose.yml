@@ -43,6 +43,10 @@ services:
   web:
     build: ./web
     env_file: .env
+    environment:
+      # Inside the Compose network the FastAPI backend is reachable as `engine`,
+      # not localhost — the Next.js rewrite proxy must target the service name.
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://engine:8000}
     depends_on:
       - engine
     ports:

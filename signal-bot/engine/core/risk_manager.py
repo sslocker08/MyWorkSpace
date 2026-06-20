@@ -1,5 +1,6 @@
 """ATR-based risk management: stop loss and take profit levels."""
 from dataclasses import dataclass
+from typing import Optional
 import pandas as pd
 from core.indicators import atr
 from core.config import settings
@@ -77,6 +78,11 @@ class RiskManager:
             position_size_pct=round(position_size_pct, 4),
         )
 
-    def is_valid_setup(self, levels: RiskLevels, min_rr: float = 1.5) -> bool:
-        """Check if the risk/reward meets minimum threshold."""
-        return levels.risk_reward >= min_rr
+    def is_valid_setup(self, levels: RiskLevels, min_rr: Optional[float] = None) -> bool:
+        """Check if the risk/reward meets minimum threshold.
+
+        Falls back to settings.min_risk_reward when min_rr is not provided so the
+        gate stays in sync with the ATR multipliers configured in one place.
+        """
+        threshold = settings.min_risk_reward if min_rr is None else min_rr
+        return levels.risk_reward >= threshold

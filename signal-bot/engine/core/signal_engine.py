@@ -41,6 +41,7 @@ async def scan_ticker(
 
     triggered = []
     confidences = {}
+    directions = {}
     all_indicators = {}
 
     for strategy in ALL_STRATEGIES:
@@ -49,6 +50,7 @@ async def scan_ticker(
             if result.triggered:
                 triggered.append(result.name)
                 confidences[result.name] = result.confidence
+                directions[result.name] = result.direction or "LONG"
                 all_indicators.update(result.indicators)
         except Exception as e:
             logger.warning(f"Strategy {strategy.name} failed on {ticker}: {e}")
@@ -56,9 +58,16 @@ async def scan_ticker(
     if not triggered:
         return None
 
-    # Use direction from first triggered strategy (majority vote if conflicting)
-    long_strategies = [s for s in triggered if confidences.get(s, 0) > 0]
-    direction = "LONG"  # default for phase 1 (long-only strategies)
+    # Derive direction by confidence-weighted vote across triggered strategies.
+    # A bearish (SHORT) signal must not be silently recorded as LONG.
+    long_weight = sum(confidences[s] for s in triggered if directions[s] == "LONG")
+    short_weight = sum(confidences[s] for s in triggered if directions[s] == "SHORT")
+    direction = "SHORT" if short_weight > long_weight else "LONG"
+
+    # Keep only the strategies that agree with the winning direction so the
+    # score, risk levels, and ceiling penalty all reflect a single coherent side.
+    triggered = [s for s in triggered if directions[s] == direction]
+    confidences = {s: confidences[s] for s in triggered}
 
     risk = _risk_mgr.calculate(df, direction)
     if not _risk_mgr.is_valid_setup(risk):
@@ -116,16 +125,33 @@ async def scan_universe(
     market: str = "US",
     ceiling_score: float = 50.0,
     regime: str = "NEUTRAL",
-    db: Optional[AsyncSession] = None,
+    persist: bool = True,
     max_concurrent: int = 20,
 ) -> list[Signal]:
-    """Scan a list of tickers concurrently."""
+    """Scan a list of tickers concurrently.
+
+    Each concurrent task gets its own AsyncSession — an AsyncSession is not safe
+    to share across tasks that commit/refresh in parallel, so we never fan a
+    single session out to the worker pool.
+    """
+    from core.database import AsyncSessionLocal
+
     semaphore = asyncio.Semaphore(max_concurrent)
     results = []
 
     async def scan_one(ticker):
         async with semaphore:
-            signal = await scan_ticker(ticker, market=market, ceiling_score=ceiling_score, regime=regime, db=db)
+            if persist:
+                async with AsyncSessionLocal() as session:
+                    signal = await scan_ticker(
+                        ticker, market=market, ceiling_score=ceiling_score,
+                        regime=regime, db=session,
+                    )
+            else:
+                signal = await scan_ticker(
+                    ticker, market=market, ceiling_score=ceiling_score,
+                    regime=regime, db=None,
+                )
             if signal:
                 results.append(signal)
 
