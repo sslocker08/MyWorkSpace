@@ -70,6 +70,20 @@ Each item names the location, why it's acceptable now, and the trigger for fixin
   degradation path (verified no-raise on a real CBOE 403 + absent deps), NOT that the
   live files have the assumed shapes.
 
+### KL-12 — RRG sector rotation: non-canonical momentum + chart a11y
+- **Where**: `core/sector_rotation.py`, `web/components/sectors/RRGChart.tsx`.
+- RS-Momentum is measured off the raw smoothed-RS pct-change while RS-Ratio uses a
+  rolling z-score — a deliberate hybrid (z-scoring a trending series plateaus and
+  inverts the quadrant; pct-change is monotone in the true relative trend). RRG
+  Research's exact formula is proprietary; quadrant classification is tested correct,
+  but absolute axis numbers are heuristic (MOM_SCALE=100). Calibrate/confirm vs a
+  reference RRG at Phase-5 if exact axis values matter.
+- norm_window shrinks on very short history (<~100 bars) → noisier centering near the
+  MIN_BARS=40 floor; real Polygon/Stooq frames are deep so unlikely to bite.
+- RRGChart: screen-reader summary + per-point <title> + position/text quadrant labels,
+  but NOT keyboard-navigable point-by-point, and no dot label-collision avoidance when
+  sectors cluster near (100,100). **Fix before** accessibility sign-off.
+
 ## Engine (Phase 1, carried)
 
 ### KL-6 — Partial unique index requires migration on existing DBs
