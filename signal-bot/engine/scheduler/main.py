@@ -75,6 +75,25 @@ async def _run_scan():
     except Exception as e:
         logger.error(f"Scheduled scan failed: {e}")
 
+    # Persist a fresh ceiling-score snapshot ONCE per scan. Fully isolated from
+    # the scan flow above: a compute or DB failure here must NOT break the scan
+    # (it is logged and swallowed). We intentionally do NOT feed the computed
+    # ceiling score back into the scan — that keeps the scan flow unchanged and
+    # avoids coupling its outcome to the external macro feeds' availability.
+    try:
+        from core.market_intelligence import MarketIntelligenceEngine
+        from core.database import AsyncSessionLocal
+
+        engine = MarketIntelligenceEngine(data_fetcher=_fetcher)
+        async with AsyncSessionLocal() as session:
+            score = await engine.compute_and_persist(session)
+        logger.info(
+            "Ceiling-score snapshot persisted: %.1f (%s, %d/%d axes)",
+            score.total, score.regime, score.available_axes, len(score.breakdown),
+        )
+    except Exception as e:  # noqa: BLE001 — snapshot is best-effort, never fatal
+        logger.warning(f"Ceiling-score snapshot failed (non-fatal): {e}")
+
 
 async def _notify_telegram(signals: list):
     """Send Telegram notification for high-score signals."""
