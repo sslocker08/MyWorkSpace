@@ -413,6 +413,301 @@ def breakdown_series_df() -> pd.DataFrame:
 
 
 # ---------------------------------------------------------------------------
+# BATCH 5 — TRIGGER-CRITICAL fixtures for the new bidirectional strategies
+# (macd_signal / bollinger_squeeze / adx_trend / volume_surge / rsi_divergence).
+# All analytic / RNG-free; each final-bar gating value is tuned to land
+# COMFORTABLY mid-band (verified numbers in each docstring) so numerical drift
+# across numpy/TA-Lib versions cannot flip the trigger.
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def macd_bull_cross_df() -> pd.DataFrame:
+    """macd_signal LONG trigger — analytic.
+
+    An ACCELERATING decline (keeps MACD line genuinely below the signal line, i.e.
+    histogram negative) for 50 bars, then a sharp 3-bar up-leg so the MACD line
+    crosses ABOVE the signal line EXACTLY on the final bar. (A constant-rate
+    decline flips the histogram positive right at the inflection, so we use an
+    accelerating decline to keep the cross real.)
+
+    Verified final bar: prev (macd-signal) ~= -0.025, curr ~= +0.183 -> a clean
+    bullish cross with comfortable margin on both sides. MACD ~= -3.9 (below zero,
+    so this is a below-zero bullish cross -> direction LONG, no zero-line boost).
+    """
+    n_down, n_up = 50, 3
+    down = -(0.001 + 0.0002 * np.arange(n_down))   # increasingly negative
+    rets = np.concatenate([down, np.full(n_up, 0.012)])
+    close = 100.0 * np.cumprod(1.0 + rets)
+    volume = np.full(len(rets), 1_000_000.0)
+    return _ohlcv_analytic(close, volume)
+
+
+@pytest.fixture
+def macd_bear_cross_df() -> pd.DataFrame:
+    """macd_signal SHORT trigger — analytic. Mirror of macd_bull_cross_df.
+
+    An ACCELERATING rally for 50 bars (MACD line above signal) then a sharp 3-bar
+    down-leg so the MACD line crosses BELOW the signal line EXACTLY on the final
+    bar.
+
+    Verified final bar: prev (macd-signal) ~= +0.025, curr ~= -0.183 -> a clean
+    bearish cross; MACD ~= +3.9 (above zero, below-zero confirm absent).
+    """
+    n_up, n_down = 50, 3
+    up = (0.001 + 0.0002 * np.arange(n_up))        # increasingly positive
+    rets = np.concatenate([up, np.full(n_down, -0.012)])
+    close = 100.0 * np.cumprod(1.0 + rets)
+    volume = np.full(len(rets), 1_000_000.0)
+    return _ohlcv_analytic(close, volume)
+
+
+@pytest.fixture
+def squeeze_breakout_up_df() -> pd.DataFrame:
+    """bollinger_squeeze LONG trigger — analytic.
+
+    A long quiet coil (low-amplitude sinusoid -> contracting BB width near its
+    20-bar low) for 60 bars, then a single sharp +6% close on the final bar that
+    breaks ABOVE the upper band. The squeeze is read on the bar BEFORE the
+    breakout (the breakout bar itself expands the bands).
+
+    Verified final bar: prev_width ~ recent-min width (squeeze True) and
+    close (~106) > upper band (~103) -> fires LONG.
+    """
+    flat = 0.0005 * np.sin(np.arange(60) / 2.0)
+    rets = np.concatenate([flat, np.array([0.06])])
+    close = 100.0 * np.cumprod(1.0 + rets)
+    volume = np.full(len(rets), 1_000_000.0)
+    return _ohlcv_analytic(close, volume, wick=0.001)
+
+
+@pytest.fixture
+def squeeze_breakout_down_df() -> pd.DataFrame:
+    """bollinger_squeeze SHORT trigger — analytic. Mirror of squeeze_breakout_up_df.
+
+    A long quiet coil for 60 bars then a single sharp -6% close on the final bar
+    that breaks BELOW the lower band.
+
+    Verified final bar: squeeze True and close (~94) < lower band (~97) -> SHORT.
+    """
+    flat = 0.0005 * np.sin(np.arange(60) / 2.0)
+    rets = np.concatenate([flat, np.array([-0.06])])
+    close = 100.0 * np.cumprod(1.0 + rets)
+    volume = np.full(len(rets), 1_000_000.0)
+    return _ohlcv_analytic(close, volume, wick=0.001)
+
+
+@pytest.fixture
+def adx_bull_cross_df() -> pd.DataFrame:
+    """adx_trend LONG trigger — analytic.
+
+    A strong 50-bar downtrend builds a high ADX with -DI dominant, then a 12-bar
+    up-leg so +DI crosses ABOVE -DI EXACTLY on the final bar while ADX is still
+    well above 30 and EMA20 has turned up.
+
+    Verified final bar: ADX ~= 61.8 (comfortably > 30), +DI ~= 31.6 just above
+    -DI ~= 27.8 (fresh cross), EMA rising -> fires LONG.
+    """
+    n_down, n_up = 50, 12
+    rets = np.concatenate([np.full(n_down, -0.01), np.full(n_up, 0.009)])
+    close = 100.0 * np.cumprod(1.0 + rets)
+    volume = np.full(len(rets), 1_000_000.0)
+    return _ohlcv_analytic(close, volume, wick=0.003)
+
+
+@pytest.fixture
+def adx_bear_cross_df() -> pd.DataFrame:
+    """adx_trend SHORT trigger — analytic. Mirror of adx_bull_cross_df.
+
+    A strong 50-bar uptrend builds a high ADX with +DI dominant, then an 11-bar
+    down-leg so -DI crosses ABOVE +DI EXACTLY on the final bar while ADX is still
+    well above 30 and EMA20 has turned down.
+
+    Verified final bar: ADX ~= 63.1 (> 30), -DI ~= 31.4 just above +DI ~= 27.5
+    (fresh cross), EMA falling -> fires SHORT.
+    """
+    n_up, n_down = 50, 11
+    rets = np.concatenate([np.full(n_up, 0.01), np.full(n_down, -0.009)])
+    close = 100.0 * np.cumprod(1.0 + rets)
+    volume = np.full(len(rets), 1_000_000.0)
+    return _ohlcv_analytic(close, volume, wick=0.003)
+
+
+@pytest.fixture
+def volume_surge_up_df() -> pd.DataFrame:
+    """volume_surge LONG trigger — analytic.
+
+    A calm baseline (low-amplitude sinusoid price, flat 1M volume) for 39 bars,
+    then a final bar with a ~9x volume spike and an UP close (close > open).
+
+    Verified final bar: volume_zscore ~= 4.2 (comfortably > 3) and close > open
+    -> fires LONG.
+    """
+    n = 40
+    close = 100.0 + 0.5 * np.sin(np.arange(n) / 3.0)
+    close[-1] = close[-2] * 1.03          # up day (close > open == prev close)
+    volume = np.full(n, 1_000_000.0)
+    volume[-1] = 9_000_000.0              # abnormal spike -> z >> 3
+    return _ohlcv_analytic(close, volume, wick=0.001)
+
+
+@pytest.fixture
+def volume_surge_down_df() -> pd.DataFrame:
+    """volume_surge SHORT trigger — analytic. Mirror of volume_surge_up_df.
+
+    A calm baseline then a final bar with a ~9x volume spike and a DOWN close.
+
+    Verified final bar: volume_zscore ~= 4.2 (> 3) and close < open -> fires SHORT.
+    """
+    n = 40
+    close = 100.0 + 0.5 * np.sin(np.arange(n) / 3.0)
+    close[-1] = close[-2] * 0.97          # down day
+    volume = np.full(n, 1_000_000.0)
+    volume[-1] = 9_000_000.0
+    return _ohlcv_analytic(close, volume, wick=0.001)
+
+
+@pytest.fixture
+def bullish_divergence_df() -> pd.DataFrame:
+    """rsi_divergence LONG trigger — analytic. Two real swing lows in the lookback.
+
+    Construction encodes a genuine REGULAR bullish divergence:
+      swing low 1: a sharp 2-bar drop -> price ~92 with RSI pinned ~0 (deep
+        momentum), then a modest bounce that separates the two lows,
+      swing low 2: a longer SHALLOW grind to a LOWER price (~91.2) but with a
+        HIGHER RSI (~28) because the decline is gentle, then a small uptick so the
+        low is a strict local minimum (not the final bar).
+
+    Verified (lookback=20): swing1 (price 92.16, RSI 0.0) vs swing2
+    (price 91.20 LOWER, RSI 28.0 HIGHER) -> bullish=True, bearish=False -> LONG.
+    """
+    segs = [
+        np.full(25, 0.0),       # warmup so RSI(14) is defined
+        np.full(2, -0.04),      # sharp drop -> swing low 1 (low RSI)
+        np.full(3, 0.025),      # modest bounce separates the two lows
+        np.full(7, -0.012),     # shallow grind to a LOWER price (higher RSI)
+        np.full(3, 0.012),      # uptick so swing low 2 is a strict local min
+    ]
+    rets = np.concatenate(segs)
+    close = 100.0 * np.cumprod(1.0 + rets)
+    volume = np.full(len(rets), 1_000_000.0)
+    return _ohlcv_analytic(close, volume, wick=0.002)
+
+
+@pytest.fixture
+def bearish_divergence_df() -> pd.DataFrame:
+    """rsi_divergence SHORT trigger — analytic. Mirror of bullish_divergence_df.
+
+    Two real swing highs: high 1 sharp (RSI ~100), high 2 a HIGHER price reached
+    via a shallow grind so its RSI is LOWER (~71).
+
+    Verified (lookback=20): swing1 (price 108.16, RSI 100.0) vs swing2
+    (price 108.98 HIGHER, RSI 71.3 LOWER) -> bearish=True, bullish=False -> SHORT.
+    """
+    segs = [
+        np.full(25, 0.0),
+        np.full(2, 0.04),       # sharp rally -> swing high 1 (high RSI)
+        np.full(3, -0.025),     # modest dip
+        np.full(7, 0.012),      # shallow grind to a HIGHER price (lower RSI)
+        np.full(3, -0.012),     # downtick so swing high 2 is a strict local max
+    ]
+    rets = np.concatenate(segs)
+    close = 100.0 * np.cumprod(1.0 + rets)
+    volume = np.full(len(rets), 1_000_000.0)
+    return _ohlcv_analytic(close, volume, wick=0.002)
+
+
+# ---------------------------------------------------------------------------
+# BATCH 5 — MULTI-TRADE backtest fixtures (analytic) for the new strategies.
+# Each repeats its trigger MANY times across the series so the forward-walk
+# backtest opens >= 3 positions (non-vacuous bounded-stats tests).
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def macd_waves_df() -> pd.DataFrame:
+    """Alternating up/down drift waves -> repeated MACD signal-line crosses.
+
+    Verified: macd_signal opens ~15 trades.
+    """
+    period, cycles = 24, 10
+    t = np.arange(period * cycles)
+    rets = 0.006 * np.sign(np.sin(2 * np.pi * t / period))
+    close = 100.0 * np.cumprod(1.0 + rets)
+    volume = np.full(len(t), 1_000_000.0)
+    return _ohlcv_analytic(close, volume)
+
+
+@pytest.fixture
+def squeeze_cycles_df() -> pd.DataFrame:
+    """Repeating quiet-coil -> breakout cycles (alternating up/down breakouts) so
+    bollinger_squeeze triggers MANY times.
+
+    Verified: bollinger_squeeze opens ~7 trades.
+    """
+    cycles = 8
+    segs = []
+    for k in range(cycles):
+        segs.append(0.0004 * np.sin(np.arange(25) / 2.0))        # quiet coil
+        segs.append(np.array([0.06 if k % 2 == 0 else -0.06]))  # alt breakout
+        segs.append(0.0004 * np.sin(np.arange(12) / 2.0))        # settle
+    rets = np.concatenate(segs)
+    close = 100.0 * np.cumprod(1.0 + rets)
+    volume = np.full(len(rets), 1_000_000.0)
+    return _ohlcv_analytic(close, volume, wick=0.001)
+
+
+@pytest.fixture
+def adx_reversals_df() -> pd.DataFrame:
+    """Repeating strong trend reversals (alternating 20-bar up/down legs) so a
+    high-ADX +DI/-DI cross recurs and adx_trend triggers MULTIPLE times.
+
+    Verified: adx_trend opens ~5 trades.
+    """
+    cycles = 8
+    segs = [np.full(20, 0.01 if k % 2 == 0 else -0.01) for k in range(cycles)]
+    rets = np.concatenate(segs)
+    close = 100.0 * np.cumprod(1.0 + rets)
+    volume = np.full(len(rets), 1_000_000.0)
+    return _ohlcv_analytic(close, volume, wick=0.003)
+
+
+@pytest.fixture
+def volume_spikes_df() -> pd.DataFrame:
+    """Periodic abnormal volume spikes spaced 25 bars apart (> the 20-bar zscore
+    window AND > hold_bars=10) on a gentle price wave, so each spike re-clears
+    z > 3 and volume_surge triggers MANY times.
+
+    Verified: volume_surge opens ~9 trades (z ~= 4.2 at each spike).
+    """
+    n = 260
+    t = np.arange(n)
+    close = 100.0 + 1.5 * np.sin(t / 6.0)
+    volume = np.full(n, 1_000_000.0)
+    for i in range(40, n, 25):
+        volume[i] = 9_000_000.0
+    return _ohlcv_analytic(close, volume, wick=0.001)
+
+
+@pytest.fixture
+def divergence_cycles_df() -> pd.DataFrame:
+    """Repeating bullish/bearish divergence structures so rsi_divergence triggers
+    MANY times across the series.
+
+    Verified: rsi_divergence opens ~13 trades.
+    """
+    cycles = 8
+    segs = [np.full(25, 0.0)]
+    for k in range(cycles):
+        if k % 2 == 0:  # bullish divergence block
+            segs += [np.full(2, -0.04), np.full(3, 0.025), np.full(7, -0.012), np.full(3, 0.012)]
+        else:           # bearish divergence block
+            segs += [np.full(2, 0.04), np.full(3, -0.025), np.full(7, 0.012), np.full(3, -0.012)]
+    rets = np.concatenate(segs)
+    close = 100.0 * np.cumprod(1.0 + rets)
+    volume = np.full(len(rets), 1_000_000.0)
+    return _ohlcv_analytic(close, volume, wick=0.002)
+
+
+# ---------------------------------------------------------------------------
 # NON-TRIGGER fixtures — used only to prove a strategy does NOT fire, or for
 # indicator-bound sanity. Exact final-bar values are irrelevant, so a seeded RNG
 # wobble is acceptable here (it never satisfies any gate on any numpy version).

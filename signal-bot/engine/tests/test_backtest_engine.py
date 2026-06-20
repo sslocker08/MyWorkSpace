@@ -17,6 +17,11 @@ from strategies.breakout_short import BreakoutShortStrategy
 from strategies.momentum_short import MomentumShortStrategy
 from strategies.reversal_long import ReversalLongStrategy
 from strategies.reversal_short import ReversalShortStrategy
+from strategies.macd_signal import MACDSignalStrategy
+from strategies.bollinger_squeeze import BollingerSqueezeStrategy
+from strategies.adx_trend import ADXTrendStrategy
+from strategies.volume_surge import VolumeSurgeStrategy
+from strategies.rsi_divergence_strat import RSIDivergenceStrategy
 
 
 @pytest.fixture
@@ -107,4 +112,31 @@ def test_reversal_long_backtest_nonvacuous(engine, reversal_swings_df):
 
 def test_reversal_short_backtest_nonvacuous(engine, reversal_swings_df):
     res = engine.run(reversal_swings_df, ReversalShortStrategy(), RiskManager(), hold_bars=10)
+    _assert_nonvacuous(res)
+
+
+# --- BATCH 5: new strategies through the engine on multi-trigger fixtures ----
+
+def test_macd_signal_backtest_nonvacuous(engine, macd_waves_df):
+    res = engine.run(macd_waves_df, MACDSignalStrategy(), RiskManager(), hold_bars=10)
+    _assert_nonvacuous(res)
+
+
+def test_bollinger_squeeze_backtest_nonvacuous(engine, squeeze_cycles_df):
+    res = engine.run(squeeze_cycles_df, BollingerSqueezeStrategy(), RiskManager(), hold_bars=10)
+    _assert_nonvacuous(res)
+
+
+def test_adx_trend_backtest_nonvacuous(engine, adx_reversals_df):
+    res = engine.run(adx_reversals_df, ADXTrendStrategy(), RiskManager(), hold_bars=10)
+    _assert_nonvacuous(res)
+
+
+def test_volume_surge_backtest_nonvacuous(engine, volume_spikes_df):
+    res = engine.run(volume_spikes_df, VolumeSurgeStrategy(), RiskManager(), hold_bars=10)
+    _assert_nonvacuous(res)
+
+
+def test_rsi_divergence_backtest_nonvacuous(engine, divergence_cycles_df):
+    res = engine.run(divergence_cycles_df, RSIDivergenceStrategy(), RiskManager(), hold_bars=10)
     _assert_nonvacuous(res)

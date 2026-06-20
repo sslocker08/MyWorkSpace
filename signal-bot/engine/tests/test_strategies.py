@@ -13,6 +13,12 @@ from strategies.breakout_short import BreakoutShortStrategy
 from strategies.momentum_short import MomentumShortStrategy
 from strategies.reversal_long import ReversalLongStrategy
 from strategies.reversal_short import ReversalShortStrategy
+from strategies.macd_signal import MACDSignalStrategy
+from strategies.bollinger_squeeze import BollingerSqueezeStrategy
+from strategies.adx_trend import ADXTrendStrategy
+from strategies.volume_surge import VolumeSurgeStrategy
+from strategies.rsi_divergence_strat import RSIDivergenceStrategy
+from core.indicators import rsi, rsi_divergence
 
 
 # --- ema_crossover ----------------------------------------------------------
@@ -187,3 +193,167 @@ def test_reversal_short_selective_near_boundary(near_overbought_df):
     # both gates narrowly fail -> reversal_short must NOT fire.
     res = ReversalShortStrategy().evaluate("TEST", near_overbought_df)
     assert res.triggered is False
+
+
+# ===========================================================================
+# BATCH 5 — new bidirectional strategies. Each is tested for BOTH directions on
+# dedicated analytic trigger fixtures (exact direction asserted) plus a no-fire
+# case on a flat/choppy series.
+# ===========================================================================
+
+# --- macd_signal ------------------------------------------------------------
+
+def test_macd_signal_bullish_cross_long(macd_bull_cross_df):
+    res = MACDSignalStrategy().evaluate("TEST", macd_bull_cross_df)
+    assert res.triggered is True
+    assert res.direction == "LONG"
+    assert 0.0 <= res.confidence <= 1.0
+
+
+def test_macd_signal_bearish_cross_short(macd_bear_cross_df):
+    res = MACDSignalStrategy().evaluate("TEST", macd_bear_cross_df)
+    assert res.triggered is True
+    assert res.direction == "SHORT"
+    assert 0.0 <= res.confidence <= 1.0
+
+
+def test_macd_signal_no_trigger_on_flat(flat_df):
+    res = MACDSignalStrategy().evaluate("TEST", flat_df)
+    assert res.triggered is False
+
+
+# --- bollinger_squeeze ------------------------------------------------------
+
+def test_bollinger_squeeze_breakout_up_long(squeeze_breakout_up_df):
+    res = BollingerSqueezeStrategy().evaluate("TEST", squeeze_breakout_up_df)
+    assert res.triggered is True
+    assert res.direction == "LONG"
+    assert 0.0 <= res.confidence <= 1.0
+
+
+def test_bollinger_squeeze_breakout_down_short(squeeze_breakout_down_df):
+    res = BollingerSqueezeStrategy().evaluate("TEST", squeeze_breakout_down_df)
+    assert res.triggered is True
+    assert res.direction == "SHORT"
+    assert 0.0 <= res.confidence <= 1.0
+
+
+def test_bollinger_squeeze_no_trigger_on_flat(flat_df):
+    # flat_df is only 80 bars but never breaks out -> no squeeze breakout.
+    res = BollingerSqueezeStrategy().evaluate("TEST", flat_df)
+    assert res.triggered is False
+
+
+def test_bollinger_squeeze_no_trigger_on_uptrend(uptrend_df):
+    # A steady uptrend has wide, non-contracting bands -> no squeeze.
+    res = BollingerSqueezeStrategy().evaluate("TEST", uptrend_df)
+    assert res.triggered is False
+
+
+# --- adx_trend --------------------------------------------------------------
+
+def test_adx_trend_plus_di_cross_long(adx_bull_cross_df):
+    res = ADXTrendStrategy().evaluate("TEST", adx_bull_cross_df)
+    assert res.triggered is True
+    assert res.direction == "LONG"
+    assert 0.0 <= res.confidence <= 1.0
+
+
+def test_adx_trend_minus_di_cross_short(adx_bear_cross_df):
+    res = ADXTrendStrategy().evaluate("TEST", adx_bear_cross_df)
+    assert res.triggered is True
+    assert res.direction == "SHORT"
+    assert 0.0 <= res.confidence <= 1.0
+
+
+def test_adx_trend_no_trigger_on_flat(flat_df):
+    # A choppy series has weak ADX (no strong trend) -> must NOT fire.
+    res = ADXTrendStrategy().evaluate("TEST", flat_df)
+    assert res.triggered is False
+
+
+# --- volume_surge -----------------------------------------------------------
+
+def test_volume_surge_up_day_long(volume_surge_up_df):
+    res = VolumeSurgeStrategy().evaluate("TEST", volume_surge_up_df)
+    assert res.triggered is True
+    assert res.direction == "LONG"
+    assert 0.0 <= res.confidence <= 1.0
+
+
+def test_volume_surge_down_day_short(volume_surge_down_df):
+    res = VolumeSurgeStrategy().evaluate("TEST", volume_surge_down_df)
+    assert res.triggered is True
+    assert res.direction == "SHORT"
+    assert 0.0 <= res.confidence <= 1.0
+
+
+def test_volume_surge_no_trigger_on_flat(flat_df):
+    # flat_df volume wobbles only slightly -> z-score never exceeds 3.
+    res = VolumeSurgeStrategy().evaluate("TEST", flat_df)
+    assert res.triggered is False
+
+
+# --- rsi_divergence (strategy) ----------------------------------------------
+
+def test_rsi_divergence_bullish_long(bullish_divergence_df):
+    res = RSIDivergenceStrategy().evaluate("TEST", bullish_divergence_df)
+    assert res.triggered is True
+    assert res.direction == "LONG"
+    assert 0.0 <= res.confidence <= 1.0
+
+
+def test_rsi_divergence_bearish_short(bearish_divergence_df):
+    res = RSIDivergenceStrategy().evaluate("TEST", bearish_divergence_df)
+    assert res.triggered is True
+    assert res.direction == "SHORT"
+    assert 0.0 <= res.confidence <= 1.0
+
+
+def test_rsi_divergence_no_trigger_on_clean_uptrend(uptrend_df):
+    # A clean uptrend has no two-swing price/RSI divergence -> must NOT fire.
+    res = RSIDivergenceStrategy().evaluate("TEST", uptrend_df)
+    assert res.triggered is False
+
+
+def test_rsi_divergence_no_trigger_on_flat(flat_df):
+    res = RSIDivergenceStrategy().evaluate("TEST", flat_df)
+    assert res.triggered is False
+
+
+# ===========================================================================
+# Improved rsi_divergence INDICATOR — two-swing slope comparison, selectivity.
+# ===========================================================================
+
+def test_rsi_divergence_indicator_detects_bullish(bullish_divergence_df):
+    close = bullish_divergence_df["close"]
+    rsi_vals = rsi(close, 14)
+    div = rsi_divergence(close, rsi_vals, lookback=20)
+    assert div["bullish"] is True
+    assert div["bearish"] is False
+
+
+def test_rsi_divergence_indicator_detects_bearish(bearish_divergence_df):
+    close = bearish_divergence_df["close"]
+    rsi_vals = rsi(close, 14)
+    div = rsi_divergence(close, rsi_vals, lookback=20)
+    assert div["bearish"] is True
+    assert div["bullish"] is False
+
+
+def test_rsi_divergence_indicator_selective_on_clean_uptrend(uptrend_df):
+    # A clean uptrend (price higher-highs WITH RSI higher-highs) has NO regular
+    # divergence -> both flags must be False (selectivity, not over-firing).
+    close = uptrend_df["close"]
+    rsi_vals = rsi(close, 14)
+    div = rsi_divergence(close, rsi_vals, lookback=20)
+    assert div["bullish"] is False
+    assert div["bearish"] is False
+
+
+def test_rsi_divergence_indicator_selective_on_clean_downtrend(downtrend_df):
+    close = downtrend_df["close"]
+    rsi_vals = rsi(close, 14)
+    div = rsi_divergence(close, rsi_vals, lookback=20)
+    assert div["bullish"] is False
+    assert div["bearish"] is False
