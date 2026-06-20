@@ -544,15 +544,21 @@ class MarketIntelligenceEngine:
     # ------------------------------------------------------------------
     # Persistence
     # ------------------------------------------------------------------
-    async def compute_and_persist(self, db) -> CeilingScore:
-        """Compute the ceiling score and write a MarketIntelSnapshot.
+    async def compute_and_persist(self, db, score: Optional[CeilingScore] = None) -> CeilingScore:
+        """Compute the ceiling score (or persist a pre-computed one) into a snapshot.
 
         The compute step never raises. The DB write is wrapped so a persistence
         error (bad session, schema mismatch, connectivity) is logged and the
         computed score is still returned — persistence failure must NOT crash the
         caller (scheduler / endpoint).
+
+        ``score`` lets a caller that already computed the ceiling BEFORE the scan
+        (to feed it into scoring) reuse that exact score for the snapshot instead
+        of computing it a SECOND time — avoiding a double network/compute round and
+        guaranteeing the persisted snapshot matches what scoring actually used.
         """
-        score = await self.compute_ceiling_score()
+        if score is None:
+            score = await self.compute_ceiling_score()
         try:
             from models.market_intel import MarketIntelSnapshot
 

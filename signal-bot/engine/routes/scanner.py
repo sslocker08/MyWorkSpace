@@ -65,13 +65,57 @@ async def trigger_scan(
                 tickers = await _universe.get_high_priority_tickers(limit)
                 # Compute the regime ONCE before scanning and pass it through.
                 regime = await compute_market_regime(_fetcher)
-                signals = await scan_universe(tickers, regime=regime)
-                logger.info(f"Manual scan complete: {len(signals)} signals (regime={regime})")
+                # Compute the Ceiling Score ONCE before scanning and feed it in.
+                # Degradation-safe: a compute or DB failure NEVER penalizes signals
+                # (failure -> neutral 50 flagged degraded -> neutral ceiling mult).
+                ceiling_score = await _compute_and_persist_ceiling_safe()
+                signals = await scan_universe(
+                    tickers,
+                    ceiling_score=ceiling_score.total,
+                    ceiling_degraded=ceiling_score.degraded,
+                    regime=regime,
+                )
+                logger.info(
+                    f"Manual scan complete: {len(signals)} signals "
+                    f"(regime={regime}, ceiling={ceiling_score.total:.0f}, "
+                    f"degraded={ceiling_score.degraded})"
+                )
             except Exception as e:
                 logger.error(f"Scan failed: {e}")
 
     background_tasks.add_task(run_scan)
     return {"status": "started", "message": f"Scanning {limit} tickers in background"}
+
+
+async def _compute_and_persist_ceiling_safe():
+    """Compute the ceiling score ONCE, persist that SAME score, degrade SAFELY.
+
+    Returns a CeilingScore. Compute and persistence are each fully wrapped so a
+    feed outage or DB error NEVER breaks the scan and NEVER penalizes signals: on
+    a compute failure we return a neutral 50 flagged degraded=True (which the
+    scorer treats as a NEUTRAL ceiling multiplier). The same computed score is
+    persisted (no double compute); a DB error there is logged and swallowed.
+    """
+    from core.market_intelligence import MarketIntelligenceEngine, CeilingScore
+
+    engine = MarketIntelligenceEngine(data_fetcher=_fetcher)
+    try:
+        score = await engine.compute_ceiling_score()
+    except Exception as e:  # noqa: BLE001 — ceiling compute must never break the scan
+        logger.warning(f"Ceiling compute failed; scoring neutrally (degraded): {e}")
+        return CeilingScore(
+            total=50.0, breakdown={}, weights_used={}, available_axes=0, degraded=True,
+        )
+
+    # Persist the SAME score (best-effort; compute_and_persist swallows DB errors).
+    try:
+        from core.database import AsyncSessionLocal
+
+        async with AsyncSessionLocal() as session:
+            await engine.compute_and_persist(session, score=score)
+    except Exception as e:  # noqa: BLE001 — snapshot is best-effort, never fatal
+        logger.warning(f"Ceiling snapshot persist failed (non-fatal): {e}")
+    return score
 
 
 @router.get("/status")

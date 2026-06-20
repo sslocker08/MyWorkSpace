@@ -78,6 +78,7 @@ class SignalScorer:
         strategy_confidences: dict[str, float],
         risk_reward: float,
         ceiling_score: float = 50.0,
+        ceiling_degraded: bool = False,
         sentiment_score: float = 0.0,
         regime: str = "NEUTRAL",
     ) -> ScoreBreakdown:
@@ -91,6 +92,12 @@ class SignalScorer:
             strategy_confidences: {strategy_name: 0-1 confidence}
             risk_reward: risk/reward ratio
             ceiling_score: 0-100, high = market top risk
+            ceiling_degraded: True when the ceiling reading is too thin/unreliable
+                (a <4-axis composite, or a failed/unavailable ceiling feed). When
+                True the ceiling multiplier is NEUTRALIZED to 1.0 regardless of the
+                numeric ceiling_score — a thin, low-confidence ceiling must NOT
+                drive the >70 LONG penalty / SHORT boost. The regime multiplier is
+                unaffected.
             sentiment_score: -1 to +1 (positive = bullish)
         """
         # 1. Strategy hits (max 30 points)
@@ -131,7 +138,15 @@ class SignalScorer:
 
         # 6. Ceiling score adjustment (market-top risk)
         is_long = direction == "LONG"
-        if ceiling_score > 70:  # 天井圏 — heavy penalty for LONG
+        if ceiling_degraded:
+            # Thin/unreliable ceiling (a <4-axis composite or a failed feed): do
+            # NOT act on it. NEUTRALIZE the ceiling multiplier to 1.0 — no LONG
+            # penalty, no SHORT boost — regardless of the numeric ceiling_score, so
+            # a low-confidence reading can never drive the >70 step. Recorded as
+            # ceiling_adjustment=1.0 below for auditability. (The regime multiplier
+            # is computed independently and is unaffected.)
+            ceiling_multiplier = 1.0
+        elif ceiling_score > 70:  # 天井圏 — heavy penalty for LONG
             ceiling_multiplier = 0.5 if is_long else 1.3
         elif ceiling_score > 40:  # 警戒圏
             ceiling_multiplier = 0.75 if is_long else 1.1

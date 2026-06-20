@@ -26,6 +26,7 @@ async def scan_ticker(
     market: str = "US",
     sector: Optional[str] = None,
     ceiling_score: float = 50.0,
+    ceiling_degraded: bool = False,
     regime: str = "NEUTRAL",
     db: Optional[AsyncSession] = None,
 ) -> Optional[Signal]:
@@ -83,6 +84,7 @@ async def scan_ticker(
         strategy_confidences=confidences,
         risk_reward=risk.risk_reward,
         ceiling_score=ceiling_score,
+        ceiling_degraded=ceiling_degraded,
         regime=regime,
     )
 
@@ -202,6 +204,7 @@ async def scan_universe(
     tickers: list[str],
     market: str = "US",
     ceiling_score: float = 50.0,
+    ceiling_degraded: bool = False,
     regime: str = "NEUTRAL",
     persist: bool = True,
     max_concurrent: int = 20,
@@ -223,12 +226,12 @@ async def scan_universe(
                 async with AsyncSessionLocal() as session:
                     signal = await scan_ticker(
                         ticker, market=market, ceiling_score=ceiling_score,
-                        regime=regime, db=session,
+                        ceiling_degraded=ceiling_degraded, regime=regime, db=session,
                     )
             else:
                 signal = await scan_ticker(
                     ticker, market=market, ceiling_score=ceiling_score,
-                    regime=regime, db=None,
+                    ceiling_degraded=ceiling_degraded, regime=regime, db=None,
                 )
             if signal:
                 results.append(signal)

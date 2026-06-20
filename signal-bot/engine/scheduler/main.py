@@ -58,10 +58,25 @@ async def _run_scan():
     regime = await compute_market_regime(_fetcher)
     logger.info(f"Market regime for this scan: {regime}")
 
+    # Compute the Ceiling Score ONCE per scan, BEFORE scanning, so it can be fed
+    # into the scorer (and the SAME computed score is persisted below — no double
+    # compute). Fully degradation-safe: a compute failure NEVER penalizes signals
+    # — we fall back to a neutral 50 flagged degraded=True, which neutralizes the
+    # ceiling multiplier in the scorer rather than acting on a missing feed.
+    from core.market_intelligence import MarketIntelligenceEngine
+
+    ceiling_engine = MarketIntelligenceEngine(data_fetcher=_fetcher)
+    ceiling_score = await _compute_ceiling_safe(ceiling_engine)
+
     try:
         # scan_universe opens its own per-task sessions; expire_on_commit=False
         # keeps the returned Signals' attributes readable after their sessions close.
-        signals = await scan_universe(tickers, regime=regime)
+        signals = await scan_universe(
+            tickers,
+            ceiling_score=ceiling_score.total,
+            ceiling_degraded=ceiling_score.degraded,
+            regime=regime,
+        )
         logger.info(f"Scheduled scan: {len(signals)} signals from {len(tickers)} tickers")
 
         # freshness SLI: stamp completion + count so readiness can flag staleness.
@@ -75,24 +90,41 @@ async def _run_scan():
     except Exception as e:
         logger.error(f"Scheduled scan failed: {e}")
 
-    # Persist a fresh ceiling-score snapshot ONCE per scan. Fully isolated from
-    # the scan flow above: a compute or DB failure here must NOT break the scan
-    # (it is logged and swallowed). We intentionally do NOT feed the computed
-    # ceiling score back into the scan — that keeps the scan flow unchanged and
-    # avoids coupling its outcome to the external macro feeds' availability.
+    # Persist the SAME ceiling score we already computed before the scan (no
+    # double compute / no second network round). Fully isolated from the scan: a
+    # DB failure here is logged and swallowed (compute_and_persist is internally
+    # best-effort), so persistence can never break the scan.
     try:
-        from core.market_intelligence import MarketIntelligenceEngine
         from core.database import AsyncSessionLocal
 
-        engine = MarketIntelligenceEngine(data_fetcher=_fetcher)
         async with AsyncSessionLocal() as session:
-            score = await engine.compute_and_persist(session)
+            await ceiling_engine.compute_and_persist(session, score=ceiling_score)
         logger.info(
-            "Ceiling-score snapshot persisted: %.1f (%s, %d/%d axes)",
-            score.total, score.regime, score.available_axes, len(score.breakdown),
+            "Ceiling-score snapshot persisted: %.1f (%s, %d/%d axes, degraded=%s)",
+            ceiling_score.total, ceiling_score.regime, ceiling_score.available_axes,
+            len(ceiling_score.breakdown), ceiling_score.degraded,
         )
     except Exception as e:  # noqa: BLE001 — snapshot is best-effort, never fatal
         logger.warning(f"Ceiling-score snapshot failed (non-fatal): {e}")
+
+
+async def _compute_ceiling_safe(engine) -> "object":
+    """Compute the ceiling score, degrading SAFELY on any failure.
+
+    compute_ceiling_score is documented never to raise, but we still wrap it: if
+    the ceiling feed is entirely down (or any unexpected error escapes), return a
+    neutral CeilingScore flagged degraded=True so the scorer NEUTRALIZES the
+    ceiling multiplier. A failed ceiling feed must NEVER penalize signals.
+    """
+    from core.market_intelligence import CeilingScore
+
+    try:
+        return await engine.compute_ceiling_score()
+    except Exception as e:  # noqa: BLE001 — ceiling compute must never break the scan
+        logger.warning(f"Ceiling-score compute failed; scoring neutrally (degraded): {e}")
+        return CeilingScore(
+            total=50.0, breakdown={}, weights_used={}, available_axes=0, degraded=True,
+        )
 
 
 async def _notify_telegram(signals: list):

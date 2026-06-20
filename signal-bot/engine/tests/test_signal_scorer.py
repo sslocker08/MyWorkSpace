@@ -223,3 +223,82 @@ def test_regime_determinism(scorer, uptrend_df):
     a = _rscore(scorer, uptrend_df, "LONG", TREND_LONG, "HIGH_VOL")
     b = _rscore(scorer, uptrend_df, "LONG", TREND_LONG, "HIGH_VOL")
     assert a == b
+
+
+# ---------------------------------------------------------------------------
+# Degraded ceiling neutralization. A thin/unreliable ceiling (a <4-axis
+# composite, or a failed feed) MUST NOT drive the >70 LONG penalty / SHORT boost.
+# When ceiling_degraded=True the ceiling multiplier is NEUTRAL 1.0 regardless of
+# the numeric ceiling_score, so a missing/low-confidence feed never penalizes a
+# LONG nor boosts a SHORT. The regime multiplier is unaffected.
+# ---------------------------------------------------------------------------
+
+def _dscore(scorer, df, direction, ceiling, degraded, regime="NEUTRAL"):
+    return scorer.score(
+        ticker="TEST",
+        df=df,
+        direction=direction,
+        triggered_strategies=["momentum_long", "ema_crossover"],
+        strategy_confidences={"momentum_long": 0.8, "ema_crossover": 0.7},
+        risk_reward=2.0,
+        ceiling_score=ceiling,
+        ceiling_degraded=degraded,
+        sentiment_score=0.5,
+        regime=regime,
+    )
+
+
+def test_degraded_high_ceiling_does_not_penalize_long(scorer, uptrend_df):
+    """ceiling_degraded=True at a high ceiling (90) must NEUTRALIZE the LONG
+    penalty: ceiling_adjustment==1.0 and the total is UNPENALIZED vs the same
+    high ceiling WITHOUT degrade (which IS halved)."""
+    degraded = _dscore(scorer, uptrend_df, "LONG", ceiling=90.0, degraded=True)
+    penalized = _dscore(scorer, uptrend_df, "LONG", ceiling=90.0, degraded=False)
+
+    assert degraded.ceiling_adjustment == pytest.approx(1.0, abs=1e-6)
+    assert penalized.ceiling_adjustment == pytest.approx(0.5, abs=1e-6)  # >70 LONG penalty
+    # Degraded LONG must NOT be halved -> strictly higher than the penalized one.
+    assert degraded.total > penalized.total
+    # And it must equal the unpenalized (safe-zone, mult 1.0) LONG with same regime.
+    safe = _dscore(scorer, uptrend_df, "LONG", ceiling=30.0, degraded=False)
+    assert degraded.total == pytest.approx(safe.total, abs=1e-6)
+
+
+def test_degraded_low_ceiling_no_short_change(scorer, uptrend_df):
+    """ceiling_degraded=True with a low ceiling (20) must also be NEUTRAL 1.0 on
+    the SHORT side: no SHORT boost/cut from the ceiling either. Non-degraded at
+    ceiling 20 (<40) gives SHORT a 0.9 multiplier; degraded must be 1.0."""
+    degraded = _dscore(scorer, uptrend_df, "SHORT", ceiling=20.0, degraded=True)
+    non_degraded = _dscore(scorer, uptrend_df, "SHORT", ceiling=20.0, degraded=False)
+
+    assert degraded.ceiling_adjustment == pytest.approx(1.0, abs=1e-6)
+    assert non_degraded.ceiling_adjustment == pytest.approx(0.9, abs=1e-6)  # <40 SHORT cut
+    # Neutral 1.0 > 0.9 cut -> degraded SHORT scores strictly higher.
+    assert degraded.total > non_degraded.total
+
+
+def test_degraded_high_ceiling_no_short_boost(scorer, uptrend_df):
+    """A degraded high ceiling must NOT boost a SHORT either (no >70 x1.3)."""
+    degraded = _dscore(scorer, uptrend_df, "SHORT", ceiling=90.0, degraded=True)
+    boosted = _dscore(scorer, uptrend_df, "SHORT", ceiling=90.0, degraded=False)
+
+    assert degraded.ceiling_adjustment == pytest.approx(1.0, abs=1e-6)
+    assert boosted.ceiling_adjustment == pytest.approx(1.3, abs=1e-6)  # >70 SHORT boost
+    assert degraded.total < boosted.total  # no boost -> strictly lower
+
+
+def test_degraded_default_is_false_unchanged(scorer, uptrend_df):
+    """Omitting ceiling_degraded (default False) must reproduce the legacy path
+    byte-for-byte: identical ScoreBreakdown to an explicit degraded=False."""
+    implicit = _score(scorer, uptrend_df, "LONG", ceiling=90.0)  # no degraded kwarg
+    explicit = _dscore(scorer, uptrend_df, "LONG", ceiling=90.0, degraded=False)
+    assert implicit == explicit
+    assert implicit.ceiling_adjustment == pytest.approx(0.5, abs=1e-6)
+
+
+def test_degraded_leaves_regime_multiplier_untouched(scorer, uptrend_df):
+    """Neutralizing the ceiling must NOT touch the regime multiplier: a BULL
+    trend+LONG still earns its 1.10 regime_adjustment even when degraded."""
+    sb = _dscore(scorer, uptrend_df, "LONG", ceiling=90.0, degraded=True, regime="BULL")
+    assert sb.ceiling_adjustment == pytest.approx(1.0, abs=1e-6)
+    assert sb.regime_adjustment == pytest.approx(1.10, abs=1e-6)
