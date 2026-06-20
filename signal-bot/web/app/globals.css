@@ -1,20 +1,39 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap');
+@import './tokens.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --bg: #0d0d0d;
-  --surface: #141414;
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'JetBrains Mono', monospace;
 }
 
-body {
-  background-color: var(--bg);
-  color: #e5e7eb;
-  font-family: 'JetBrains Mono', monospace;
+/* Visible focus ring for keyboard users — instant, token-driven, ≥3:1 contrast.
+   Applied to anything focusable; components may add their own but this is the floor. */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: #141414; }
-::-webkit-scrollbar-thumb { background: #374151; border-radius: 2px; }
+::-webkit-scrollbar-track { background: var(--color-surface); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }
+
+/* Reduced motion — disable framer-motion-style transitions/animations for users
+   who request it. framer-motion respects this via its own reducedMotion config,
+   but we also clamp CSS transitions/animations to near-zero as a hard floor.
+   Components animate transform/opacity only (no layout properties). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

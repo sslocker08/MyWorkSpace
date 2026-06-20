@@ -39,21 +39,26 @@ export default function SignalRanking() {
     <div className="bg-surface border border-border rounded-lg overflow-hidden">
       <div className="px-6 py-4 border-b border-border flex items-center justify-between">
         <h2 className="font-bold text-white">シグナルランキング</h2>
-        <div className="flex gap-2">
+        <div className="flex gap-2" role="group" aria-label="方向フィルター">
           {(['ALL', 'LONG', 'SHORT'] as const).map(f => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-3 py-1 text-xs rounded transition-colors ${
+              aria-pressed={filter === f}
+              className={`px-3 py-1 text-xs rounded transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${
                 filter === f
-                  ? f === 'LONG' ? 'bg-bull text-white' : f === 'SHORT' ? 'bg-bear text-white' : 'bg-accent text-bg'
+                  ? f === 'LONG' ? 'bg-bull text-bg' : f === 'SHORT' ? 'bg-bear text-bg' : 'bg-accent text-bg'
                   : 'bg-border text-muted hover:text-white'
               }`}
             >
-              {f}
+              {f === 'LONG' ? '▲ LONG' : f === 'SHORT' ? '▼ SHORT' : 'ALL'}
             </button>
           ))}
-          <button onClick={fetchSignals} className="px-3 py-1 text-xs rounded bg-border text-muted hover:text-white">↻</button>
+          <button
+            onClick={fetchSignals}
+            aria-label="シグナルを再取得"
+            className="px-3 py-1 text-xs rounded bg-border text-muted hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+          >↻</button>
         </div>
       </div>
 
@@ -62,7 +67,7 @@ export default function SignalRanking() {
       ) : signals.length === 0 ? (
         <div className="p-8 text-center text-muted text-sm">シグナルなし。スキャナーを起動してください。</div>
       ) : (
-        <div className="divide-y divide-border">
+        <div className="divide-y divide-border" aria-live="polite" aria-busy={loading}>
           <AnimatePresence>
             {signals.map((s, i) => (
               <motion.div
@@ -77,10 +82,11 @@ export default function SignalRanking() {
                   <div className="font-bold text-white">{s.ticker}</div>
                   <div className="text-muted text-xs">{s.created_at?.slice(0, 10)}</div>
                 </div>
-                <span className={`px-2 py-0.5 text-xs rounded font-bold ${
+                {/* Direction encoded by glyph + text, not color alone (CVD-safe) */}
+                <span className={`px-2 py-0.5 text-xs rounded font-bold tabular-nums ${
                   s.direction === 'LONG' ? 'bg-bull/20 text-bull' : 'bg-bear/20 text-bear'
                 }`}>
-                  {s.direction}
+                  {s.direction === 'LONG' ? '▲ LONG' : '▼ SHORT'}
                 </span>
                 <div className="flex-1">
                   <div className="text-xs text-muted">

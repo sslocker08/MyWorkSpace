@@ -36,7 +36,7 @@ export default function SignalsPage() {
       {loading ? (
         <div className="text-muted">読込中...</div>
       ) : (
-        <div className="bg-surface border border-border rounded-lg overflow-auto">
+        <div className="bg-surface border border-border rounded-lg overflow-auto" aria-live="polite">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-muted text-xs">
@@ -56,9 +56,10 @@ export default function SignalsPage() {
                 <tr key={s.id} className="hover:bg-border/20 transition-colors">
                   <td className="p-3 font-bold text-white">{s.ticker}</td>
                   <td className="p-3">
+                    {/* Direction encoded by glyph + text, not color alone (CVD-safe) */}
                     <span className={`px-2 py-0.5 rounded text-xs font-bold ${
                       s.direction === 'LONG' ? 'bg-bull/20 text-bull' : 'bg-bear/20 text-bear'
-                    }`}>{s.direction}</span>
+                    }`}>{s.direction === 'LONG' ? '▲ LONG' : '▼ SHORT'}</span>
                   </td>
                   <td className="p-3 text-right">
                     <span className={s.score >= 80 ? 'text-bull' : s.score >= 60 ? 'text-warn' : 'text-white'}>
