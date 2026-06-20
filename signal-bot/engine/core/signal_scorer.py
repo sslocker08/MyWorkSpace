@@ -1,8 +1,57 @@
-"""Signal scoring engine: 0-100 composite score with ceiling adjustment."""
+"""Signal scoring engine: 0-100 composite score with ceiling + regime adjustment."""
 from dataclasses import dataclass
 from typing import Optional
 import pandas as pd
 from core.indicators import adx, volume_ratio, rsi
+
+
+# ---------------------------------------------------------------------------
+# Regime -> strategy thesis (per llm-context-engineering-repo: document the WHY)
+# ---------------------------------------------------------------------------
+# The HMM regime detector (core/market_regime.py) emits BULL / BEAR / NEUTRAL /
+# HIGH_VOL. A market regime does not help or hurt a signal uniformly — it helps
+# or hurts depending on WHAT KIND of edge the signal is exploiting:
+#
+#   * TREND-FOLLOWING strategies (breakouts, momentum, MA/MACD/ADX crosses,
+#     volume surges) make money when a directional move PERSISTS. They thrive in
+#     a clean BULL/BEAR trend aligned with their direction, and they get chopped
+#     up (whipsawed) in range-bound (NEUTRAL) or violent (HIGH_VOL) tape.
+#
+#   * MEAN-REVERSION strategies (reversals, Bollinger squeeze, RSI divergence)
+#     make money when price OVERSHOOTS and snaps back. They work best in
+#     range-bound (NEUTRAL) tape and are weaker when a strong trend keeps running
+#     (the "reversion" never comes, or comes late).
+#
+# So the regime multiplier below is a function of BOTH (a) the dominant category
+# of the triggered strategies and (b) the trade direction relative to the regime:
+#   - reward a trend signal that goes WITH the regime's direction,
+#   - penalize a trend signal that FIGHTS the regime (don't fight the trend),
+#   - in NEUTRAL favor reversion / discount trend (whipsaw risk),
+#   - in HIGH_VOL defend: discount trend hard (unreliable breakouts) and only
+#     mildly trust reversion (volatility is still dangerous), both directions.
+# Unknown / missing regime is a no-op (x1.0) so a data outage cannot distort the
+# score. These factors stack ON TOP of the existing ceiling multiplier; the final
+# score is still clamped to [0, 100].
+
+# Trend-following strategy names (directional-persistence edge).
+TREND_STRATEGIES = frozenset({
+    "ema_crossover",
+    "momentum_long",
+    "momentum_short",
+    "breakout_long",
+    "breakout_short",
+    "macd_signal",
+    "adx_trend",
+    "volume_surge",
+})
+
+# Mean-reversion strategy names (overshoot-and-snap-back edge).
+MEAN_REVERSION_STRATEGIES = frozenset({
+    "reversal_long",
+    "reversal_short",
+    "bollinger_squeeze",
+    "rsi_divergence",
+})
 
 
 @dataclass
@@ -12,7 +61,8 @@ class ScoreBreakdown:
     volume_confirm: float    # max 10
     risk_reward: float       # max 10
     sentiment: float         # max 5
-    ceiling_adjustment: float  # multiplier effect
+    ceiling_adjustment: float  # ceiling (market-top) multiplier effect
+    regime_adjustment: float   # regime-aware multiplier effect
     total: float             # 0-100
 
 
@@ -79,22 +129,22 @@ class SignalScorer:
 
         raw_score = strategy_score + trend_score + vol_score + rr_score + sentiment_pts
 
-        # 6. Ceiling score adjustment (market regime awareness)
+        # 6. Ceiling score adjustment (market-top risk)
         is_long = direction == "LONG"
         if ceiling_score > 70:  # 天井圏 — heavy penalty for LONG
-            multiplier = 0.5 if is_long else 1.3
+            ceiling_multiplier = 0.5 if is_long else 1.3
         elif ceiling_score > 40:  # 警戒圏
-            multiplier = 0.75 if is_long else 1.1
+            ceiling_multiplier = 0.75 if is_long else 1.1
         else:  # 安全圏
-            multiplier = 1.0 if is_long else 0.9  # slightly reduce SHORT in bull market
+            ceiling_multiplier = 1.0 if is_long else 0.9  # slightly reduce SHORT in bull market
 
-        # Regime bonus
-        if regime == "BULL" and is_long:
-            multiplier *= 1.1
-        elif regime == "BEAR" and not is_long:
-            multiplier *= 1.1
+        # 7. Regime-aware adjustment (stacks ON TOP of the ceiling multiplier).
+        regime_multiplier = self._regime_multiplier(regime, triggered_strategies, is_long)
 
-        final_score = min(round(raw_score * multiplier, 1), 100.0)
+        multiplier = ceiling_multiplier * regime_multiplier
+        # raw_score is non-negative, so the lower bound is naturally >= 0; the
+        # explicit min() clamps the upper bound to 100. max(.., 0.0) is defensive.
+        final_score = max(min(round(raw_score * multiplier, 1), 100.0), 0.0)
 
         return ScoreBreakdown(
             strategy_hits=round(strategy_score, 1),
@@ -102,6 +152,51 @@ class SignalScorer:
             volume_confirm=round(vol_score, 1),
             risk_reward=round(rr_score, 1),
             sentiment=round(sentiment_pts, 1),
-            ceiling_adjustment=round(multiplier, 3),
+            ceiling_adjustment=round(ceiling_multiplier, 3),
+            regime_adjustment=round(regime_multiplier, 3),
             total=final_score,
         )
+
+    @staticmethod
+    def _dominant_category(triggered_strategies: list[str]) -> str:
+        """Return "trend" or "mean_reversion" — whichever set holds the MAJORITY
+        of the triggered strategies. Ties (equal counts, incl. the empty list)
+        resolve to "trend" per the design (trend is the conservative default for
+        this engine, which is dominated by trend strategies).
+
+        Strategies in neither set are ignored for the majority vote.
+        """
+        trend = sum(1 for s in triggered_strategies if s in TREND_STRATEGIES)
+        reversion = sum(1 for s in triggered_strategies if s in MEAN_REVERSION_STRATEGIES)
+        return "mean_reversion" if reversion > trend else "trend"
+
+    @classmethod
+    def _regime_multiplier(
+        cls, regime: str, triggered_strategies: list[str], is_long: bool
+    ) -> float:
+        """Regime-aware multiplier from BOTH the dominant strategy category AND
+        the trade direction. See the module-level thesis for the WHY.
+
+        Unknown / missing regime -> 1.0 (no-op, safe default).
+        """
+        category = cls._dominant_category(triggered_strategies)
+        is_trend = category == "trend"
+
+        if regime == "BULL":
+            if is_trend:
+                # WITH the uptrend = reward; AGAINST = penalize (don't fight it).
+                return 1.10 if is_long else 0.85
+            return 0.95  # reversion weaker in a strong trend
+        if regime == "BEAR":
+            if is_trend:
+                return 1.10 if not is_long else 0.85
+            return 0.95
+        if regime == "NEUTRAL":
+            # Range-bound / choppy: favor reversion, discount trend (whipsaw).
+            return 0.90 if is_trend else 1.10
+        if regime == "HIGH_VOL":
+            # Defensive regime — applies to BOTH directions. Trend breakouts are
+            # unreliable (whipsaw); reversion only slightly favored, vol risky.
+            return 0.80 if is_trend else 0.95
+        # Unknown / missing regime: no-op.
+        return 1.0

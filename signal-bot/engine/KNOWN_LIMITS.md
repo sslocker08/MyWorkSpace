@@ -57,6 +57,17 @@ Each item names the location, why it's acceptable now, and the trigger for fixin
   index on a fresh table. **Fix**: introduce Alembic (planned Phase 2/3) and ship a
   migration that adds the partial index to existing deployments.
 
+### KL-8 — regime-aware scoring multipliers are heuristic, not calibrated
+- **Where**: `core/signal_scorer.py` `_regime_multiplier` (1.10/0.95/0.90/0.85/0.80).
+  Magnitudes encode plausible directionality (BULL favors trend-LONG, NEUTRAL favors
+  reversion, HIGH_VOL defensive) but no historical edge measured to justify the exact
+  sizes. Tie-break is a crude strict-majority vote (ignores confidence-weighting,
+  collapses to "trend" on ties/empty). HIGH_VOL ignores direction (a trend signal
+  aligned with a violent move is penalized as hard as one fighting it).
+- **Why acceptable now**: directionally sound, bounded [0,100], deterministic,
+  no live capital. **Fix before**: Phase-5 — calibrate against backtested
+  regime-conditional returns; consider confidence-weighted category vote.
+
 ### KL-7 — rate limiter is per-worker / in-memory
 - **Where**: `routes/scanner.py`. Best-effort, resets on restart, not shared across
   workers. **Fix before** production: move to a Redis-backed limiter (defense-in-depth
