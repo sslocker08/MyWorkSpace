@@ -19,6 +19,7 @@ node_modules/
 .next/
 out/
 *.log
+*.tsbuildinfo
 
 # Docker
 *.override.yml
