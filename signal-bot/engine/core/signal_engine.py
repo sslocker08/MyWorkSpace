@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from core.data_fetcher import DataFetcher
 from core.signal_scorer import SignalScorer
@@ -113,11 +115,68 @@ async def scan_ticker(
     )
 
     if db:
+        # dedup: scheduler re-scan would duplicate this signal every cycle. If an
+        # ACTIVE signal already exists for the same (ticker, direction, timeframe),
+        # refresh it in place instead of inserting a duplicate. The DB also enforces
+        # this via the partial unique index uq_active_signal as a backstop.
+        existing = await _find_active(db, signal.ticker, signal.direction, signal.timeframe)
+        if existing is not None:
+            _apply_update(existing, signal)
+            await db.commit()
+            await db.refresh(existing)
+            return existing
+
         db.add(signal)
-        await db.commit()
+        try:
+            await db.commit()
+        except IntegrityError:
+            # Race: a concurrent per-task session inserted the same ACTIVE signal
+            # between our SELECT and COMMIT. The unique index rejected us — roll
+            # back and fall back to updating the row the other session created,
+            # so the scan never crashes under the per-task-session concurrency model.
+            await db.rollback()
+            existing = await _find_active(db, signal.ticker, signal.direction, signal.timeframe)
+            if existing is not None:
+                _apply_update(existing, signal)
+                await db.commit()
+                await db.refresh(existing)
+                return existing
+            # No row found on retry (e.g. the other txn rolled back) — re-raise.
+            raise
         await db.refresh(signal)
 
     return signal
+
+
+async def _find_active(
+    db: AsyncSession, ticker: str, direction: str, timeframe: str
+) -> Optional[Signal]:
+    """Return the single ACTIVE signal for this key, if any (dedup lookup)."""
+    stmt = select(Signal).where(
+        Signal.ticker == ticker,
+        Signal.direction == direction,
+        Signal.timeframe == timeframe,
+        Signal.status == SignalStatus.ACTIVE,
+    )
+    result = await db.execute(stmt)
+    return result.scalars().first()
+
+
+def _apply_update(existing: Signal, fresh: Signal) -> None:
+    """Refresh a live ACTIVE signal in place from a freshly computed one (dedup update)."""
+    existing.score = fresh.score
+    existing.strategy_hits = fresh.strategy_hits
+    existing.entry_price = fresh.entry_price
+    existing.stop_loss = fresh.stop_loss
+    existing.tp1 = fresh.tp1
+    existing.tp2 = fresh.tp2
+    existing.tp3 = fresh.tp3
+    existing.risk_reward = fresh.risk_reward
+    existing.regime = fresh.regime
+    existing.ceiling_score = fresh.ceiling_score
+    existing.sector = fresh.sector
+    existing.indicators = fresh.indicators
+    existing.updated_at = datetime.utcnow()
 
 
 async def scan_universe(

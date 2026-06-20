@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 
 from core.database import get_db
-from models.signal import Signal, SignalStatus
+from models.signal import Signal, SignalStatus, Direction, Market
 
 router = APIRouter()
 
@@ -14,10 +14,13 @@ router = APIRouter()
 @router.get("/")
 async def list_signals(
     limit: int = Query(20, ge=1, le=100),
-    direction: Optional[str] = None,
-    market: Optional[str] = None,
-    status: str = "ACTIVE",
-    min_score: float = 0,
+    # web-security: validate every query param against a strict allowlist. Binding
+    # these to the existing enums makes FastAPI reject out-of-allowlist values with
+    # HTTP 422 automatically, so untrusted input never reaches the SQL filter.
+    direction: Optional[Direction] = None,
+    market: Optional[Market] = None,
+    status: SignalStatus = SignalStatus.ACTIVE,
+    min_score: float = Query(0, ge=0, le=100),
     db: AsyncSession = Depends(get_db),
 ):
     stmt = select(Signal).where(Signal.status == status)

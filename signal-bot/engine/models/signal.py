@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import String, Float, DateTime, JSON, Enum as SAEnum, Index
+from sqlalchemy import String, Float, DateTime, JSON, Enum as SAEnum, Index, text
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import UUID
 import enum
@@ -57,4 +57,16 @@ class Signal(Base):
         Index("ix_signals_ticker_created", "ticker", "created_at"),
         Index("ix_signals_score", "score"),
         Index("ix_signals_direction_status", "direction", "status"),
+        # dedup: the scheduler re-scans every 15 min, so the same setup re-triggers
+        # each cycle and would insert a duplicate ACTIVE signal. This partial unique
+        # index enforces at most ONE ACTIVE signal per (ticker, direction, timeframe);
+        # closed signals (HIT_*/EXPIRED) are excluded so history can accumulate.
+        Index(
+            "uq_active_signal",
+            "ticker",
+            "direction",
+            "timeframe",
+            unique=True,
+            postgresql_where=text("status = 'ACTIVE'"),
+        ),
     )
