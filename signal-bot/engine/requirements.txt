@@ -8,8 +8,18 @@ pydantic-settings>=2.0
 pydantic>=2.0
 polygon-api-client>=1.14
 pandas-datareader>=0.10
-pandas>=2.2
-numpy>=1.26
+# --- Pinned for reproducibility (defense-in-depth) --------------------------
+# The trigger-critical test fixtures are RNG-FREE (analytic price paths), so the
+# test suite no longer depends on the numpy random bit-stream. These pins are a
+# BACKSTOP, not the primary fix: numpy.random.default_rng's stream changed across
+# the 1.x -> 2.x boundary, which shifted exact final-bar RSI/volume values and
+# broke version-sensitive trigger tests. We pin to the numpy 1.x line and the
+# pandas 2.2.x line — a self-consistent, TA-Lib-compatible pairing (TA-Lib 0.5.x
+# builds against numpy 1.x ABI; pandas 2.2 requires numpy>=1.23 and <2.1, and
+# pandas 3.0 drops support for numpy 1.x). Keeping both on the older, mutually
+# compatible majors freezes both RNG behavior AND pandas rolling/EMA semantics.
+pandas>=2.2,<2.3
+numpy>=1.26,<2.0
 scipy>=1.13
 ta-lib-python>=0.5
 hmmlearn>=0.3.2

@@ -9,6 +9,10 @@ import pytest
 from strategies.ema_crossover import EMACrossoverStrategy
 from strategies.momentum_long import MomentumLongStrategy
 from strategies.breakout_long import BreakoutLongStrategy
+from strategies.breakout_short import BreakoutShortStrategy
+from strategies.momentum_short import MomentumShortStrategy
+from strategies.reversal_long import ReversalLongStrategy
+from strategies.reversal_short import ReversalShortStrategy
 
 
 # --- ema_crossover ----------------------------------------------------------
@@ -71,4 +75,115 @@ def test_breakout_long_no_trigger_on_long_flat(long_series_df):
     res = BreakoutLongStrategy().evaluate("TEST", long_series_df)
     # Not asserting it must be False in every world, but with no final-bar volume
     # surge the 2x filter should keep it quiet.
+    assert res.triggered is False
+
+
+# --- breakout_short ---------------------------------------------------------
+
+def test_breakout_short_triggers_on_breakdown(breakdown_df):
+    res = BreakoutShortStrategy().evaluate("TEST", breakdown_df)
+    assert res.triggered is True
+    assert res.direction == "SHORT"
+    assert 0.0 <= res.confidence <= 1.0
+
+
+def test_breakout_short_length_gate(flat_df):
+    # flat_df is only 80 bars < 260 -> must not trigger.
+    res = BreakoutShortStrategy().evaluate("TEST", flat_df)
+    assert res.triggered is False
+
+
+def test_breakout_short_no_trigger_on_long_flat(long_series_df):
+    # >260 bars and an uptrend -> no fresh-low/downtrend/volume-surge combo.
+    res = BreakoutShortStrategy().evaluate("TEST", long_series_df)
+    assert res.triggered is False
+
+
+# --- momentum_short ---------------------------------------------------------
+
+def test_momentum_short_triggers_on_moderate_downtrend(momentum_short_df):
+    # Dedicated fixture: a MODERATE downtrend that recently bounced slightly, so
+    # the final-bar RSI sits in the 25-40 band (NOT the single digits a clean
+    # steady downtrend pins it at). downtrend_df is intentionally too steep for
+    # this gate and is used only as a negative case below.
+    res = MomentumShortStrategy().evaluate("TEST", momentum_short_df)
+    assert res.triggered is True
+    assert res.direction == "SHORT"
+    assert 0.0 <= res.confidence <= 1.0
+
+
+def test_momentum_short_no_trigger_on_clean_downtrend(downtrend_df):
+    # A CLEAN steady downtrend pins RSI in single digits (< 25), below the band,
+    # so momentum_short must NOT fire — it targets weak/falling, not crashed.
+    res = MomentumShortStrategy().evaluate("TEST", downtrend_df)
+    assert res.triggered is False
+
+
+def test_momentum_short_no_trigger_on_flat(flat_df):
+    res = MomentumShortStrategy().evaluate("TEST", flat_df)
+    assert res.triggered is False
+
+
+def test_momentum_short_no_trigger_on_uptrend(uptrend_df):
+    res = MomentumShortStrategy().evaluate("TEST", uptrend_df)
+    assert res.triggered is False
+
+
+# --- reversal_long (counter-trend mean-reversion) ---------------------------
+
+def test_reversal_long_triggers_on_oversold(oversold_df):
+    res = ReversalLongStrategy().evaluate("TEST", oversold_df)
+    assert res.triggered is True
+    assert res.direction == "LONG"
+    assert 0.0 <= res.confidence <= 1.0
+
+
+def test_reversal_long_no_trigger_on_flat(flat_df):
+    res = ReversalLongStrategy().evaluate("TEST", flat_df)
+    assert res.triggered is False
+
+
+def test_reversal_long_no_trigger_on_uptrend(uptrend_df):
+    # A clean uptrend is neither oversold nor at the lower band.
+    res = ReversalLongStrategy().evaluate("TEST", uptrend_df)
+    assert res.triggered is False
+
+
+# --- reversal_short (counter-trend mean-reversion) --------------------------
+
+def test_reversal_short_triggers_on_overbought(overbought_df):
+    res = ReversalShortStrategy().evaluate("TEST", overbought_df)
+    assert res.triggered is True
+    assert res.direction == "SHORT"
+    assert 0.0 <= res.confidence <= 1.0
+
+
+def test_reversal_short_no_trigger_on_flat(flat_df):
+    res = ReversalShortStrategy().evaluate("TEST", flat_df)
+    assert res.triggered is False
+
+
+def test_reversal_short_no_trigger_on_downtrend(downtrend_df):
+    # A clean downtrend is neither overbought nor at the upper band.
+    res = ReversalShortStrategy().evaluate("TEST", downtrend_df)
+    assert res.triggered is False
+
+
+# --- reversal SELECTIVITY (boundary) gates -----------------------------------
+# Prove the reversal strategies are SELECTIVE: they must NOT fire when conditions
+# are CLOSE but not met (RSI just on the safe side of the threshold AND close just
+# inside the band). This guards against a "the test only proves an extreme cliff
+# trips it" weakness — an over-eager strategy that fired here would be caught.
+
+def test_reversal_long_selective_near_boundary(near_oversold_df):
+    # RSI ~32.6 (just ABOVE the 30 floor) and close just ABOVE the lower band ->
+    # both gates narrowly fail -> reversal_long must NOT fire.
+    res = ReversalLongStrategy().evaluate("TEST", near_oversold_df)
+    assert res.triggered is False
+
+
+def test_reversal_short_selective_near_boundary(near_overbought_df):
+    # RSI ~69.5 (just BELOW the 70 ceiling) and close just BELOW the upper band ->
+    # both gates narrowly fail -> reversal_short must NOT fire.
+    res = ReversalShortStrategy().evaluate("TEST", near_overbought_df)
     assert res.triggered is False

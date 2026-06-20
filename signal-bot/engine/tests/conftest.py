@@ -1,13 +1,44 @@
 """Deterministic synthetic OHLCV golden fixtures.
 
-WHY deterministic: this is money logic. Every fixture is built with a FIXED numpy
-seed and no wall-clock/now() input, so an indicator or strategy regression shows up
-as a hard test failure rather than as flaky noise. The DatetimeIndex is a fixed,
-ascending business-day range anchored to a constant date (never datetime.now()).
+WHY deterministic — and the contract for TRIGGER-CRITICAL fixtures
+=================================================================
+This is money logic. A strategy that silently stops firing (or starts
+false-firing) must surface as a HARD test failure, not as flaky noise. So every
+fixture is built without any wall-clock / now() input, and the DatetimeIndex is a
+fixed ascending business-day range anchored to a constant date.
 
-Each builder returns a DataFrame with columns open/high/low/close/volume and a
-proper ascending DatetimeIndex. OHLC invariants (low <= open/close <= high) are
-enforced so TA-Lib functions (ATR/ADX) receive valid bars.
+There are two CLASSES of fixture, with different determinism guarantees:
+
+1. TRIGGER-CRITICAL fixtures — the ones whose final bar decides whether a
+   strategy's `triggers` test passes (momentum_short_df, momentum_long via
+   uptrend_df, breakout/breakdown, golden/death cross, oversold/overbought, and
+   the reversal selectivity near-miss fixtures). Their price/volume PATH IS BUILT
+   ANALYTICALLY — explicit constant segments, linear/exponential ramps, and
+   low-amplitude *sinusoid* "noise" (`np.sin`), NEVER `np.random`. The reason is
+   reproducibility ACROSS numpy major versions: `numpy.random.default_rng(seed)`
+   produces a DIFFERENT bit-stream across numpy releases, so the exact final-bar
+   RSI / volume_ratio / EMA values drift and version-sensitive trigger tests
+   break in a newer environment (this is exactly what the adversarial review hit
+   on numpy 2.x). Analytic paths have no such dependency: `np.cumprod(1+rets)`,
+   `np.full`, and `np.sin` are byte-stable functions of their inputs on every
+   numpy version. Each builder is tuned so the gating indicator at iloc[-1] lands
+   COMFORTABLY MID-BAND (not on a cliff), so small numerical differences cannot
+   flip the trigger.
+
+   CONTRACT for trigger-critical fixtures: do NOT introduce `default_rng` (or any
+   RNG) into the bars that determine whether the trigger fires. Deterministic
+   "noise" is allowed ONLY as a fixed explicit array or a low-amplitude sinusoid.
+
+2. NON-TRIGGER fixtures — flat_df / long_series_df / volatile_df are used only to
+   prove a strategy does NOT fire, or to sanity-check indicator bounds. Exact
+   final-bar values are irrelevant there, so for variety these MAY still use a
+   seeded RNG (a flat wobble that never satisfies any gate on any numpy version).
+   Determinism here means "no trigger on any version", which a seeded mean-
+   reverting wobble satisfies structurally.
+
+`requirements.txt` additionally PINS numpy/pandas to stable ranges as a defense-
+in-depth backstop, but Fix 1 (analytic trigger fixtures) is the real solution:
+the trigger tests would hold even if those pins were removed.
 """
 import numpy as np
 import pandas as pd
@@ -22,17 +53,54 @@ def _index(n: int) -> pd.DatetimeIndex:
     return pd.date_range(start=ANCHOR, periods=n, freq="B")
 
 
+def _ohlcv_analytic(close: np.ndarray, volume: np.ndarray, wick: float = 0.004) -> pd.DataFrame:
+    """Build a valid OHLCV frame from an analytic close path — NO RNG.
+
+    This is the builder for TRIGGER-CRITICAL fixtures (see module docstring). The
+    wick is a FIXED fraction (not random), so high/low are a deterministic
+    function of the close path on every numpy version:
+
+        open  = previous close (first bar opens at its own close)
+        high  = max(open, close) * (1 + wick)
+        low   = min(open, close) * (1 - wick)
+
+    which guarantees high >= max(open, close) and low <= min(open, close) so
+    TA-Lib's ATR/ADX always receive valid bars.
+    """
+    close = np.asarray(close, dtype=float)
+    n = len(close)
+    open_ = np.empty(n)
+    open_[0] = close[0]
+    open_[1:] = close[:-1]
+
+    base_hi = np.maximum(open_, close)
+    base_lo = np.minimum(open_, close)
+    high = base_hi * (1.0 + wick)
+    low = base_lo * (1.0 - wick)
+
+    return pd.DataFrame(
+        {
+            "open": open_,
+            "high": high,
+            "low": low,
+            "close": close,
+            "volume": np.asarray(volume, dtype=float),
+        },
+        index=_index(n),
+    )
+
+
 def _ohlcv_from_close(
     close: np.ndarray,
     volume: np.ndarray,
     rng: np.random.Generator,
     wick: float = 0.004,
 ) -> pd.DataFrame:
-    """Build a valid OHLCV frame from a close path.
+    """Build a valid OHLCV frame from a close path, with a seeded-RNG wick.
 
-    open = previous close (first bar opens at its own close); high/low are pushed
-    out from the open/close envelope by a small deterministic wick so that
-    high >= max(open, close) and low <= min(open, close) always hold.
+    Used ONLY by NON-TRIGGER fixtures (flat / long-flat / volatile), where exact
+    final-bar values do not matter — only that no trigger fires. The wick is a
+    small deterministic-per-seed jitter; it never affects whether a gate is met.
     """
     n = len(close)
     open_ = np.empty(n)
@@ -41,14 +109,13 @@ def _ohlcv_from_close(
 
     base_hi = np.maximum(open_, close)
     base_lo = np.minimum(open_, close)
-    # Deterministic positive wick fractions in [wick, 2*wick].
     hi_wick = base_hi * (1.0 + (wick + rng.random(n) * wick))
     lo_wick = base_lo * (1.0 - (wick + rng.random(n) * wick))
 
     high = np.maximum(base_hi, hi_wick)
     low = np.minimum(base_lo, lo_wick)
 
-    df = pd.DataFrame(
+    return pd.DataFrame(
         {
             "open": open_,
             "high": high,
@@ -58,101 +125,326 @@ def _ohlcv_from_close(
         },
         index=_index(n),
     )
-    return df
 
+
+# ---------------------------------------------------------------------------
+# TRIGGER-CRITICAL fixtures (analytic, RNG-free)
+# ---------------------------------------------------------------------------
 
 @pytest.fixture
 def uptrend_df() -> pd.DataFrame:
-    """Clean, low-noise uptrend (~0.3%/bar drift). EMA9>EMA21, rising RSI/MACD.
+    """momentum_long trigger fixture — analytic.
 
-    Sized at 80 bars so momentum_long (needs >=50) has warmed indicators.
+    Sustained moderate uptrend, then a mild pullback, so the final-bar RSI falls
+    from "pinned near 100" back into the 60-75 band while close > EMA20 > EMA50
+    and MACD stays positive. Mirror of momentum_short_df.
+
+    Verified final bar: RSI ~= 62.5, stack up, MACD > 0, vol_ratio ~= 1.46.
     """
-    rng = np.random.default_rng(42)
-    n = 80
-    drift = 0.003
-    noise = rng.normal(0, 0.002, n)
-    rets = drift + noise
+    n = 90
+    len_b = 12      # pullback segment
+    len_c = 4       # final easing segment
+    len_a = n - len_b - len_c
+    seg_a = np.full(len_a, 0.006) + 0.0004 * np.sin(np.arange(len_a) / 3.0)
+    seg_b = np.full(len_b, -0.0025)   # pullback pulls RSI down off the ceiling
+    seg_c = np.full(len_c, 0.0005)    # gentle resume keeps stack up & MACD > 0
+    rets = np.concatenate([seg_a, seg_b, seg_c])
     close = 100.0 * np.cumprod(1.0 + rets)
-    volume = 1_000_000 + rng.integers(0, 50_000, n)
-    return _ohlcv_from_close(close, volume, rng)
+    volume = np.full(n, 1_000_000.0)
+    volume[-1] = 1_500_000.0          # final-bar uptick -> vol_ratio >= 1.0
+    return _ohlcv_analytic(close, volume)
+
+
+@pytest.fixture
+def momentum_short_df() -> pd.DataFrame:
+    """momentum_short trigger fixture — analytic. (Dedicated; NOT downtrend_df.)
+
+    A MODERATE downtrend that recently flattened/bounced slightly. A clean steady
+    downtrend pins RSI in single digits (RSI ~ 0.4 on the old downtrend_df, far
+    below the 25 floor); this path instead declines, then bounces gently for ~12
+    bars, then drifts flat for a few bars, so RSI lifts off single digits into the
+    25-40 band while close < EMA20 < EMA50 (stack still down) and MACD < 0.
+
+    Verified final bar: RSI ~= 34.0 (mid-band), stack down, MACD ~= -0.91,
+    vol_ratio ~= 1.46 (final-bar volume uptick). Mirror of uptrend_df.
+    """
+    n = 90
+    len_b = 12      # gentle bounce lifts RSI off the floor
+    len_c = 4       # final near-flat keeps close just under EMA20
+    len_a = n - len_b - len_c
+    seg_a = np.full(len_a, -0.006) + 0.0004 * np.sin(np.arange(len_a) / 3.0)
+    seg_b = np.full(len_b, 0.0025)    # bounce -> RSI rises into 25-40
+    seg_c = np.full(len_c, -0.0005)   # final easing keeps the EMA stack down
+    rets = np.concatenate([seg_a, seg_b, seg_c])
+    close = 100.0 * np.cumprod(1.0 + rets)
+    volume = np.full(n, 1_000_000.0)
+    volume[-1] = 1_500_000.0          # final-bar volume uptick -> vol_ratio >= 1.0
+    return _ohlcv_analytic(close, volume)
 
 
 @pytest.fixture
 def downtrend_df() -> pd.DataFrame:
-    """Clean downtrend (~-0.3%/bar). Used for death-cross / SHORT cases."""
-    rng = np.random.default_rng(7)
-    n = 80
-    drift = -0.003
-    noise = rng.normal(0, 0.002, n)
-    rets = drift + noise
-    close = 100.0 * np.cumprod(1.0 + rets)
-    volume = 1_000_000 + rng.integers(0, 50_000, n)
-    return _ohlcv_from_close(close, volume, rng)
+    """Clean steady downtrend — used as a NEGATIVE case (momentum_long /
+    reversal_short must NOT fire). Analytic so it is version-stable.
 
+    NOTE: this is intentionally a clean downtrend; its final-bar RSI sits in
+    single digits, so it does NOT satisfy momentum_short's 25-40 band. That is
+    why momentum_short has its own dedicated momentum_short_df.
+    """
+    n = 80
+    rets = np.full(n, -0.003) + 0.0006 * np.sin(np.arange(n) / 4.0)
+    close = 100.0 * np.cumprod(1.0 + rets)
+    volume = np.full(n, 1_000_000.0)
+    return _ohlcv_analytic(close, volume)
+
+
+@pytest.fixture
+def golden_cross_df() -> pd.DataFrame:
+    """ema_crossover trigger fixture (LONG) — analytic.
+
+    Down for 50 bars then up for 10 bars, tuned so EMA9 crosses ABOVE EMA21
+    exactly on the LAST bar, with a final-bar volume surge so vol_ratio >= 1.3.
+
+    Verified: golden cross on iloc[-1] (margin > 0.12 each side), vol_ratio ~1.9.
+    """
+    n_down, n_up = 50, 10
+    rets = np.concatenate([np.full(n_down, -0.004), np.full(n_up, 0.006)])
+    close = 100.0 * np.cumprod(1.0 + rets)
+    n = n_down + n_up
+    volume = np.full(n, 1_000_000.0)
+    volume[-1] = 2_000_000.0
+    return _ohlcv_analytic(close, volume)
+
+
+@pytest.fixture
+def death_cross_df() -> pd.DataFrame:
+    """ema_crossover trigger fixture (SHORT) — analytic. Mirror of golden_cross_df.
+
+    Up for 50 bars then down for 10 bars so EMA9 crosses BELOW EMA21 exactly on
+    the LAST bar, with a final-bar volume surge so vol_ratio >= 1.3.
+    """
+    n_up, n_down = 50, 10
+    rets = np.concatenate([np.full(n_up, 0.004), np.full(n_down, -0.006)])
+    close = 100.0 * np.cumprod(1.0 + rets)
+    n = n_up + n_down
+    volume = np.full(n, 1_000_000.0)
+    volume[-1] = 2_000_000.0
+    return _ohlcv_analytic(close, volume)
+
+
+@pytest.fixture
+def breakout_df() -> pd.DataFrame:
+    """breakout_long trigger fixture — analytic. >=260 bars.
+
+    Steady ~0.25%/bar climb (with a small sinusoid wobble for valid ADX bars) so
+    the last close is a fresh 252-day high, a confirmed ADX uptrend (+DI > -DI,
+    ADX > 25), and a >=2x volume surge on the final bar.
+
+    Verified final bar: pct_of_52w_high ~= 0.997, ADX > 25 with +DI > -DI,
+    vol_ratio ~= 2.7.
+    """
+    n = 300
+    rets = np.full(n, 0.0025) + 0.0006 * np.sin(np.arange(n) / 5.0)
+    close = 50.0 * np.cumprod(1.0 + rets)
+    volume = np.full(n, 1_000_000.0)
+    volume[-1] = 3_000_000.0          # >=2x average -> volume_surge
+    return _ohlcv_analytic(close, volume, wick=0.003)
+
+
+@pytest.fixture
+def breakdown_df() -> pd.DataFrame:
+    """breakout_short trigger fixture — analytic. Mirror of breakout_df. >=260 bars.
+
+    Steady ~-0.25%/bar decline so the last close is a fresh 252-day low, a
+    confirmed ADX downtrend (-DI > +DI, ADX > 25), and a >=2x volume surge on the
+    final bar.
+
+    Verified final bar: pct_of_52w_low ~= 1.003, ADX > 25 with -DI > +DI,
+    vol_ratio ~= 2.7.
+    """
+    n = 300
+    rets = np.full(n, -0.0025) + 0.0006 * np.sin(np.arange(n) / 5.0)
+    close = 200.0 * np.cumprod(1.0 + rets)
+    volume = np.full(n, 1_000_000.0)
+    volume[-1] = 3_000_000.0          # >=2x average -> volume_surge
+    return _ohlcv_analytic(close, volume, wick=0.003)
+
+
+@pytest.fixture
+def oversold_df() -> pd.DataFrame:
+    """reversal_long trigger fixture — analytic. RSI < 30 AND close <= lower BB.
+
+    A quiet base (tight Bollinger band), then a steep accelerating drop to slam
+    RSI deep oversold and push close below the 2-std lower band.
+
+    Verified final bar: RSI ~1.5 (< 30) and close <= lower BB -> fires LONG.
+    """
+    n = 60
+    base = 100.0 + 0.5 * np.sin(np.arange(50) / 4.0)
+    cliff = base[-1] * np.cumprod(1.0 + np.full(10, -0.025))
+    close = np.concatenate([base, cliff])
+    volume = np.full(n, 1_000_000.0)
+    return _ohlcv_analytic(close, volume, wick=0.0015)
+
+
+@pytest.fixture
+def overbought_df() -> pd.DataFrame:
+    """reversal_short trigger fixture — analytic. Mirror of oversold_df.
+
+    A quiet base then a steep accelerating climb -> RSI > 70 AND close >= upper BB.
+
+    Verified final bar: RSI ~98.8 (> 70) and close >= upper BB -> fires SHORT.
+    """
+    n = 60
+    base = 100.0 + 0.5 * np.sin(np.arange(50) / 4.0)
+    cliff = base[-1] * np.cumprod(1.0 + np.full(10, 0.025))
+    close = np.concatenate([base, cliff])
+    volume = np.full(n, 1_000_000.0)
+    return _ohlcv_analytic(close, volume, wick=0.0015)
+
+
+# ---------------------------------------------------------------------------
+# Reversal SELECTIVITY near-miss fixtures (analytic) — prove the strategies do
+# NOT fire when conditions are CLOSE but not met (Fix 3). RSI lands just on the
+# safe side of the threshold AND close lands just inside the band, so BOTH gates
+# narrowly fail.
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def near_oversold_df() -> pd.DataFrame:
+    """reversal_long near-miss — must NOT fire.
+
+    A moderate decline then a final UP bounce that lifts RSI just ABOVE 30 and
+    lifts close back just ABOVE the lower band.
+
+    Verified final bar: RSI ~= 32.6 (> 30) and close ~= 87.2 > lowerBB ~= 80.5,
+    so neither gate is met -> reversal_long does NOT fire.
+    """
+    base = 100.0 + 0.5 * np.sin(np.arange(45) / 4.0)
+    drop = base[-1] * np.cumprod(1.0 + np.full(11, -0.018))
+    last = drop[-1] * (1.0 + 0.07)   # final bounce -> RSI back above 30, off band
+    close = np.concatenate([base, drop, [last]])
+    volume = np.full(len(close), 1_000_000.0)
+    return _ohlcv_analytic(close, volume, wick=0.0015)
+
+
+@pytest.fixture
+def near_overbought_df() -> pd.DataFrame:
+    """reversal_short near-miss — must NOT fire. Mirror of near_oversold_df.
+
+    A moderate rally then a final DOWN tick that pulls RSI just BELOW 70 and pulls
+    close back just BELOW the upper band.
+
+    Verified final bar: RSI ~= 69.5 (< 70) and close ~= 115.0 < upperBB ~= 121.4,
+    so neither gate is met -> reversal_short does NOT fire.
+    """
+    base = 100.0 + 0.5 * np.sin(np.arange(45) / 4.0)
+    rise = base[-1] * np.cumprod(1.0 + np.full(11, 0.018))
+    last = rise[-1] * (1.0 - 0.05)   # final dip -> RSI back below 70, off band
+    close = np.concatenate([base, rise, [last]])
+    volume = np.full(len(close), 1_000_000.0)
+    return _ohlcv_analytic(close, volume, wick=0.0015)
+
+
+# ---------------------------------------------------------------------------
+# MULTI-TRADE backtest fixtures (analytic) — trigger MANY times so the backtest
+# opens >=3 positions, de-vacuuming the bounded-stats tests (Fix 2).
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def reversal_swings_df() -> pd.DataFrame:
+    """Repeating sharp oversold/overbought swings for reversal back-testing.
+
+    Cycles of: quiet flat (tightens the Bollinger band) -> sharp drop (RSI<30 +
+    below lower band) -> quiet flat -> sharp rise (RSI>70 + above upper band).
+    Each leg is steep enough to breach the (now-tight) band, so BOTH reversal_long
+    and reversal_short trigger MANY times across the series.
+
+    Verified: reversal_long opens ~10 trades, reversal_short ~9 trades.
+    """
+    cycles, flat, leg = 6, 10, 6
+    segs = []
+    for _ in range(cycles):
+        segs.append(np.zeros(flat))            # quiet -> tightens BB
+        segs.append(np.full(leg, -0.03))       # sharp drop -> oversold
+        segs.append(np.full(flat, 0.0))        # quiet
+        segs.append(np.full(leg, 0.03))        # sharp rise -> overbought
+    rets = np.concatenate(segs)
+    close = 100.0 * np.cumprod(1.0 + rets)
+    volume = np.full(len(rets), 1_000_000.0)
+    return _ohlcv_analytic(close, volume, wick=0.002)
+
+
+@pytest.fixture
+def momentum_short_series_df() -> pd.DataFrame:
+    """Repeating decline+bounce sawtooth on a declining baseline for momentum_short
+    back-testing. The downtrend keeps EMA20<EMA50 and MACD<0 throughout while
+    periodic mild bounces re-enter the RSI 25-40 band, so momentum_short triggers
+    MANY times across the series.
+
+    Verified: momentum_short opens ~7 trades.
+    """
+    n = 240
+    period = 30
+    t = np.arange(n)
+    decline = -0.0015 * t
+    osc = 0.04 * np.arcsin(np.sin(2 * np.pi * t / period)) * (2 / np.pi)
+    close = 100.0 * np.exp(decline) * (1.0 + osc)
+    volume = np.full(n, 1_000_000.0)
+    volume[::period] = 1_400_000.0   # periodic volume upticks -> vol_ratio >= 1.0
+    return _ohlcv_analytic(close, volume, wick=0.003)
+
+
+@pytest.fixture
+def breakdown_series_df() -> pd.DataFrame:
+    """Steady decline making continual fresh 52w lows, with volume spikes spaced
+    > hold_bars (10) apart after the 260-bar warmup, so breakout_short triggers
+    MULTIPLE times across the series for back-testing.
+
+    Verified: breakout_short opens ~4 trades.
+    """
+    n = 320
+    rets = np.full(n, -0.004) + 0.0006 * np.sin(np.arange(n) / 5.0)
+    close = 200.0 * np.cumprod(1.0 + rets)
+    volume = np.full(n, 1_000_000.0)
+    for i in range(265, n, 15):       # spikes spaced 15 bars > hold_bars=10
+        volume[i] = 3_000_000.0
+    return _ohlcv_analytic(close, volume, wick=0.003)
+
+
+# ---------------------------------------------------------------------------
+# NON-TRIGGER fixtures — used only to prove a strategy does NOT fire, or for
+# indicator-bound sanity. Exact final-bar values are irrelevant, so a seeded RNG
+# wobble is acceptable here (it never satisfies any gate on any numpy version).
+# ---------------------------------------------------------------------------
 
 @pytest.fixture
 def flat_df() -> pd.DataFrame:
     """Flat / choppy series — no sustained trend, no breakout, no clean cross.
 
-    Mean-reverting around 100 so no strategy should fire a real signal.
+    Mean-reverting around 100 so no strategy should fire a real signal. Only 80
+    bars, so it also exercises the >=260 length gate on breakout strategies.
     """
     rng = np.random.default_rng(123)
     n = 80
-    close = 100.0 + rng.normal(0, 0.15, n)  # tiny mean-reverting wobble
+    close = 100.0 + rng.normal(0, 0.15, n)
     volume = 1_000_000 + rng.integers(0, 20_000, n)
     return _ohlcv_from_close(close, volume, rng, wick=0.0015)
 
 
 @pytest.fixture
-def death_cross_df() -> pd.DataFrame:
-    """An up-then-down path engineered so EMA9 crosses BELOW EMA21 on the LAST bar,
-    with a volume surge on that bar so ema_crossover's vol filter (>=1.3) passes.
+def long_series_df() -> pd.DataFrame:
+    """Generic >260-bar uptrend for backtest / length-gated tests.
 
-    First half rises (EMA9 above EMA21), second half falls hard enough that the
-    fast EMA dives under the slow EMA right at the end -> direction == 'SHORT'.
+    momentum_long has a real edge here (used by the known-edge backtest), while
+    breakout_short must stay quiet (no fresh-low/volume-surge combo).
     """
-    rng = np.random.default_rng(99)
-    n = 60
-    up = 100.0 * np.cumprod(1.0 + (0.004 + rng.normal(0, 0.001, 30)))
-    down = up[-1] * np.cumprod(1.0 + (-0.006 + rng.normal(0, 0.001, 30)))
-    close = np.concatenate([up, down])
-    volume = 1_000_000 + rng.integers(0, 30_000, n)
-    volume[-1] = 2_000_000  # surge on the crossover bar -> vol_ratio >= 1.3
+    rng = np.random.default_rng(31337)
+    n = 320
+    rets = 0.002 + rng.normal(0, 0.004, n)
+    close = 40.0 * np.cumprod(1.0 + rets)
+    volume = 1_200_000 + rng.integers(0, 60_000, n)
     return _ohlcv_from_close(close, volume, rng)
-
-
-@pytest.fixture
-def golden_cross_df() -> pd.DataFrame:
-    """Down-then-up path so EMA9 crosses ABOVE EMA21 on the last bar with a volume
-    surge -> ema_crossover returns direction == 'LONG'."""
-    rng = np.random.default_rng(101)
-    n = 60
-    down = 100.0 * np.cumprod(1.0 + (-0.004 + rng.normal(0, 0.001, 30)))
-    up = down[-1] * np.cumprod(1.0 + (0.006 + rng.normal(0, 0.001, 30)))
-    close = np.concatenate([down, up])
-    volume = 1_000_000 + rng.integers(0, 30_000, n)
-    volume[-1] = 2_000_000
-    return _ohlcv_from_close(close, volume, rng)
-
-
-@pytest.fixture
-def breakout_df() -> pd.DataFrame:
-    """52-week-high breakout: >260 bars, a long steady climb so the LAST close is
-    a fresh 252-day high (>=95% of the rolling max), a strong ADX uptrend
-    (+DI>-DI, ADX>25), and a >=2x volume surge on the final bar.
-
-    Built so breakout_long.evaluate fires LONG. >260 bars also satisfies the
-    strategy's hard length gate (len(df) < 260 -> no trigger).
-    """
-    rng = np.random.default_rng(2024)
-    n = 300
-    # Steady monotone-ish climb so each new close tends to be the running high.
-    rets = 0.0025 + rng.normal(0, 0.0008, n)
-    close = 50.0 * np.cumprod(1.0 + rets)
-    volume = 1_000_000 + rng.integers(0, 40_000, n)
-    volume[-1] = 3_000_000  # >=2x average -> volume_surge
-    df = _ohlcv_from_close(close, volume, rng, wick=0.003)
-    return df
 
 
 @pytest.fixture
@@ -160,7 +452,7 @@ def volatile_df() -> pd.DataFrame:
     """High-amplitude series for ATR>0 sanity (large true ranges)."""
     rng = np.random.default_rng(555)
     n = 60
-    rets = rng.normal(0, 0.03, n)  # 3% daily vol
+    rets = rng.normal(0, 0.03, n)
     close = 100.0 * np.cumprod(1.0 + rets)
     volume = 1_000_000 + rng.integers(0, 100_000, n)
     return _ohlcv_from_close(close, volume, rng, wick=0.01)
@@ -170,10 +462,9 @@ def volatile_df() -> pd.DataFrame:
 def constant_df() -> pd.DataFrame:
     """Perfectly flat close == 100 for the 'EMA of a constant == constant' check."""
     n = 60
-    rng = np.random.default_rng(0)
     close = np.full(n, 100.0)
     volume = np.full(n, 1_000_000.0)
-    df = pd.DataFrame(
+    return pd.DataFrame(
         {
             "open": close,
             "high": close,
@@ -183,15 +474,3 @@ def constant_df() -> pd.DataFrame:
         },
         index=_index(n),
     )
-    return df
-
-
-@pytest.fixture
-def long_series_df() -> pd.DataFrame:
-    """Generic >260-bar uptrend for backtest/length-gated tests."""
-    rng = np.random.default_rng(31337)
-    n = 320
-    rets = 0.002 + rng.normal(0, 0.004, n)
-    close = 40.0 * np.cumprod(1.0 + rets)
-    volume = 1_200_000 + rng.integers(0, 60_000, n)
-    return _ohlcv_from_close(close, volume, rng)

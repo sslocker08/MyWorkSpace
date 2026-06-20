@@ -2,5 +2,9 @@
 pytest>=8.0
 pytest-asyncio>=0.23
 freezegun>=1.4
-numpy>=1.26
-pandas>=2.1
+# Mirror the reproducibility pins from requirements.txt (see the comment there):
+# numpy 1.x line + pandas 2.2.x line freeze RNG and rolling/EMA semantics so the
+# test suite is byte-stable across environments. Defense-in-depth; the trigger
+# fixtures are already RNG-free.
+numpy>=1.26,<2.0
+pandas>=2.2,<2.3
