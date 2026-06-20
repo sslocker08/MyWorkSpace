@@ -50,6 +50,26 @@ Each item names the location, why it's acceptable now, and the trigger for fixin
 - **Fix before**: Phase-5. Either use a realistic fixture or assert a plausible
   Sharpe range.
 
+## Market intelligence (Phase 3)
+
+### KL-11 — macro collectors: live-schema + thresholds unverified
+- **Where**: `core/sentiment_macro.py` (aaii_sentiment, put_call, fear_greed,
+  margin_debt, yield_curve, vix).
+- Parsing heuristics (AAII `skiprows=3` + column match, CBOE 'ratio' column, AAII
+  fraction-vs-percent autodetect) are inferred from documented past layouts and could
+  NOT be validated against the live files (egress blocked; CBOE returned 403). If a
+  provider changes its schema, the collector degrades to ok=False (no wrong data) but
+  the signal silently goes neutral. **Fix before** trusting live ceiling score: run
+  once against the real endpoints and pin the actual column names/offsets.
+- Normalization bands (AAII 35-60, CBOE 0.60-0.90, margin 0/50%) are reasoned with
+  provenance but NOT backtested against historical top events. Calibrate at Phase-5.
+- FRED margin series `BOGZ1FL663067003Q` is the Z.1 quarterly brokers&dealers margin
+  series (FINRA discontinued the classic monthly figure); semantics differ slightly —
+  confirm against live FRED.
+- Tests mock the network seams: they prove parse/normalize/cache/degrade LOGIC and the
+  degradation path (verified no-raise on a real CBOE 403 + absent deps), NOT that the
+  live files have the assumed shapes.
+
 ## Engine (Phase 1, carried)
 
 ### KL-6 — Partial unique index requires migration on existing DBs
