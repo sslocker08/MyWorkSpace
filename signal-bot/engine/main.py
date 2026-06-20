@@ -2,12 +2,19 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_client import make_asgi_app
 
 from core.config import settings
 from core.database import engine, create_tables
 from core.event_bus import get_event_bus
+from core.exceptions import (
+    SecurityHeadersMiddleware,
+    http_exception_handler,
+    validation_exception_handler,
+)
 from routes import signals, scanner, market_intel, sectors, anomaly, health, stream, ohlcv
 from scheduler.main import start_scheduler, stop_scheduler
 
@@ -42,6 +49,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Security headers on every response (RFC-compliance, defense-in-depth).
+# Must be added BEFORE CORSMiddleware so CORS headers are still set correctly.
+app.add_middleware(SecurityHeadersMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -49,6 +60,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# RFC 9457 problem+json error format replaces FastAPI's default {"detail": ...}.
+app.add_exception_handler(HTTPException, http_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
 app.include_router(health.router, tags=["health"])
 app.include_router(signals.router, prefix="/api/signals", tags=["signals"])
@@ -58,3 +73,6 @@ app.include_router(sectors.router, prefix="/api/sectors", tags=["sectors"])
 app.include_router(anomaly.router, prefix="/api/anomaly", tags=["anomaly"])
 app.include_router(stream.router, prefix="/api/stream", tags=["stream"])
 app.include_router(ohlcv.router, prefix="/api/ohlcv", tags=["ohlcv"])
+
+# Prometheus metrics endpoint — unauthenticated, scrape-only, Prometheus text format.
+app.mount("/metrics", make_asgi_app())

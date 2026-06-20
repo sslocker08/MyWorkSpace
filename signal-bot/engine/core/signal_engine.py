@@ -1,6 +1,7 @@
 """Orchestrates scanning: fetch data → run strategies → score → save."""
 import asyncio
 import logging
+import time
 from datetime import datetime
 from typing import Optional
 
@@ -9,6 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from core.data_fetcher import DataFetcher
+from core.metrics import scan_duration, signals_emitted
 from core.signal_scorer import SignalScorer
 from core.risk_manager import RiskManager
 from strategies import ALL_STRATEGIES
@@ -33,6 +35,27 @@ async def scan_ticker(
     """Run all strategies on a ticker and return a Signal if score >= threshold."""
     from core.config import settings
 
+    _t0 = time.perf_counter()
+    try:
+        return await _scan_ticker_impl(
+            ticker=ticker, market=market, sector=sector,
+            ceiling_score=ceiling_score, ceiling_degraded=ceiling_degraded,
+            regime=regime, db=db, settings=settings,
+        )
+    finally:
+        scan_duration.labels(market=market).observe(time.perf_counter() - _t0)
+
+
+async def _scan_ticker_impl(
+    ticker: str,
+    market: str,
+    sector: Optional[str],
+    ceiling_score: float,
+    ceiling_degraded: bool,
+    regime: str,
+    db: Optional[AsyncSession],
+    settings,
+) -> Optional[Signal]:
     try:
         df = await _fetcher.get_ohlcv(ticker, days=300)
     except Exception as e:
@@ -90,6 +113,8 @@ async def scan_ticker(
 
     if score_breakdown.total < settings.signal_score_threshold:
         return None
+
+    signals_emitted.labels(direction=direction, regime=regime).inc()
 
     signal = Signal(
         ticker=ticker,

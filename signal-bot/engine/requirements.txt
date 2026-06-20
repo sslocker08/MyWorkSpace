@@ -40,5 +40,6 @@ pandas-market-calendars>=4.4
 msgpack>=1.0
 beautifulsoup4>=4.12
 lxml>=5.2
+prometheus-client>=0.20
 python-dotenv>=1.0
 python-multipart>=0.0.9

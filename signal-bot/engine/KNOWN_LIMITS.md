@@ -10,14 +10,14 @@ Each item names the location, why it's acceptable now, and the trigger for fixin
 
 ## Strategies (Phase 2)
 
-### KL-1 — New indicator strategies lack near-boundary selectivity tests
-- **Where**: `tests/test_strategies.py` — macd_signal, bollinger_squeeze, adx_trend,
-  volume_surge, rsi_divergence have only (extreme-cliff trigger) + (flat/trend no-fire)
-  tests. Unlike reversal_long/short, they have no near-boundary fixture proving they
-  stay quiet just inside the threshold.
-- **Why acceptable now**: direction + trigger + non-fire-on-flat are all verified;
-  no live capital. **Fix before**: Phase-5 backtest validation. Add `near_*` fixtures
-  (e.g. squeeze tolerance edge, z just under floor, +DI/-DI near-cross).
+### ~~KL-1~~ — RESOLVED: Near-boundary selectivity tests added (2026-06-20)
+- Five `near_*` fixtures added to `tests/conftest.py` (analytic, RNG-free):
+  `near_macd_df` (1 bar before MACD cross), `near_squeeze_df` (coil present, +0.03%
+  final bar stays inside tight bands), `near_adx_df` (strong ADX but DI cross not yet
+  reached after 5-bar recovery), `near_volume_surge_df` (4M spike gives z≈2.43 due to
+  prior 5M spike inflating rolling std), `near_rsi_divergence_df` (two lows but both
+  price and RSI confirm downtrend — no divergence).
+- Five corresponding tests in `tests/test_strategies.py` all pass (214 total, 0 failed).
 
 ### KL-2 — rsi_divergence indicator: first-vs-last swing pairing
 - **Where**: `core/indicators.py` rsi_divergence uses `min_idxs[0]` vs `min_idxs[-1]`
@@ -86,10 +86,12 @@ Each item names the location, why it's acceptable now, and the trigger for fixin
 
 ## Engine (Phase 1, carried)
 
-### KL-6 — Partial unique index requires migration on existing DBs
-- **Where**: `models/signal.py` `uq_active_signal`. `create_tables()` only creates the
-  index on a fresh table. **Fix**: introduce Alembic (planned Phase 2/3) and ship a
-  migration that adds the partial index to existing deployments.
+### ~~KL-6~~ — RESOLVED: Alembic migrations introduced (2026-06-20)
+- `alembic.ini`, `alembic/env.py` (async-aware via `asyncio.run`), and
+  `alembic/versions/0001_initial.py` added. The migration creates all five tables
+  AND the `uq_active_signal` partial unique index via `CREATE UNIQUE INDEX IF NOT
+  EXISTS` so it is idempotent on existing deployments (expand/contract pattern).
+- Run `alembic upgrade head` from `signal-bot/engine/` to apply on any deployment.
 
 ### KL-8 — regime-aware scoring multipliers are heuristic, not calibrated
 - **Where**: `core/signal_scorer.py` `_regime_multiplier` (1.10/0.95/0.90/0.85/0.80).

@@ -769,3 +769,137 @@ def constant_df() -> pd.DataFrame:
         },
         index=_index(n),
     )
+
+
+# ---------------------------------------------------------------------------
+# BATCH 5 — NEAR-BOUNDARY (SELECTIVITY) fixtures for the bidirectional strategies
+# (macd_signal / bollinger_squeeze / adx_trend / volume_surge / rsi_divergence).
+# Each fixture is TRIGGER-CRITICAL: the final-bar indicator value must land
+# CLEARLY on the non-fire side of the threshold to keep the test stable across
+# numpy/TA-Lib versions. The strategy's key gate fails by a deliberate margin.
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def near_macd_df() -> pd.DataFrame:
+    """macd_signal near-miss — MACD is one bar short of the bullish cross.
+
+    Identical construction to macd_bull_cross_df (accelerating decline for 50
+    bars, then a +0.012/bar up-leg) except only TWO bars of recovery are
+    appended instead of three. The trigger fixture's docstring documents that
+    the cross flips from negative to positive histogram EXACTLY on the THIRD
+    recovery bar; after two bars, (macd - signal) ≈ -0.025 (still negative) —
+    the MACD line is below the signal line on the final bar.
+
+    Verified: the pre-cross state is captured by the trigger fixture's prev-bar
+    reading: prev (macd-signal) ~= -0.025 -> the final bar here has MACD still
+    below signal -> bullish_cross=False, bearish_cross=False -> no trigger.
+    """
+    n_down, n_up = 50, 2  # trigger uses n_up=3; one bar short of the cross
+    down = -(0.001 + 0.0002 * np.arange(n_down))
+    rets = np.concatenate([down, np.full(n_up, 0.012)])
+    close = 100.0 * np.cumprod(1.0 + rets)
+    volume = np.full(len(rets), 1_000_000.0)
+    return _ohlcv_analytic(close, volume)
+
+
+@pytest.fixture
+def near_squeeze_df() -> pd.DataFrame:
+    """bollinger_squeeze near-miss — coil present but close stays inside bands.
+
+    Same low-amplitude sinusoid coil as squeeze_breakout_up_df (60 bars,
+    amplitude 0.0005/bar) so the coil condition is met (prev_width near its
+    20-bar minimum -> was_squeezed=True), but the final bar advances only
+    +0.03% (3 basis points). The bands are extremely tight after the coil
+    (2-sigma upper band ≈ 100.07); close ≈ 100.03 stays well inside ->
+    breakout_up=False, breakout_down=False -> no trigger.
+    """
+    flat = 0.0005 * np.sin(np.arange(60) / 2.0)
+    rets = np.concatenate([flat, np.array([0.0003])])  # 3bps: inside tight bands
+    close = 100.0 * np.cumprod(1.0 + rets)
+    volume = np.full(len(rets), 1_000_000.0)
+    return _ohlcv_analytic(close, volume, wick=0.001)
+
+
+@pytest.fixture
+def near_adx_df() -> pd.DataFrame:
+    """adx_trend near-miss — recovery too short for the +DI/-DI cross to occur.
+
+    A strong 50-bar downtrend (same as adx_bull_cross_df) builds high ADX with
+    -DI dominant. Only 5 bars of +0.009/bar recovery are appended (the trigger
+    fixture uses 12). After 5 bars, +DI is still tracking below -DI — the cross
+    needs approximately 12 bars to complete — so bull_cross=False on the final
+    bar. ADX >> 30 and EMA is beginning to rise, but both of those conditions
+    are irrelevant without the directional cross -> no trigger.
+
+    Verified: adx_bull_cross_df fires LONG after EXACTLY 12 bars of recovery;
+    with only 5 the DI cross has not yet occurred.
+    """
+    n_flat, n_down, n_up = 7, 50, 5
+    rets = np.concatenate([
+        np.zeros(n_flat),
+        np.full(n_down, -0.01),
+        np.full(n_up, 0.009),
+    ])
+    close = 100.0 * np.cumprod(1.0 + rets)
+    volume = np.full(len(rets), 1_000_000.0)
+    return _ohlcv_analytic(close, volume, wick=0.003)
+
+
+@pytest.fixture
+def near_volume_surge_df() -> pd.DataFrame:
+    """volume_surge near-miss — prior spike inflates rolling std, keeping z < 3.
+
+    A calm baseline (close oscillates, volume flat at 1M) for 39 bars. A prior
+    spike is planted at bar index 29 (5M volume) — within the 20-bar rolling
+    window of the final bar — which inflates the rolling standard deviation.
+    The final bar has a 4M spike (4x normal, clearly abnormal in isolation) and
+    an UP close, but the inflated std from the prior spike brings the z-score to
+    approximately 2.43:
+
+        window (bars 20-39): 9 bars × 1M + 1 bar × 5M + 9 bars × 1M + 1 bar × 4M
+        mean  = 27M / 20 = 1.35M
+        std   = sqrt(22.55M² / 19) ≈ 1.089M
+        z     = (4M - 1.35M) / 1.089M ≈ 2.43 < 3.0 -> no trigger.
+    """
+    n = 40
+    close = 100.0 + 0.5 * np.sin(np.arange(n) / 3.0)
+    close[-1] = close[-2] * 1.03   # up day (close > open = prev close)
+    volume = np.full(n, 1_000_000.0)
+    volume[29] = 5_000_000.0       # prior spike inflates rolling std
+    volume[-1] = 4_000_000.0       # final spike: z ≈ 2.43 < 3.0
+    return _ohlcv_analytic(close, volume, wick=0.001)
+
+
+@pytest.fixture
+def near_rsi_divergence_df() -> pd.DataFrame:
+    """rsi_divergence near-miss — two swing lows but BOTH price and RSI confirm
+    the downtrend (no divergence structure).
+
+    Construction:
+      20 flat bars (warmup) + 5-bar rally (+1.5%/bar, builds gain memory so
+      RSI at swing low 1 is NOT pinned at zero) + swing low 1 (3 bars,
+      -3.0%/bar -> price ≈ 98.3, RSI ≈ 38) + 3-bar bounce (+2.0%/bar, separates
+      the lows) + swing low 2 (5 bars, -3.5%/bar, STEEPER -> price ≈ 86.8 LOWER
+      AND RSI ≈ 21 also LOWER) + 3-bar uptick (+1.0%/bar, makes swing low 2 a
+      strict local min).
+
+    Divergence check (lookback=20, order=2):
+      * Bullish: price_lower_low=True (86.8 < 98.3) but rsi_higher_low=False
+        (21 < 38) -> bullish=False.
+      * Bearish: swing highs are rally peak (≈107.7) > bounce peak (≈104.3) ->
+        price_higher_high=False -> bearish=False.
+    Both flags False -> no trigger.
+    """
+    segs = [
+        np.full(20, 0.0),      # flat warmup
+        np.full(5, 0.015),     # rally -> gain memory for non-zero RSI at swing low 1
+        np.full(3, -0.03),     # drop -> swing low 1 (price ≈ 98.3, RSI ≈ 38)
+        np.full(3, 0.02),      # bounce -> separates the two lows
+        np.full(5, -0.035),    # steeper drop -> swing low 2 (price ≈ 86.8, RSI ≈ 21)
+        np.full(3, 0.01),      # uptick -> makes swing low 2 a strict local minimum
+    ]
+    rets = np.concatenate(segs)
+    close = 100.0 * np.cumprod(1.0 + rets)
+    volume = np.full(len(rets), 1_000_000.0)
+    return _ohlcv_analytic(close, volume, wick=0.002)

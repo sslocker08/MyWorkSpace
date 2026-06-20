@@ -357,3 +357,46 @@ def test_rsi_divergence_indicator_selective_on_clean_downtrend(downtrend_df):
     div = rsi_divergence(close, rsi_vals, lookback=20)
     assert div["bullish"] is False
     assert div["bearish"] is False
+
+
+# ===========================================================================
+# BATCH 5 — NEAR-BOUNDARY SELECTIVITY gates (KL-1 resolution).
+# Each test proves that the strategy is SELECTIVE: it must NOT fire when the
+# trigger ingredient is CLOSE but not met. These complement the golden-fixture
+# tests above (which prove the strategies DO fire on full-strength signals).
+# ===========================================================================
+
+def test_macd_signal_no_fire_near_boundary(near_macd_df):
+    # MACD line is one bar short of the bullish cross (prev (macd-signal) ≈ -0.025
+    # on the final bar). Neither bullish_cross nor bearish_cross is True.
+    res = MACDSignalStrategy().evaluate("TEST", near_macd_df)
+    assert res.triggered is False
+
+
+def test_bollinger_squeeze_no_fire_near_boundary(near_squeeze_df):
+    # Squeeze coil present (was_squeezed=True) but final close (+0.03%) stays
+    # inside the tight Bollinger bands — breakout_up and breakout_down both False.
+    res = BollingerSqueezeStrategy().evaluate("TEST", near_squeeze_df)
+    assert res.triggered is False
+
+
+def test_adx_trend_no_fire_near_boundary(near_adx_df):
+    # Strong ADX (>> 30) from a 50-bar downtrend, but only 5 bars of recovery —
+    # the +DI/-DI cross needs ~12 bars; bull_cross=False on the final bar.
+    res = ADXTrendStrategy().evaluate("TEST", near_adx_df)
+    assert res.triggered is False
+
+
+def test_volume_surge_no_fire_near_boundary(near_volume_surge_df):
+    # Final bar has 4M volume (4x normal) but a prior 5M spike in the 20-bar
+    # window inflates the rolling std, pushing z ≈ 2.43 below the 3.0 floor.
+    res = VolumeSurgeStrategy().evaluate("TEST", near_volume_surge_df)
+    assert res.triggered is False
+
+
+def test_rsi_divergence_no_fire_near_boundary(near_rsi_divergence_df):
+    # Two genuine swing lows where both price AND RSI make lower lows — no RSI
+    # improvement while price falls — so bullish=False. Swing highs show price
+    # lower high (bounce < rally) so bearish=False. Neither fires.
+    res = RSIDivergenceStrategy().evaluate("TEST", near_rsi_divergence_df)
+    assert res.triggered is False

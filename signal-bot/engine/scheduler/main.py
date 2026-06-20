@@ -1,13 +1,14 @@
 """APScheduler for periodic market scanning."""
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
 
 from core.config import settings
+from core.metrics import ceiling_score_gauge
 
 logger = logging.getLogger(__name__)
 _scheduler: AsyncIOScheduler = None
@@ -38,6 +39,23 @@ def get_scan_health() -> dict:
     }
 
 
+async def _expire_stale_signals(max_age_hours: int = 48) -> int:
+    """Mark ACTIVE signals older than max_age_hours as EXPIRED. Returns expired count."""
+    from sqlalchemy import update
+    from core.database import AsyncSessionLocal
+    from models.signal import Signal, SignalStatus
+
+    cutoff = datetime.utcnow() - timedelta(hours=max_age_hours)
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(
+            update(Signal)
+            .where(Signal.status == SignalStatus.ACTIVE, Signal.updated_at < cutoff)
+            .values(status=SignalStatus.EXPIRED, updated_at=datetime.utcnow())
+        )
+        await session.commit()
+        return result.rowcount
+
+
 async def _run_scan():
     """Periodic scan job."""
     from core.signal_engine import scan_universe, _fetcher
@@ -45,6 +63,15 @@ async def _run_scan():
     from universe import UniverseManager
 
     global _last_scan_started_at, _last_scan_completed_at, _last_scan_signal_count
+
+    # Expire signals that haven't been refreshed in 48 h before starting the scan,
+    # so the rankings endpoint never surfaces stale ACTIVE rows.
+    try:
+        expired = await _expire_stale_signals()
+        if expired:
+            logger.info("Expired %d stale ACTIVE signal(s) (>48 h old)", expired)
+    except Exception as e:  # noqa: BLE001 — expiry must never break the scan
+        logger.warning("Stale-signal expiry failed (non-fatal): %s", e)
 
     # freshness SLI: record start so an in-flight-but-never-completing scan is
     # distinguishable from a scan that finished.
@@ -67,6 +94,7 @@ async def _run_scan():
 
     ceiling_engine = MarketIntelligenceEngine(data_fetcher=_fetcher)
     ceiling_score = await _compute_ceiling_safe(ceiling_engine)
+    ceiling_score_gauge.set(ceiling_score.total)
 
     try:
         # scan_universe opens its own per-task sessions; expire_on_commit=False
