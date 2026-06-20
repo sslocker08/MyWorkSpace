@@ -5,7 +5,8 @@ import time
 from collections import defaultdict, deque
 from fastapi import APIRouter, BackgroundTasks, Depends, Query, Request, HTTPException
 
-from core.signal_engine import scan_universe
+from core.signal_engine import scan_universe, _fetcher
+from core.market_regime import compute_market_regime
 from universe import UniverseManager
 
 router = APIRouter()
@@ -62,8 +63,10 @@ async def trigger_scan(
         async with _scan_lock:
             try:
                 tickers = await _universe.get_high_priority_tickers(limit)
-                signals = await scan_universe(tickers)
-                logger.info(f"Manual scan complete: {len(signals)} signals")
+                # Compute the regime ONCE before scanning and pass it through.
+                regime = await compute_market_regime(_fetcher)
+                signals = await scan_universe(tickers, regime=regime)
+                logger.info(f"Manual scan complete: {len(signals)} signals (regime={regime})")
             except Exception as e:
                 logger.error(f"Scan failed: {e}")
 

@@ -40,7 +40,8 @@ def get_scan_health() -> dict:
 
 async def _run_scan():
     """Periodic scan job."""
-    from core.signal_engine import scan_universe
+    from core.signal_engine import scan_universe, _fetcher
+    from core.market_regime import compute_market_regime
     from universe import UniverseManager
 
     global _last_scan_started_at, _last_scan_completed_at, _last_scan_signal_count
@@ -52,10 +53,15 @@ async def _run_scan():
     universe = UniverseManager()
     tickers = await universe.get_high_priority_tickers(200)
 
+    # Compute the market regime ONCE per scan (not per ticker) and pass it to
+    # scan_universe, which forwards it to the scorer's BULL/BEAR alignment bonus.
+    regime = await compute_market_regime(_fetcher)
+    logger.info(f"Market regime for this scan: {regime}")
+
     try:
         # scan_universe opens its own per-task sessions; expire_on_commit=False
         # keeps the returned Signals' attributes readable after their sessions close.
-        signals = await scan_universe(tickers)
+        signals = await scan_universe(tickers, regime=regime)
         logger.info(f"Scheduled scan: {len(signals)} signals from {len(tickers)} tickers")
 
         # freshness SLI: stamp completion + count so readiness can flag staleness.
