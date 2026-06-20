@@ -58,9 +58,6 @@ jobs:
           cache: pip
           cache-dependency-path: signal-bot/engine/requirements.txt
 
-      - name: Install TA-Lib system library (source-build fallback)
-        run: sudo apt-get update -q && sudo apt-get install -y libta-lib-dev
-
       - name: Install dependencies
         run: pip install -r requirements.txt
 
