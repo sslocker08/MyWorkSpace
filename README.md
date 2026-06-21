@@ -30,6 +30,7 @@ MyWorkSpace/
 ## 現状（2026-06）
 
 - `_framework/` を seed（このコミット）。各ドキュメントは **draft（起案中）**。
+- ニッチ製品「工場」（旧 `studio/`）は独立リポジトリ **`sslocker08/Nicheworks`** へ分離（`_framework/ops/migration-runbook.md` 準拠・クリーン起点）。本ワークスペースは `_framework/` とインスタンス運用に専念する。
 - KIBI インスタンス本体は現在 `kibi-fragrance/KIBI`（private）にあり、本ワークスペースへの**本移行は安全手順で別途実施**（`_framework/ops/migration-runbook.md`・不可逆のため要承認）。
 - `examples/KIBI.instance.config.md` は説明用の記入例。各インスタンスの実 `instance.config` は当該インスタンス側で管理する。
 
