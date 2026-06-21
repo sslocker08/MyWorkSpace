@@ -30,6 +30,7 @@ async def scan_ticker(
     ceiling_score: float = 50.0,
     ceiling_degraded: bool = False,
     regime: str = "NEUTRAL",
+    convergence_map: Optional[dict[str, int]] = None,
     db: Optional[AsyncSession] = None,
 ) -> Optional[Signal]:
     """Run all strategies on a ticker and return a Signal if score >= threshold."""
@@ -40,7 +41,7 @@ async def scan_ticker(
         return await _scan_ticker_impl(
             ticker=ticker, market=market, sector=sector,
             ceiling_score=ceiling_score, ceiling_degraded=ceiling_degraded,
-            regime=regime, db=db, settings=settings,
+            regime=regime, convergence_map=convergence_map, db=db, settings=settings,
         )
     finally:
         scan_duration.labels(market=market).observe(time.perf_counter() - _t0)
@@ -53,6 +54,7 @@ async def _scan_ticker_impl(
     ceiling_score: float,
     ceiling_degraded: bool,
     regime: str,
+    convergence_map: Optional[dict[str, int]],
     db: Optional[AsyncSession],
     settings,
 ) -> Optional[Signal]:
@@ -99,6 +101,7 @@ async def _scan_ticker_impl(
     if not _risk_mgr.is_valid_setup(risk):
         return None
 
+    institutional_convergence = (convergence_map or {}).get(ticker, 0)
     score_breakdown = _scorer.score(
         ticker=ticker,
         df=df,
@@ -109,6 +112,7 @@ async def _scan_ticker_impl(
         ceiling_score=ceiling_score,
         ceiling_degraded=ceiling_degraded,
         regime=regime,
+        institutional_convergence=institutional_convergence,
     )
 
     if score_breakdown.total < settings.signal_score_threshold:
@@ -136,6 +140,8 @@ async def _scan_ticker_impl(
             "trend_strength": score_breakdown.trend_strength,
             "volume_confirm": score_breakdown.volume_confirm,
             "risk_reward": score_breakdown.risk_reward,
+            "institutional_boost": score_breakdown.institutional_boost,
+            "institutional_funds": institutional_convergence,
         }},
         timeframe="1D",
         status=SignalStatus.ACTIVE,
@@ -231,6 +237,7 @@ async def scan_universe(
     ceiling_score: float = 50.0,
     ceiling_degraded: bool = False,
     regime: str = "NEUTRAL",
+    convergence_map: Optional[dict[str, int]] = None,
     persist: bool = True,
     max_concurrent: int = 20,
 ) -> list[Signal]:
@@ -251,12 +258,14 @@ async def scan_universe(
                 async with AsyncSessionLocal() as session:
                     signal = await scan_ticker(
                         ticker, market=market, ceiling_score=ceiling_score,
-                        ceiling_degraded=ceiling_degraded, regime=regime, db=session,
+                        ceiling_degraded=ceiling_degraded, regime=regime,
+                        convergence_map=convergence_map, db=session,
                     )
             else:
                 signal = await scan_ticker(
                     ticker, market=market, ceiling_score=ceiling_score,
-                    ceiling_degraded=ceiling_degraded, regime=regime, db=None,
+                    ceiling_degraded=ceiling_degraded, regime=regime,
+                    convergence_map=convergence_map, db=None,
                 )
             if signal:
                 results.append(signal)

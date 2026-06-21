@@ -18,6 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <a href="/scanner" className="rounded hover:text-accent transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">スキャナー</a>
             <a href="/sectors" className="rounded hover:text-accent transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">セクター</a>
             <a href="/market-intel" className="rounded hover:text-accent transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">マーケット</a>
+            <a href="/institutional" className="rounded hover:text-accent transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">機関投資家</a>
           </div>
         </nav>
         <main>{children}</main>

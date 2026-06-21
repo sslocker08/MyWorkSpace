@@ -61,6 +61,7 @@ class ScoreBreakdown:
     volume_confirm: float    # max 10
     risk_reward: float       # max 10
     sentiment: float         # max 5
+    institutional_boost: float  # max 10 — tracked funds holding this ticker
     ceiling_adjustment: float  # ceiling (market-top) multiplier effect
     regime_adjustment: float   # regime-aware multiplier effect
     total: float             # 0-100
@@ -81,6 +82,7 @@ class SignalScorer:
         ceiling_degraded: bool = False,
         sentiment_score: float = 0.0,
         regime: str = "NEUTRAL",
+        institutional_convergence: int = 0,
     ) -> ScoreBreakdown:
         """
         Compute composite signal score.
@@ -135,9 +137,20 @@ class SignalScorer:
         sent_aligned = sentiment_score * direction_factor
         sentiment_pts = min(max(sent_aligned * 5, 0), 5)
 
-        raw_score = strategy_score + trend_score + vol_score + rr_score + sentiment_pts
+        # 6. Institutional convergence boost (max 10 points)
+        # 3+ tracked funds holding this ticker → +10, 2 → +5, 1 → +3, 0 → 0
+        if institutional_convergence >= 3:
+            inst_boost = 10.0
+        elif institutional_convergence == 2:
+            inst_boost = 5.0
+        elif institutional_convergence == 1:
+            inst_boost = 3.0
+        else:
+            inst_boost = 0.0
 
-        # 6. Ceiling score adjustment (market-top risk)
+        raw_score = strategy_score + trend_score + vol_score + rr_score + sentiment_pts + inst_boost
+
+        # 9. Ceiling score adjustment (market-top risk)
         is_long = direction == "LONG"
         if ceiling_degraded:
             # Thin/unreliable ceiling (a <4-axis composite or a failed feed): do
@@ -154,7 +167,7 @@ class SignalScorer:
         else:  # 安全圏
             ceiling_multiplier = 1.0 if is_long else 0.9  # slightly reduce SHORT in bull market
 
-        # 7. Regime-aware adjustment (stacks ON TOP of the ceiling multiplier).
+        # 10. Regime-aware adjustment (stacks ON TOP of the ceiling multiplier).
         regime_multiplier = self._regime_multiplier(regime, triggered_strategies, is_long)
 
         multiplier = ceiling_multiplier * regime_multiplier
@@ -168,6 +181,7 @@ class SignalScorer:
             volume_confirm=round(vol_score, 1),
             risk_reward=round(rr_score, 1),
             sentiment=round(sentiment_pts, 1),
+            institutional_boost=round(inst_boost, 1),
             ceiling_adjustment=round(ceiling_multiplier, 3),
             regime_adjustment=round(regime_multiplier, 3),
             total=final_score,

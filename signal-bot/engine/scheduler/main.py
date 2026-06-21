@@ -96,6 +96,18 @@ async def _run_scan():
     ceiling_score = await _compute_ceiling_safe(ceiling_engine)
     ceiling_score_gauge.set(ceiling_score.total)
 
+    # Load institutional convergence map (best-effort; failures must not break scan).
+    convergence_map: dict[str, int] = {}
+    try:
+        from core.institutional_tracker import get_convergence_map
+        from core.database import AsyncSessionLocal
+
+        async with AsyncSessionLocal() as session:
+            convergence_map = await get_convergence_map(session)
+        logger.info("Institutional convergence map: %d tickers", len(convergence_map))
+    except Exception as e:  # noqa: BLE001 — convergence is best-effort
+        logger.warning("Institutional convergence map failed (non-fatal): %s", e)
+
     try:
         # scan_universe opens its own per-task sessions; expire_on_commit=False
         # keeps the returned Signals' attributes readable after their sessions close.
@@ -104,6 +116,7 @@ async def _run_scan():
             ceiling_score=ceiling_score.total,
             ceiling_degraded=ceiling_score.degraded,
             regime=regime,
+            convergence_map=convergence_map,
         )
         logger.info(f"Scheduled scan: {len(signals)} signals from {len(tickers)} tickers")
 
@@ -185,6 +198,21 @@ async def _notify_telegram(signals: list):
             logger.warning(f"Telegram notification failed: {e}")
 
 
+async def _refresh_13f_job():
+    """Weekly job: refresh SEC 13F institutional holdings for all tracked managers."""
+    from core.institutional_tracker import refresh_all
+    from core.database import AsyncSessionLocal
+
+    logger.info("Starting weekly 13F institutional holdings refresh")
+    try:
+        async with AsyncSessionLocal() as session:
+            results = await refresh_all(session)
+        total = sum(v for v in results.values() if v > 0)
+        logger.info("13F refresh complete: %d new rows across %d managers", total, len(results))
+    except Exception as e:
+        logger.error("13F refresh job failed: %s", e)
+
+
 async def start_scheduler():
     global _scheduler
     _scheduler = AsyncIOScheduler()
@@ -194,6 +222,15 @@ async def start_scheduler():
         _run_scan,
         trigger=IntervalTrigger(minutes=settings.scan_interval_minutes),
         id="market_scan",
+        max_instances=1,
+        coalesce=True,
+    )
+
+    # Weekly 13F refresh: Sunday 02:00 UTC (before Monday open, after Friday close)
+    _scheduler.add_job(
+        _refresh_13f_job,
+        trigger=CronTrigger(day_of_week="sun", hour=2, minute=0),
+        id="institutional_13f_refresh",
         max_instances=1,
         coalesce=True,
     )
