@@ -47,6 +47,15 @@ studio/
 
 ## ステータス
 - [x] Wave 0 設計（戦略ドキュメント＋モノレポ骨格）
-- [ ] Wave 0 実装（共有 ui/auth/payments/**feedback**/analytics/marketing/infra）
+- [~] Wave 0 実装
+  - [x] `@mwstudio/feedback`（コア＋Reactウィジェット＋テスト22件・tsup/vitest・CI）
+  - [ ] ui / auth / payments / analytics / marketing-LP生成 / infra
 - [ ] Wave 1 旗艦（各エンジン1本: Cosplay CAD / Choir / Reef sim / Vertical 3D解説 / Arborist / IF後継）
 - [ ] Wave 2..N 横展開
+
+## 開発（このモノレポ）
+```bash
+cd studio
+pnpm install
+pnpm run typecheck && pnpm run build && pnpm run test   # turbo が各パッケージで実行
+```

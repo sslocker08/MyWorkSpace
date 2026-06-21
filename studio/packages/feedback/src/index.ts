@@ -1,10 +1,22 @@
-// @mwstudio/feedback — public entry point.
-// Wave 0 ships the shared types/interfaces; the React widget + backend client
-// land in Wave 0 implementation (see ../README.md and ../../docs/HUMAN-VS-AI.md).
-//
-// Type-only re-export: `types.ts` holds no runtime values, so `export type *`
-// is elided at emit. This avoids an extensionless runtime import in
-// dist/index.js that ESM Node (`type: module`) cannot resolve (ERR_MODULE_NOT_FOUND).
-// When runtime modules (widget/client) are added, export them with explicit
-// `.js` specifiers alongside this.
+// @mwstudio/feedback — framework-agnostic core entry ("." export).
+// The React widget is a separate entry: `@mwstudio/feedback/widget`.
 export type * from "./types";
+export {
+  FEEDBACK_TYPES,
+  STATUS_ORDER,
+} from "./types";
+export { captureContext } from "./context";
+export {
+  validateNewFeedback,
+  FeedbackValidationError,
+  BODY_MIN,
+  BODY_MAX,
+} from "./validation";
+export { InMemoryFeedbackStore, type FeedbackStore } from "./store";
+export {
+  DefaultFeedbackClient,
+  type DefaultFeedbackClientOptions,
+  type IdGenerator,
+  type Clock,
+} from "./client";
+export { toSpecStub, renderSpecMarkdown, type SpecStub } from "./spec";
