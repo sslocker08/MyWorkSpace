@@ -50,6 +50,7 @@ studio/
 - [~] Wave 0 実装
   - [x] `@mwstudio/feedback`（コア＋Reactウィジェット＋テスト・tsup/vitest・CI）
   - [x] `@mwstudio/ui`（OKLCHトークン＋DESIGN.md契約＋プリミティブ Button/Input/Badge/Card・全8状態・反スロップ自動ゲート・テスト17件）
+  - [x] `@mwstudio/house`（統合実証アプリ＝ui+feedbackを端から端まで・Viteビルド＋統合テスト）
   - [ ] auth / payments / analytics / marketing-LP生成 / infra
 - [ ] Wave 1 旗艦（各エンジン1本: Cosplay CAD / Choir / Reef sim / Vertical 3D解説 / Arborist / IF後継）
 - [ ] Wave 2..N 横展開
