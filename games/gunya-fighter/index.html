@@ -15,7 +15,6 @@ body {
   user-select:none;
 }
 canvas { display:block; border-radius:10px; }
-
 #ui {
   position:fixed; inset:0;
   display:flex; align-items:center; justify-content:center;
@@ -54,18 +53,21 @@ input[type=text]:focus { border-color:#c77dff; }
   text-shadow:0 0 20px rgba(67,233,123,0.4);
 }
 .status { color:#888; font-size:0.85em; text-align:center; }
-
 #hud {
   position:fixed; top:14px; left:50%; transform:translateX(-50%);
   display:none; gap:30px; pointer-events:none; z-index:10;
 }
-.score-box { text-align:center; background:rgba(0,0,0,0.5); padding:6px 22px; border-radius:10px; }
-.sname { font-size:0.75em; opacity:0.6; margin-bottom:2px; }
-.sval { font-size:1.6em; font-weight:900; }
-#p1box .sval { color:#ff6b9d; }
-#p2box .sval { color:#43e97b; }
+.score-box { text-align:center; background:rgba(0,0,0,0.5); padding:8px 22px; border-radius:10px; }
+.sname { font-size:0.75em; opacity:0.6; margin-bottom:6px; }
+.pips { display:flex; gap:7px; justify-content:center; }
+.pip {
+  width:13px; height:13px; border-radius:50%;
+  background:#1a1a2e; border:2px solid #444;
+  transition:background 0.15s, box-shadow 0.15s;
+}
+#p1box .pip.filled { background:#ff6b9d; border-color:#ffafc9; box-shadow:0 0 8px #ff6b9d; }
+#p2box .pip.filled { background:#43e97b; border-color:#80ffb5; box-shadow:0 0 8px #43e97b; }
 .vs { align-self:center; font-size:0.85em; color:#555; }
-
 #countdown {
   position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
   font-size:8em; font-weight:900; opacity:0;
@@ -73,7 +75,6 @@ input[type=text]:focus { border-color:#c77dff; }
   text-shadow:0 0 40px currentColor;
   transition:opacity 0.2s;
 }
-
 .ctrl-table { width:100%; border-collapse:collapse; font-size:0.9em; }
 .ctrl-table td { padding:5px 10px; }
 .ctrl-table td:first-child { color:#c77dff; font-weight:700; }
@@ -86,7 +87,7 @@ input[type=text]:focus { border-color:#c77dff; }
 <div id="ui">
   <div class="screen active" id="s-title">
     <h1>ぐにゃファイター</h1>
-    <p class="sub">ぐにゃぐにゃ物理で戦う<br>2人オンライン対戦クソゲー</p>
+    <p class="sub">ぐにゃぐにゃ物理で戦う<br>2人オンライン対戦ゲー</p>
     <button class="btn-p" onclick="showHost()">🏠 ホスト（部屋を作る）</button>
     <button class="btn-s" onclick="showJoin()">🔗 参加（コードで入る）</button>
   </div>
@@ -128,12 +129,12 @@ input[type=text]:focus { border-color:#c77dff; }
 <div id="hud">
   <div class="score-box" id="p1box">
     <div class="sname">P1 🩷</div>
-    <div class="sval" id="p1v">0</div>
+    <div class="pips" id="p1pips"></div>
   </div>
   <div class="vs">VS</div>
   <div class="score-box" id="p2box">
     <div class="sname">P2 💚</div>
-    <div class="sval" id="p2v">0</div>
+    <div class="pips" id="p2pips"></div>
   </div>
 </div>
 <div id="countdown"></div>
@@ -161,6 +162,98 @@ resize();
 window.addEventListener('resize', () => { resize(); if (GAME) GAME.resize(); });
 
 // ════════════════════════════════════
+//  Sound System (Web Audio API)
+// ════════════════════════════════════
+let AC = null;
+function getAC() {
+  if (!AC) AC = new AudioContext();
+  if (AC.state === 'suspended') AC.resume();
+  return AC;
+}
+
+function _osc(ac, type, freq, vol, t, decay) {
+  const osc = ac.createOscillator();
+  const g = ac.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, t);
+  g.gain.setValueAtTime(vol, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + decay);
+  osc.connect(g); g.connect(ac.destination);
+  osc.start(t); osc.stop(t + decay + 0.02);
+  return osc;
+}
+
+function sndHit() {
+  const ac = getAC(); const t = ac.currentTime;
+  // Filtered noise burst
+  const len = Math.floor(ac.sampleRate * 0.08);
+  const buf = ac.createBuffer(1, len, ac.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  const src = ac.createBufferSource(); src.buffer = buf;
+  const filt = ac.createBiquadFilter();
+  filt.type = 'bandpass'; filt.frequency.value = 340 + Math.random() * 80; filt.Q.value = 1.1;
+  const g = ac.createGain();
+  g.gain.setValueAtTime(0.65, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+  src.connect(filt); filt.connect(g); g.connect(ac.destination); src.start(t);
+  // Sub punch
+  const o = ac.createOscillator();
+  o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.07);
+  const g2 = ac.createGain();
+  g2.gain.setValueAtTime(0.5, t); g2.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+  o.connect(g2); g2.connect(ac.destination); o.start(t); o.stop(t + 0.09);
+}
+
+function sndJump() {
+  const ac = getAC(); const t = ac.currentTime;
+  const freq = 160 + Math.random() * 40;
+  const o = ac.createOscillator();
+  o.frequency.setValueAtTime(freq, t); o.frequency.exponentialRampToValueAtTime(freq * 2.5, t + 0.13);
+  const g = ac.createGain();
+  g.gain.setValueAtTime(0.2, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+  o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 0.16);
+}
+
+function sndLand() {
+  const ac = getAC(); const t = ac.currentTime;
+  const o = ac.createOscillator(); o.type = 'sine';
+  o.frequency.setValueAtTime(95, t); o.frequency.exponentialRampToValueAtTime(28, t + 0.07);
+  const g = ac.createGain();
+  g.gain.setValueAtTime(0.38, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+  o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 0.09);
+}
+
+function sndDeath() {
+  const ac = getAC(); const t = ac.currentTime;
+  const o = ac.createOscillator(); o.type = 'sawtooth';
+  o.frequency.setValueAtTime(460, t); o.frequency.exponentialRampToValueAtTime(55, t + 0.5);
+  const g = ac.createGain();
+  g.gain.setValueAtTime(0.22, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+  o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 0.55);
+}
+
+function sndWin() {
+  const ac = getAC();
+  [523, 659, 784, 1047].forEach((freq, i) => {
+    const t = ac.currentTime + i * 0.11;
+    _osc(ac, 'sine', freq, 0.16, t, 0.22);
+  });
+}
+
+function sndBeep(freq, vol = 0.18, dur = 0.1) {
+  const ac = getAC(); const t = ac.currentTime;
+  _osc(ac, 'sine', freq, vol, t, dur);
+}
+
+// ════════════════════════════════════
+//  Physics constants
+// ════════════════════════════════════
+const DT = 1 / 60;
+const DT2 = DT * DT;
+const GRAVITY = 1400;
+const DRAG = 0.982;
+
+// ════════════════════════════════════
 //  Verlet Particle
 // ════════════════════════════════════
 class P {
@@ -170,7 +263,6 @@ class P {
     this.fx = 0; this.fy = 0;
     this.mass = mass;
   }
-  vel() { return { x: this.x - this.ox, y: this.y - this.oy }; }
   push(fx, fy) { this.fx += fx; this.fy += fy; }
   step(gravity, damp) {
     const vx = (this.x - this.ox) * damp + this.fx / this.mass * DT2;
@@ -199,32 +291,20 @@ class Spring {
   }
 }
 
-const DT = 1 / 60;
-const DT2 = DT * DT;
-const GRAVITY = 1400;
-const DRAG = 0.982;
-
 // ════════════════════════════════════
 //  Platform (tilting seesaw)
 // ════════════════════════════════════
 class Platform {
   constructor() { this.reset(); }
-  reset() {
-    this.angle = 0; this.avel = 0;
-    this.bob = 0; this.bobV = 0;
-  }
+  reset() { this.angle = 0; this.avel = 0; this.bob = 0; this.bobV = 0; }
   update(x1, x2) {
-    const cx = W / 2;
-    const lean = ((x1 > cx ? 1 : -1) + (x2 > cx ? 1 : -1)) * 0.0015;
+    const wc = W / 2;
+    const lean = ((x1 > wc ? 1 : -1) + (x2 > wc ? 1 : -1)) * 0.0015;
     this.avel = (this.avel + lean) * 0.93;
     this.angle = Math.max(-0.38, Math.min(0.38, this.angle + this.avel));
-    this.bobV += (0 - this.bob) * 0.04;
-    this.bobV *= 0.88;
-    this.bob += this.bobV;
+    this.bobV += (0 - this.bob) * 0.04; this.bobV *= 0.88; this.bob += this.bobV;
   }
-  surfaceY(wx) {
-    return H * 0.58 + this.bob + Math.sin(this.angle) * (wx - W / 2);
-  }
+  surfaceY(wx) { return H * 0.58 + this.bob + Math.sin(this.angle) * (wx - W / 2); }
   halfW() { return W * 0.28; }
   hit(energy) { this.bobV += energy; }
   inRange(wx) { return Math.abs(wx - W / 2) < this.halfW() + 10; }
@@ -235,10 +315,8 @@ class Platform {
     const hw = this.halfW(), th = 22;
     const g = cx.createLinearGradient(0, 0, 0, th);
     g.addColorStop(0, '#5a7fff'); g.addColorStop(1, '#2a3f99');
-    cx.fillStyle = g; cx.strokeStyle = '#8ab';  cx.lineWidth = 2;
-    cx.beginPath();
-    roundRect(cx, -hw, 0, hw * 2, th, 8);
-    cx.fill(); cx.stroke();
+    cx.fillStyle = g; cx.strokeStyle = '#8ab'; cx.lineWidth = 2;
+    cx.beginPath(); roundRect(cx, -hw, 0, hw * 2, th, 8); cx.fill(); cx.stroke();
     cx.fillStyle = 'rgba(255,255,255,0.18)';
     cx.beginPath(); roundRect(cx, -hw + 5, 3, hw * 2 - 10, 7, 4); cx.fill();
     cx.restore();
@@ -257,10 +335,8 @@ function roundRect(c, x, y, w, h, r) {
 // ════════════════════════════════════
 //  Character (soft body)
 // ════════════════════════════════════
-// Particle indices
 const PI = { PEL:0, CHE:1, HEA:2, LSH:3, LEL:4, LHA:5, RSH:6, REL:7, RHA:8,
               LHI:9, LKN:10, LFT:11, RHI:12, RKN:13, RFT:14 };
-const NP = 15;
 
 class Character {
   constructor(x, y, color, isP1) {
@@ -268,6 +344,14 @@ class Character {
     this.onGround = false; this.dead = false;
     this.facing = isP1 ? 1 : -1;
     this.atkCD = 0; this.atkAnim = 0; this.hitFlash = 0;
+    this.jumpCooldown = 0; this.jumpBuffer = 0;
+    this.squashT = 0; this.squashDir = 'land';
+    // Events: set during update, cleared after sound played
+    this.landEvent = false; this.jumpEvent = false;
+    // Network-pending event flags: accumulate until next net send
+    this.netLand = false; this.netJump = false;
+    // Afterimage trail
+    this.trail = []; this._trailHx = 0; this._trailHy = 0;
     this._build(x, y);
   }
 
@@ -275,9 +359,9 @@ class Character {
     const s = this._s = H * 0.048;
     const ps = (ix, iy) => new P(x + ix * s, y + iy * s, 1);
     this.pts = [
-      ps(0, 0),     // PEL
-      ps(0, -1.6),  // CHE
-      ps(0, -3.2),  // HEA
+      ps(0, 0),       // PEL
+      ps(0, -1.6),    // CHE
+      ps(0, -3.2),    // HEA
       ps(-1.1, -1.4), // LSH
       ps(-2.0, -0.5), // LEL
       ps(-2.8,  0.5), // LHA
@@ -293,17 +377,16 @@ class Character {
     ];
     const p = this.pts;
     const sp = (a, b, k) => new Spring(p[a], p[b], undefined, k);
-    const bs = 0.28, ls = 0.12; // body / limb stiffness
+    const bs = 0.28, ls = 0.12;
     this.springs = [
       sp(PI.PEL, PI.CHE, bs), sp(PI.CHE, PI.HEA, bs),
-      sp(PI.PEL, PI.HEA, bs * 0.5), // spine cross
+      sp(PI.PEL, PI.HEA, bs * 0.5),
       sp(PI.CHE, PI.LSH, bs), sp(PI.LSH, PI.LEL, ls), sp(PI.LEL, PI.LHA, ls),
       sp(PI.CHE, PI.RSH, bs), sp(PI.RSH, PI.REL, ls), sp(PI.REL, PI.RHA, ls),
       sp(PI.PEL, PI.LHI, bs), sp(PI.LHI, PI.LKN, ls), sp(PI.LKN, PI.LFT, ls),
       sp(PI.PEL, PI.RHI, bs), sp(PI.RHI, PI.RKN, ls), sp(PI.RKN, PI.RFT, ls),
-      sp(PI.LHI, PI.RHI, bs), // hip width
+      sp(PI.LHI, PI.RHI, bs),
     ];
-    this.jumpCooldown = 0;
   }
 
   p(i) { return this.pts[i]; }
@@ -316,19 +399,24 @@ class Character {
     if (inp.left)  { pel.push(-spd * pel.mass, 0); this.facing = -1; }
     if (inp.right) { pel.push( spd * pel.mass, 0); this.facing =  1; }
 
-    if (inp.jump && this.onGround && this.jumpCooldown <= 0) {
+    // Jump with 6-frame input buffer
+    if (inp.jump) this.jumpBuffer = Math.max(this.jumpBuffer, 6);
+    if (this.jumpBuffer > 0 && this.onGround && this.jumpCooldown <= 0) {
       const jf = -s * 8.5 / DT;
-      pel.oy = pel.y - jf * DT; // set velocity via verlet trick
-      this.onGround = false; this.jumpCooldown = 20;
+      pel.oy = pel.y - jf * DT;
+      this.onGround = false; this.jumpCooldown = 20; this.jumpBuffer = 0;
       if (plat) plat.hit(-2.5);
+      this.squashT = 0.85; this.squashDir = 'jump';
+      this.jumpEvent = true;
     }
+    if (this.jumpBuffer > 0) this.jumpBuffer--;
 
     if (inp.punch && this.atkCD <= 0) {
       this.atkCD = 35; this.atkAnim = 22;
       const hIdx = this.facing === 1 ? PI.RHA : PI.LHA;
       const eIdx = this.facing === 1 ? PI.REL : PI.LEL;
       const pf = s * 5000;
-      this.p(hIdx).push(this.facing * pf,  -pf * 0.6);
+      this.p(hIdx).push(this.facing * pf, -pf * 0.6);
       this.p(eIdx).push(this.facing * pf * 0.5, -pf * 0.3);
     }
   }
@@ -338,18 +426,18 @@ class Character {
     if (this.atkAnim > 0) this.atkAnim--;
     if (this.hitFlash > 0) this.hitFlash--;
     if (this.jumpCooldown > 0) this.jumpCooldown--;
+    if (this.squashT > 0) this.squashT = Math.max(0, this.squashT - 0.07);
 
     for (const pt of this.pts) pt.step(GRAVITY, DRAG);
     for (let i = 0; i < 10; i++) for (const sp of this.springs) sp.solve();
 
-    // Platform collision
+    const wasOnGround = this.onGround;
     this.onGround = false;
     if (plat) {
       for (const pt of this.pts) {
         if (plat.inRange(pt.x)) {
           const sy = plat.surfaceY(pt.x);
           if (pt.y > sy) {
-            const pen = pt.y - sy;
             pt.y = sy;
             if (pt.y - pt.oy > 0) pt.oy = pt.y;
             this.onGround = true;
@@ -358,7 +446,11 @@ class Character {
       }
     }
 
-    // World clamp (x only; fall off bottom = dead)
+    if (!wasOnGround && this.onGround) {
+      this.landEvent = true;
+      this.squashT = 1.0; this.squashDir = 'land';
+    }
+
     for (const pt of this.pts) {
       if (pt.x < -W * 0.15) { pt.x = -W * 0.15; pt.ox = pt.x; }
       if (pt.x > W * 1.15)  { pt.x =  W * 1.15;  pt.ox = pt.x; }
@@ -379,14 +471,14 @@ class Character {
       oPel.push(this.facing * f, -f * 0.55);
       other.p(PI.CHE).push(this.facing * f * 0.4, -f * 0.3);
       other.hitFlash = 18;
-      this.atkAnim = 0; // single hit
+      this.atkAnim = 0;
       return true;
     }
     return false;
   }
 
   pushApart(other) {
-    const pairs = [[PI.PEL, PI.PEL],[PI.CHE, PI.CHE],[PI.PEL, PI.CHE],[PI.CHE, PI.PEL]];
+    const pairs = [[PI.PEL,PI.PEL],[PI.CHE,PI.CHE],[PI.PEL,PI.CHE],[PI.CHE,PI.PEL]];
     const minD = this._s * 2.2;
     for (const [ai, bi] of pairs) {
       const a = this.p(ai), b = other.p(bi);
@@ -400,25 +492,54 @@ class Character {
     }
   }
 
-  serialize() {
-    return this.pts.map(p => [p.x, p.y, p.ox, p.oy]);
-  }
-  deserialize(d) {
-    d.forEach((v, i) => {
-      this.pts[i].x = v[0]; this.pts[i].y = v[1];
-      this.pts[i].ox = v[2]; this.pts[i].oy = v[3];
-    });
-  }
+  serialize() { return this.pts.map(pt => [pt.x, pt.y, pt.ox, pt.oy]); }
+  deserialize(d) { d.forEach((v, i) => { this.pts[i].x = v[0]; this.pts[i].y = v[1]; this.pts[i].ox = v[2]; this.pts[i].oy = v[3]; }); }
 
   draw() {
     const s = this._s;
+    const hd = this.pts[PI.HEA];
+    const pel = this.pts[PI.PEL];
+
+    // Afterimage trail (velocity-based)
+    const spd = Math.hypot(hd.x - this._trailHx, hd.y - this._trailHy);
+    if (spd > 4.5) {
+      this.trail.unshift({ x: hd.x, y: hd.y });
+      if (this.trail.length > 7) this.trail.pop();
+    } else if (this.trail.length > 0) {
+      this.trail.pop();
+    }
+    this._trailHx = hd.x; this._trailHy = hd.y;
+
+    const n = this.trail.length;
+    if (n > 0) {
+      this.trail.forEach((tr, i) => {
+        cx.globalAlpha = ((n - i) / n) * 0.17;
+        cx.fillStyle = this.color;
+        cx.beginPath(); cx.arc(tr.x, tr.y, s * 1.0, 0, Math.PI * 2); cx.fill();
+      });
+      cx.globalAlpha = 1;
+    }
+
     const fl = this.hitFlash > 0 && (Math.floor(this.hitFlash / 3) % 2 === 0);
     const col = fl ? '#fff' : this.color;
     const dark = fl ? '#bbb' : (this.isP1 ? '#aa2255' : '#229966');
     const pts = this.pts;
 
+    // Squash & stretch: scale canvas around body center
+    const ccx = (pel.x + hd.x) / 2;
+    const ccy = (pel.y + hd.y) / 2;
+
     cx.save();
     cx.lineCap = 'round'; cx.lineJoin = 'round';
+
+    if (this.squashT > 0) {
+      const t = this.squashT;
+      const sx = this.squashDir === 'land' ?  t * 0.20 : -t * 0.10;
+      const sy = this.squashDir === 'land' ? -t * 0.20 :  t * 0.25;
+      cx.translate(ccx, ccy);
+      cx.scale(1 + sx, 1 + sy);
+      cx.translate(-ccx, -ccy);
+    }
 
     const limb = (a, b, w) => {
       const pa = pts[a], pb = pts[b];
@@ -428,37 +549,30 @@ class Character {
       cx.beginPath(); cx.moveTo(pa.x, pa.y); cx.lineTo(pb.x, pb.y); cx.stroke();
     };
 
-    // legs
     limb(PI.LHI, PI.LKN, s * 0.72); limb(PI.LKN, PI.LFT, s * 0.65);
     limb(PI.RHI, PI.RKN, s * 0.72); limb(PI.RKN, PI.RFT, s * 0.65);
-    // arms
     limb(PI.LSH, PI.LEL, s * 0.62); limb(PI.LEL, PI.LHA, s * 0.55);
     limb(PI.RSH, PI.REL, s * 0.62); limb(PI.REL, PI.RHA, s * 0.55);
 
-    // torso blob
-    const pel = pts[PI.PEL], che = pts[PI.CHE];
+    const che = pts[PI.CHE];
     const ang = Math.atan2(che.y - pel.y, che.x - pel.x);
     const mx = (pel.x + che.x) / 2, my = (pel.y + che.y) / 2;
     cx.fillStyle = dark;
     cx.beginPath(); cx.ellipse(mx, my, s * 0.85, s * 1.35, ang, 0, Math.PI * 2); cx.fill();
     cx.fillStyle = col;
-    cx.beginPath(); cx.ellipse(mx, my, s * 0.7,  s * 1.15, ang, 0, Math.PI * 2); cx.fill();
+    cx.beginPath(); cx.ellipse(mx, my, s * 0.7, s * 1.15, ang, 0, Math.PI * 2); cx.fill();
 
-    // head
-    const hd = pts[PI.HEA];
     cx.fillStyle = dark;
     cx.beginPath(); cx.arc(hd.x, hd.y, s * 1.2, 0, Math.PI * 2); cx.fill();
     cx.fillStyle = col;
     cx.beginPath(); cx.arc(hd.x, hd.y, s * 1.05, 0, Math.PI * 2); cx.fill();
 
-    // eyes
     const ex = this.facing * s * 0.38;
     cx.fillStyle = '#fff';
     cx.beginPath(); cx.arc(hd.x + ex, hd.y - s * 0.1, s * 0.3, 0, Math.PI * 2); cx.fill();
     cx.fillStyle = '#111';
     cx.beginPath(); cx.arc(hd.x + ex + this.facing * s * 0.1, hd.y - s * 0.1, s * 0.16, 0, Math.PI * 2); cx.fill();
 
-    // hands
     for (const hi of [PI.LHA, PI.RHA]) {
       const h = pts[hi];
       cx.fillStyle = dark;
@@ -467,7 +581,6 @@ class Character {
       cx.beginPath(); cx.arc(h.x, h.y, s * 0.38, 0, Math.PI * 2); cx.fill();
     }
 
-    // feet
     for (const fi of [PI.LFT, PI.RFT]) {
       const f = pts[fi];
       cx.fillStyle = dark;
@@ -481,33 +594,55 @@ class Character {
 }
 
 // ════════════════════════════════════
-//  Sparkles
+//  Sparks (particles)
 // ════════════════════════════════════
 class Sparks {
   constructor() { this.ps = []; }
-  burst(x, y, n, col) {
+
+  burst(x, y, n, col, dirX = 0, dirY = -1) {
+    const base = Math.atan2(dirY, dirX);
     for (let i = 0; i < n; i++) {
-      const a = Math.random() * Math.PI * 2, sp = Math.random() * 7 + 2;
-      this.ps.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 3, life: 1, col });
+      const a = base + (Math.random() - 0.5) * Math.PI * 1.4;
+      const sp = Math.random() * 9 + 3;
+      this.ps.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 2,
+        life: 1, col, size: 2 + Math.random() * 3, type: 'spark' });
     }
   }
+
+  dust(x, y, n) {
+    for (let i = 0; i < n; i++) {
+      const a = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI;
+      const sp = Math.random() * 3 + 0.5;
+      this.ps.push({
+        x: x + (Math.random() - 0.5) * 28, y,
+        vx: Math.cos(a) * sp * 2.2, vy: -Math.random() * 2.5 - 0.5,
+        life: 1, col: 'rgba(155,165,215,0.65)', size: 7 + Math.random() * 9, type: 'dust'
+      });
+    }
+  }
+
   update() {
     this.ps = this.ps.filter(p => {
-      p.x += p.vx; p.y += p.vy; p.vy += 0.35; p.life -= 0.033; return p.life > 0;
+      p.x += p.vx; p.y += p.vy;
+      if (p.type === 'spark') { p.vy += 0.35; p.life -= 0.038; }
+      else { p.vy += 0.04; p.vx *= 0.86; p.life -= 0.026; }
+      return p.life > 0;
     });
   }
+
   draw() {
     for (const p of this.ps) {
-      cx.globalAlpha = p.life * p.life;
+      cx.globalAlpha = p.type === 'dust' ? p.life * 0.65 : p.life * p.life;
       cx.fillStyle = p.col;
-      cx.beginPath(); cx.arc(p.x, p.y, 2 + p.life * 4, 0, Math.PI * 2); cx.fill();
+      const r = p.type === 'dust' ? p.size * (p.life * 0.6 + 0.4) : p.size;
+      cx.beginPath(); cx.arc(p.x, p.y, r, 0, Math.PI * 2); cx.fill();
     }
     cx.globalAlpha = 1;
   }
 }
 
 // ════════════════════════════════════
-//  Star background (pre-seeded)
+//  Star background
 // ════════════════════════════════════
 const STARS = Array.from({ length: 60 }, (_, i) => ({
   x: Math.sin(i * 2.371) * 0.5 + 0.5,
@@ -537,15 +672,15 @@ class Game {
     this.send = sendFn;
     this.score = [0, 0];
     this.sparks = new Sparks();
-    this.shX = 0; this.shY = 0;
+    this.trauma = 0; this.shX = 0; this.shY = 0;
+    this.hitStop = 0; this._netHit = false;
     this.phase = 'idle';
     this._initRound();
   }
 
   _initRound() {
     this.plat = new Platform();
-    const cx0 = W / 2;
-    const cy0 = H * 0.58 - H * 0.14;
+    const cx0 = W / 2, cy0 = H * 0.58 - H * 0.14;
     this.chars = [
       new Character(cx0 - W * 0.13, cy0, '#ff6b9d', true),
       new Character(cx0 + W * 0.13, cy0, '#43e97b', false),
@@ -553,22 +688,34 @@ class Game {
     this.p1in = { left:false, right:false, jump:false, punch:false };
     this.p2in = { left:false, right:false, jump:false, punch:false };
     this.phase = 'idle';
-    this.shX = 0; this.shY = 0;
+    this.trauma = 0; this.shX = 0; this.shY = 0;
+    this.hitStop = 0; this._netHit = false;
   }
 
   resize() {
-    const score = [...this.score];
-    const phase = this.phase;
+    const score = [...this.score], phase = this.phase;
     this._initRound();
-    this.score = score;
-    this.phase = phase;
+    this.score = score; this.phase = phase;
     updateHUD(score);
   }
+
+  _addTrauma(t) { this.trauma = Math.min(1, this.trauma + t); }
 
   update() {
     if (this.phase !== 'playing') return;
 
-    this.shX *= 0.82; this.shY *= 0.82;
+    // Trauma² screenshake (Vlambeer-style)
+    this.trauma = Math.max(0, this.trauma - 0.038);
+    const sh = this.trauma * this.trauma * 20;
+    this.shX = (Math.random() * 2 - 1) * sh;
+    this.shY = (Math.random() * 2 - 1) * sh;
+
+    // Hit-stop: freeze physics, let particles/shake play
+    if (this.hitStop > 0) {
+      this.hitStop--;
+      this.sparks.update();
+      return;
+    }
 
     const [c1, c2] = this.chars;
     const plat = this.plat;
@@ -581,29 +728,56 @@ class Game {
       c1.pushApart(c2);
       plat.update(c1.p(PI.PEL).x, c2.p(PI.PEL).x);
 
-      if (c1.checkHit(c2)) { this.sparks.burst(c2.p(PI.PEL).x, c2.p(PI.PEL).y, 14, '#ff6b9d'); this._shake(9); }
-      if (c2.checkHit(c1)) { this.sparks.burst(c1.p(PI.PEL).x, c1.p(PI.PEL).y, 14, '#43e97b'); this._shake(9); }
+      // Landing events
+      if (c1.landEvent) {
+        sndLand();
+        this.sparks.dust(c1.p(PI.LFT).x, plat.surfaceY(c1.p(PI.LFT).x), 7);
+        c1.netLand = true; c1.landEvent = false;
+      }
+      if (c2.landEvent) {
+        sndLand();
+        this.sparks.dust(c2.p(PI.LFT).x, plat.surfaceY(c2.p(PI.LFT).x), 7);
+        c2.netLand = true; c2.landEvent = false;
+      }
+      // Jump events
+      if (c1.jumpEvent) { sndJump(); c1.netJump = true; c1.jumpEvent = false; }
+      if (c2.jumpEvent) { sndJump(); c2.netJump = true; c2.jumpEvent = false; }
+
+      // Hit detection — AV-sync: sound+particles+shake all same frame
+      if (c1.checkHit(c2)) {
+        sndHit();
+        this.sparks.burst(c2.p(PI.PEL).x, c2.p(PI.PEL).y, 18, '#ff6b9d', c1.facing, -0.4);
+        this._addTrauma(0.65);
+        this.hitStop = 5; this._netHit = true;
+      }
+      if (this.hitStop === 0 && c2.checkHit(c1)) {
+        sndHit();
+        this.sparks.burst(c1.p(PI.PEL).x, c1.p(PI.PEL).y, 18, '#43e97b', c2.facing, -0.4);
+        this._addTrauma(0.65);
+        this.hitStop = 5; this._netHit = true;
+      }
 
       if (c1.dead || c2.dead) {
         const winner = c1.dead && !c2.dead ? 2 : !c1.dead && c2.dead ? 1 : 0;
         this._endRound(winner);
       }
     }
+
     this.sparks.update();
   }
-
-  _shake(a) { this.shX += (Math.random()*2-1)*a; this.shY += (Math.random()*2-1)*a; }
 
   _endRound(winner) {
     this.phase = 'roundEnd';
     if (winner !== 0) this.score[winner - 1]++;
     updateHUD(this.score);
     const gameOver = this.score[0] >= 3 || this.score[1] >= 3;
-
     const msg = gameOver
       ? (this.score[0] >= 3 ? '🏆 P1 の勝ち！' : '🏆 P2 の勝ち！')
       : (winner === 1 ? '🩷 P1 ポイント！' : winner === 2 ? '💚 P2 ポイント！' : '引き分け');
     const sub = `スコア: ${this.score[0]} – ${this.score[1]}`;
+
+    if (winner !== 0) sndDeath();
+    if (gameOver) setTimeout(sndWin, 280);
 
     showRoundScreen(msg, sub, gameOver);
     this.send({ t: 'rnd', w: winner, sc: [...this.score], over: gameOver });
@@ -619,18 +793,31 @@ class Game {
     }
   }
 
+  // Called on guest side with host state
   applyState(st) {
-    this.chars[0].deserialize(st.p1);
-    this.chars[1].deserialize(st.p2);
-    this.chars[0].dead = st.d1;
-    this.chars[1].dead = st.d2;
+    this.chars[0].deserialize(st.p1); this.chars[1].deserialize(st.p2);
+    this.chars[0].dead = st.d1; this.chars[1].dead = st.d2;
     this.plat.angle = st.pa; this.plat.bob = st.pb;
-    this.chars[0].facing = st.f1;
-    this.chars[1].facing = st.f2;
-    this.chars[0].atkAnim = st.a1;
-    this.chars[1].atkAnim = st.a2;
-    this.chars[0].hitFlash = st.h1;
-    this.chars[1].hitFlash = st.h2;
+    this.chars[0].facing = st.f1; this.chars[1].facing = st.f2;
+    this.chars[0].atkAnim = st.a1; this.chars[1].atkAnim = st.a2;
+    this.chars[0].hitFlash = st.h1; this.chars[1].hitFlash = st.h2;
+
+    // Replay events on guest
+    if (st.ev) {
+      if (st.ev.l1) { sndLand(); this.chars[0].squashT = 1.0; this.chars[0].squashDir = 'land'; }
+      if (st.ev.j1) { sndJump(); this.chars[0].squashT = 0.85; this.chars[0].squashDir = 'jump'; }
+      if (st.ev.l2) { sndLand(); this.chars[1].squashT = 1.0; this.chars[1].squashDir = 'land'; }
+      if (st.ev.j2) { sndJump(); this.chars[1].squashT = 0.85; this.chars[1].squashDir = 'jump'; }
+      if (st.ev.hit) { sndHit(); this._addTrauma(0.6); }
+    }
+
+    // Tick guest-side visual state
+    for (const c of this.chars) if (c.squashT > 0) c.squashT = Math.max(0, c.squashT - 0.07);
+    this.sparks.update();
+    this.trauma = Math.max(0, this.trauma - 0.038);
+    const sh = this.trauma * this.trauma * 20;
+    this.shX = (Math.random() * 2 - 1) * sh;
+    this.shY = (Math.random() * 2 - 1) * sh;
   }
 
   serializeState() {
@@ -642,6 +829,7 @@ class Game {
       f1: c1.facing, f2: c2.facing,
       a1: c1.atkAnim, a2: c2.atkAnim,
       h1: c1.hitFlash, h2: c2.hitFlash,
+      ev: { l1: c1.netLand, j1: c1.netJump, l2: c2.netLand, j2: c2.netJump, hit: this._netHit },
     };
   }
 
@@ -650,9 +838,10 @@ class Game {
     const msg = d.over
       ? (d.sc[0] >= 3 ? '🏆 P1 の勝ち！' : '🏆 P2 の勝ち！')
       : (d.w === 1 ? '🩷 P1 ポイント！' : d.w === 2 ? '💚 P2 ポイント！' : '引き分け');
-    const sub = `スコア: ${d.sc[0]} – ${d.sc[1]}`;
-    showRoundScreen(msg, sub, d.over);
+    showRoundScreen(msg, `スコア: ${d.sc[0]} – ${d.sc[1]}`, d.over);
     if (!d.over) setTimeout(hideRoundScreen, 2600);
+    if (d.w !== 0) sndDeath();
+    if (d.over) setTimeout(sndWin, 280);
   }
 
   draw() {
@@ -683,8 +872,15 @@ function hideRoundScreen() {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
 }
 function updateHUD(sc) {
-  document.getElementById('p1v').textContent = sc[0];
-  document.getElementById('p2v').textContent = sc[1];
+  for (let p = 1; p <= 2; p++) {
+    const box = document.getElementById(`p${p}pips`);
+    box.innerHTML = '';
+    for (let i = 0; i < 3; i++) {
+      const el = document.createElement('div');
+      el.className = 'pip' + (i < sc[p - 1] ? ' filled' : '');
+      box.appendChild(el);
+    }
+  }
 }
 function goTitle() {
   if (PEER) { PEER.destroy(); PEER = null; CONN = null; }
@@ -729,7 +925,6 @@ function initPeer(role, joinCode) {
       document.getElementById('hst-code').textContent = code.split('').join(' ');
       document.getElementById('hst-wait').textContent = '相手の接続を待っています…';
     } else {
-      // Connect to host
       CONN = PEER.connect('gnfight-' + joinCode, { reliable: false, serialization: 'json' });
       setupConn(CONN);
     }
@@ -737,8 +932,7 @@ function initPeer(role, joinCode) {
 
   PEER.on('connection', conn => {
     if (role === 'host') {
-      CONN = conn;
-      setupConn(CONN);
+      CONN = conn; setupConn(CONN);
       document.getElementById('hst-wait').textContent = '接続完了！ゲーム開始…';
       setTimeout(() => startGame('host'), 1200);
     }
@@ -752,9 +946,7 @@ function initPeer(role, joinCode) {
 }
 
 function setupConn(conn) {
-  conn.on('open', () => {
-    if (ROLE === 'guest') startGame('guest');
-  });
+  conn.on('open', () => { if (ROLE === 'guest') startGame('guest'); });
   conn.on('data', d => {
     if (!GAME) return;
     if (d.t === 'st' && ROLE === 'guest') {
@@ -763,7 +955,6 @@ function setupConn(conn) {
       GAME.p2in = d.i;
     } else if (d.t === 'rnd' && ROLE === 'guest') {
       GAME.applyRoundResult(d);
-      // Guest resets positions when next state arrives (host sends state continuously)
     }
   });
   conn.on('close', () => {
@@ -782,8 +973,8 @@ function startGame(role) {
 
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('hud').style.display = 'flex';
+  updateHUD([0, 0]);
 
-  // Show controls briefly then countdown
   show('s-controls');
   setTimeout(() => {
     hideRoundScreen();
@@ -793,17 +984,35 @@ function startGame(role) {
   document.addEventListener('keydown', onKD);
   document.addEventListener('keyup', onKU);
 
+  // Fixed timestep loop (Fiedler pattern)
+  let lastTs = performance.now();
+  let acc = 0;
   let lastNet = 0;
+
   function loop(ts) {
     LOOP = requestAnimationFrame(loop);
-    GAME.update();
+    const elapsed = Math.min((ts - lastTs) / 1000, 0.05); // cap spiral-of-death
+    lastTs = ts;
+    acc += elapsed;
+
+    while (acc >= DT) {
+      GAME.update();
+      acc -= DT;
+    }
+
     cx.clearRect(0, 0, W, H);
     GAME.draw();
-    // Network sync
+
     if (CONN && CONN.open) {
       if (ROLE === 'host' && ts - lastNet > 45) {
         lastNet = ts;
-        CONN.send({ t: 'st', s: GAME.serializeState() });
+        const st = GAME.serializeState();
+        CONN.send({ t: 'st', s: st });
+        // Clear network-pending event flags after sending
+        const [c1, c2] = GAME.chars;
+        c1.netLand = false; c1.netJump = false;
+        c2.netLand = false; c2.netJump = false;
+        GAME._netHit = false;
       } else if (ROLE === 'guest') {
         CONN.send({ t: 'in', i: GAME.p2in });
       }
@@ -817,10 +1026,12 @@ function countdown(n, cb) {
   const colors = ['#ff6b9d', '#c77dff', '#43e97b'];
   if (n === 0) {
     el.textContent = 'GO!'; el.style.color = '#fff'; el.style.opacity = '1';
+    sndBeep(1320, 0.28, 0.22);
     setTimeout(() => { el.style.opacity = '0'; cb(); }, 700);
     return;
   }
   el.textContent = n; el.style.color = colors[n - 1] || '#fff'; el.style.opacity = '1';
+  sndBeep(660, 0.18, 0.1);
   setTimeout(() => { el.style.opacity = '0'; setTimeout(() => countdown(n - 1, cb), 300); }, 700);
 }
 
@@ -829,6 +1040,7 @@ function countdown(n, cb) {
 // ════════════════════════════════════
 function onKD(e) {
   if (!GAME) return;
+  getAC(); // unlock AudioContext on first gesture
   const k = e.key.toLowerCase();
   if (ROLE === 'host') {
     if (k === 'a')     { GAME.p1in.left  = true; e.preventDefault(); }
@@ -869,7 +1081,6 @@ let idleT = 0;
   requestAnimationFrame(idleLoop);
   idleT += 0.016;
   drawBg();
-  // Idle demo characters wobbling
   const s = H * 0.048;
   const wobble = (x, y, t, col, dark) => {
     cx.save(); cx.lineCap = 'round';
