@@ -1,0 +1,14 @@
+{
+  "name": "@mwstudio/feedback",
+  "version": "0.0.0",
+  "private": true,
+  "description": "In-app feature-request / feedback widget shared by every Studio product. In-tool (not email), votable, auto-context, feeds the build pipeline.",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"TODO: feedback widget tests (post + triage E2E)\" && exit 0",
+    "lint": "echo \"TODO\""
+  }
+}
