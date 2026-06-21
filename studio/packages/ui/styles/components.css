@@ -1,0 +1,203 @@
+/* @mwstudio/ui — component styles. Tokens only (var(--*)); no hex/rgb.
+ * Motion animates transform/opacity only. Every interactive component
+ * implements all 8 states: default / hover / focus-visible / active /
+ * disabled / loading / error / success. */
+
+.mwui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    opacity var(--duration-micro) var(--ease-standard),
+    transform var(--duration-micro) var(--ease-standard);
+}
+.mwui-btn:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+.mwui-btn:active {
+  transform: translateY(1px);
+}
+.mwui-btn:disabled,
+.mwui-btn[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mwui-btn--sm {
+  font-size: var(--step--1);
+  padding: var(--space-2) var(--space-3);
+}
+.mwui-btn--md {
+  font-size: var(--step-0);
+  padding: var(--space-3) var(--space-4);
+}
+.mwui-btn--lg {
+  font-size: var(--step-1);
+  padding: var(--space-4) var(--space-6);
+}
+
+.mwui-btn--primary {
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+}
+.mwui-btn--primary:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+.mwui-btn--secondary {
+  background: var(--color-surface);
+  color: var(--color-fg);
+  border-color: var(--color-border-strong);
+}
+.mwui-btn--secondary:hover:not(:disabled) {
+  background: var(--color-bg-subtle);
+}
+.mwui-btn--ghost {
+  background: transparent;
+  color: var(--color-fg);
+}
+.mwui-btn--ghost:hover:not(:disabled) {
+  background: var(--color-bg-subtle);
+}
+
+.mwui-btn.is-loading {
+  cursor: progress;
+}
+.mwui-btn.is-error {
+  outline: 2px solid var(--color-error);
+  outline-offset: 2px;
+}
+.mwui-btn.is-success {
+  outline: 2px solid var(--color-success);
+  outline-offset: 2px;
+}
+
+.mwui-btn__spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--radius-full);
+  animation: mwui-spin var(--duration-reveal) linear infinite;
+}
+@keyframes mwui-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.mwui-input {
+  display: block;
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: var(--leading-normal);
+  color: var(--color-fg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  transition: border-color var(--duration-micro) var(--ease-standard);
+}
+.mwui-input::placeholder {
+  color: var(--color-fg-muted);
+}
+.mwui-input:hover:not(:disabled) {
+  border-color: var(--color-fg-muted);
+}
+.mwui-input:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 1px;
+  border-color: var(--color-accent);
+}
+.mwui-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--color-bg-muted);
+}
+.mwui-input--error {
+  border-color: var(--color-error);
+}
+.mwui-input--error:focus-visible {
+  outline-color: var(--color-error);
+}
+.mwui-input--success {
+  border-color: var(--color-success);
+}
+
+.mwui-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-weight: 600;
+  line-height: 1;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  border: 1px solid transparent;
+}
+.mwui-badge--neutral {
+  background: var(--color-bg-muted);
+  color: var(--color-fg);
+}
+.mwui-badge--accent {
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+}
+.mwui-badge--success {
+  background: var(--color-success);
+  color: var(--color-on-status);
+}
+.mwui-badge--warning {
+  background: var(--color-warning);
+  color: var(--color-on-status);
+}
+.mwui-badge--error {
+  background: var(--color-error);
+  color: var(--color-on-status);
+}
+.mwui-badge--outline {
+  background: transparent;
+  color: var(--color-fg);
+  border-color: var(--color-border-strong);
+}
+
+.mwui-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: clip;
+}
+.mwui-card__header {
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+.mwui-card__body {
+  padding: var(--space-6);
+}
+.mwui-card__footer {
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--color-border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mwui-btn,
+  .mwui-input {
+    transition: none;
+  }
+  .mwui-btn__spinner {
+    animation-duration: 0s;
+  }
+}
