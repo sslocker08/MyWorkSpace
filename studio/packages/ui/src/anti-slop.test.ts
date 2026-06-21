@@ -44,4 +44,18 @@ describe("anti-slop CSS gate", () => {
       expect(tokens).toContain(role);
     }
   });
+
+  it("lets explicit [data-theme] win over the prefers-color-scheme media query", () => {
+    // the dark media query must be scoped so a runtime light toggle works on a dark OS
+    expect(tokens).toMatch(
+      /@media \(prefers-color-scheme: dark\)\s*\{\s*:root:not\(\[data-theme\]\)/,
+    );
+  });
+
+  it("enforces the 48px tap-target floor on touch", () => {
+    expect(tokens).toContain("--tap-target-min: 48px");
+    expect(components).toMatch(
+      /@media \(pointer: coarse\)[\s\S]*min-height:\s*var\(--tap-target-min\)/,
+    );
+  });
 });

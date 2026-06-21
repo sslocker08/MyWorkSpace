@@ -100,6 +100,9 @@
   --radius-lg: 16px;
   --radius-full: 9999px;
 
+  /* minimum interactive target on touch (brand.a11y.minTouchTargetPx) */
+  --tap-target-min: 48px;
+
   /* ---- motion (transform/opacity only) ---- */
   --duration-micro: 150ms;
   --duration-standard: 250ms;
@@ -112,9 +115,10 @@
   --shadow-md: 0 4px 12px oklch(from var(--neutral-950) l c h / 0.16);
 }
 
-/* Dark mode: swap semantic layer only. */
+/* Dark mode: swap semantic layer only. Excluded when an explicit [data-theme]
+ * is set so runtime toggles (incl. forcing light on a dark OS) always win. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --color-bg: var(--neutral-950);
     --color-bg-subtle: var(--neutral-900);
     --color-bg-muted: var(--neutral-800);

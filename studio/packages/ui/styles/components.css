@@ -192,6 +192,15 @@
   border-top: 1px solid var(--color-border);
 }
 
+/* Touch devices: enforce the 48px tap-target floor (brand.a11y / ANTI-SLOP)
+ * without bloating dense desktop (fine-pointer) layouts. */
+@media (pointer: coarse) {
+  .mwui-btn,
+  .mwui-input {
+    min-height: var(--tap-target-min);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .mwui-btn,
   .mwui-input {
