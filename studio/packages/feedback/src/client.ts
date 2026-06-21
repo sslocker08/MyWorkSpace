@@ -95,14 +95,9 @@ export class DefaultFeedbackClient implements FeedbackClient {
   }
 
   async vote(id: string): Promise<FeedbackItem> {
-    const item = await this.requireItem(id);
-    const updated: FeedbackItem = {
-      ...item,
-      votes: item.votes + 1,
-      updatedAt: this.clock().toISOString(),
-    };
-    await this.store.update(updated);
-    return updated;
+    // Delegate to the store's atomic increment rather than read-modify-write
+    // here, so concurrent votes can't lose an update.
+    return this.store.incrementVotes(id, this.clock().toISOString());
   }
 
   async updateStatus(

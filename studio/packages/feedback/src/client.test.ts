@@ -71,6 +71,15 @@ describe("DefaultFeedbackClient", () => {
     expect(voted.updatedAt).not.toBe(item.updatedAt);
   });
 
+  it("does not lose concurrent votes (atomic increment)", async () => {
+    const item = await client.submit(payload());
+    await Promise.all(
+      Array.from({ length: 25 }, () => client.vote(item.id)),
+    );
+    const [got] = await client.list("reef-sim");
+    expect(got.votes).toBe(25);
+  });
+
   it("advances status forward and records shippedAt once", async () => {
     const item = await client.submit(payload());
     await client.updateStatus(item.id, "triaged");
