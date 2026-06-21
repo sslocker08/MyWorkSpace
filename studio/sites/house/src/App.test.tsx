@@ -2,27 +2,55 @@ import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { DefaultFeedbackClient } from "@mwstudio/feedback";
+import { Analytics, InMemorySink } from "@mwstudio/analytics";
+import { AnalyticsProvider } from "@mwstudio/analytics/react";
 import { App } from "./App";
+
+function renderApp() {
+  const feedbackClient = new DefaultFeedbackClient();
+  const sink = new InMemorySink();
+  const analytics = new Analytics({
+    productId: "house",
+    appVersion: "0.1.0",
+    sink,
+  });
+  render(
+    <AnalyticsProvider analytics={analytics}>
+      <App feedbackClient={feedbackClient} />
+    </AnalyticsProvider>,
+  );
+  return { feedbackClient, sink };
+}
 
 describe("House site (Wave 0 shared-layer integration)", () => {
   it("renders the portfolio using @mwstudio/ui primitives", () => {
-    render(<App feedbackClient={new DefaultFeedbackClient()} />);
+    renderApp();
     expect(
       screen.getByRole("heading", { name: /競合が少ない/ }),
     ).toBeInTheDocument();
-    // @mwstudio/ui Button
     expect(
       screen.getByRole("button", { name: /ポートフォリオを見る/ }),
     ).toHaveClass("mwui-btn");
-    // data-driven Card content
     expect(screen.getByText(/Cosplay foam-armor CAD/)).toBeInTheDocument();
     expect(screen.getAllByText("FAB").length).toBeGreaterThan(0);
   });
 
-  it("lets a visitor file an in-tool feedback request via @mwstudio/feedback", async () => {
+  it("tracks a page_view on load via @mwstudio/analytics", () => {
+    const { sink } = renderApp();
+    expect(sink.byName("page_view")).toHaveLength(1);
+    expect(sink.byName("page_view")[0].props).toEqual({ path: "/" });
+  });
+
+  it("tracks cta_click when the hero CTA is pressed", async () => {
     const user = userEvent.setup();
-    const client = new DefaultFeedbackClient();
-    render(<App feedbackClient={client} />);
+    const { sink } = renderApp();
+    await user.click(screen.getByRole("button", { name: /ポートフォリオを見る/ }));
+    expect(sink.byName("cta_click")[0].props).toEqual({ id: "hero-portfolio" });
+  });
+
+  it("files an in-tool request and tracks feedback_submitted end to end", async () => {
+    const user = userEvent.setup();
+    const { feedbackClient, sink } = renderApp();
 
     await user.click(screen.getByRole("button", { name: /リクエスト/ }));
     await user.type(
@@ -33,10 +61,12 @@ describe("House site (Wave 0 shared-layer integration)", () => {
 
     expect(await screen.findByText(/受け付けました/)).toBeInTheDocument();
 
-    // the request reached the client with auto-captured context from this app
-    const list = await client.list("house");
+    const list = await feedbackClient.list("house");
     expect(list).toHaveLength(1);
     expect(list[0].context.featureId).toBe("home");
-    expect(list[0].body).toContain("dark-mode toggle");
+
+    const tracked = sink.byName("feedback_submitted");
+    expect(tracked).toHaveLength(1);
+    expect(tracked[0].props.feedbackId).toBe(list[0].id);
   });
 });

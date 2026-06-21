@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@mwstudio/analytics": "workspace:*",
     "@mwstudio/feedback": "workspace:*",
     "@mwstudio/ui": "workspace:*",
     "react": "^18.3.1",
