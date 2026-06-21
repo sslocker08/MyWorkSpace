@@ -1067,6 +1067,9 @@ function renderReveal(S){
 }
 function enterBattle(){
   el('logbox').innerHTML='';
+  // reset art FX state so a previous battle's faint/switch animation never leaks
+  // into a fresh match (CSS .art.fainted is opacity:0 forwards → would hide the new monster)
+  ['you','foe'].forEach(p=>{ const a=el(p+'-art'); a.classList.remove('fainted','switch-in'); a.style.opacity='1'; a.style.transform=''; });
   show('s-battle');
   renderBattle(B.S);
   logLine('バトル かいし！');
@@ -1082,7 +1085,9 @@ function showResult(winner){
   B.S.sides[B.you].party.forEach(p=>{
     const d = document.createElement('div'); d.className='pip-mon'+(p.fainted?' dead':''); d.innerHTML=makeMonsterSVG(SP(p).svg); surv.appendChild(d);
   });
-  el('result-rematch').style.display = (B.mode==='guest') ? 'none' : '';
+  // Both host AND guest must be able to request a rematch online, otherwise tryRematch()
+  // (which needs rematchMe && rematchYou) deadlocks. Only hide it for nothing.
+  el('result-rematch').style.display = '';
   show('s-result');
   if(won) sndWin(); else sndLose();
 }
