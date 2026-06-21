@@ -1,0 +1,151 @@
+/* @mwstudio/ui — design tokens (OKLCH, CSS-variable driven).
+ *
+ * Two layers (color-systems skill):
+ *   primitives  --<role>-<step>   raw OKLCH ramps, never used directly by components
+ *   semantic    --color-*         the only names components reference
+ *
+ * Each product swaps its brand by overriding the SEMANTIC layer (and optionally
+ * the primitive hue/chroma) via its own DESIGN.md → generated token file.
+ * Anti-slop discipline: no hex/rgb anywhere; OKLCH only. */
+
+:root {
+  /* ---- primitive ramps (brand hue/chroma are the swap points) ---- */
+  --brand-h: 264;
+  --brand-c: 0.13;
+
+  --brand-50: oklch(0.97 calc(var(--brand-c) * 0.25) var(--brand-h));
+  --brand-100: oklch(0.94 calc(var(--brand-c) * 0.4) var(--brand-h));
+  --brand-200: oklch(0.88 calc(var(--brand-c) * 0.6) var(--brand-h));
+  --brand-300: oklch(0.8 calc(var(--brand-c) * 0.8) var(--brand-h));
+  --brand-400: oklch(0.72 var(--brand-c) var(--brand-h));
+  --brand-500: oklch(0.62 var(--brand-c) var(--brand-h));
+  --brand-600: oklch(0.54 var(--brand-c) var(--brand-h));
+  --brand-700: oklch(0.45 calc(var(--brand-c) * 0.9) var(--brand-h));
+  --brand-800: oklch(0.36 calc(var(--brand-c) * 0.75) var(--brand-h));
+  --brand-900: oklch(0.27 calc(var(--brand-c) * 0.6) var(--brand-h));
+  --brand-950: oklch(0.18 calc(var(--brand-c) * 0.45) var(--brand-h));
+
+  --neutral-50: oklch(0.98 0.003 var(--brand-h));
+  --neutral-100: oklch(0.96 0.004 var(--brand-h));
+  --neutral-200: oklch(0.92 0.005 var(--brand-h));
+  --neutral-300: oklch(0.86 0.006 var(--brand-h));
+  --neutral-400: oklch(0.72 0.007 var(--brand-h));
+  --neutral-500: oklch(0.6 0.008 var(--brand-h));
+  --neutral-600: oklch(0.5 0.008 var(--brand-h));
+  --neutral-700: oklch(0.4 0.007 var(--brand-h));
+  --neutral-800: oklch(0.3 0.006 var(--brand-h));
+  --neutral-900: oklch(0.22 0.005 var(--brand-h));
+  --neutral-950: oklch(0.15 0.004 var(--brand-h));
+
+  --success-base: oklch(0.62 0.15 150);
+  --warning-base: oklch(0.75 0.15 80);
+  --error-base: oklch(0.58 0.2 27);
+  --info-base: oklch(0.62 0.13 240);
+
+  /* ---- semantic layer (the public API for components) ---- */
+  --color-bg: var(--neutral-50);
+  --color-bg-subtle: var(--neutral-100);
+  --color-bg-muted: var(--neutral-200);
+  --color-surface: oklch(1 0 0);
+  --color-fg: var(--neutral-900);
+  --color-fg-muted: var(--neutral-600);
+  --color-border: oklch(from var(--color-fg) l c h / 0.14);
+  --color-border-strong: oklch(from var(--color-fg) l c h / 0.28);
+
+  --color-accent: var(--brand-500);
+  --color-accent-hover: var(--brand-600);
+  --color-accent-fg: oklch(0.99 0.01 var(--brand-h));
+  --color-ring: var(--brand-500);
+
+  --color-success: var(--success-base);
+  --color-warning: var(--warning-base);
+  --color-error: var(--error-base);
+  --color-info: var(--info-base);
+  --color-on-status: oklch(0.99 0.01 var(--brand-h));
+
+  /* ---- typography ---- */
+  --font-display: "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "Roboto Mono", monospace;
+
+  --ratio: 1.25;
+  --step-0: 1rem;
+  --step--1: calc(var(--step-0) / var(--ratio));
+  --step-1: calc(var(--step-0) * var(--ratio));
+  --step-2: calc(var(--step-1) * var(--ratio));
+  --step-3: calc(var(--step-2) * var(--ratio));
+  --step-4: calc(var(--step-3) * var(--ratio));
+  --step-5: calc(var(--step-4) * var(--ratio));
+
+  --leading-tight: 1.15;
+  --leading-normal: 1.6;
+  --measure: 65ch;
+
+  /* ---- spacing (4px base) ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+
+  /* ---- radii ---- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* minimum interactive target on touch (brand.a11y.minTouchTargetPx) */
+  --tap-target-min: 48px;
+
+  /* ---- motion (transform/opacity only) ---- */
+  --duration-micro: 150ms;
+  --duration-standard: 250ms;
+  --duration-reveal: 600ms;
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+  /* ---- elevation ---- */
+  --shadow-sm: 0 1px 2px oklch(from var(--neutral-950) l c h / 0.12);
+  --shadow-md: 0 4px 12px oklch(from var(--neutral-950) l c h / 0.16);
+}
+
+/* Dark mode: swap semantic layer only. Excluded when an explicit [data-theme]
+ * is set so runtime toggles (incl. forcing light on a dark OS) always win. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --color-bg: var(--neutral-950);
+    --color-bg-subtle: var(--neutral-900);
+    --color-bg-muted: var(--neutral-800);
+    --color-surface: var(--neutral-900);
+    --color-fg: var(--neutral-100);
+    --color-fg-muted: var(--neutral-400);
+    --color-accent: var(--brand-400);
+    --color-accent-hover: var(--brand-300);
+    --color-accent-fg: var(--neutral-950);
+    --color-ring: var(--brand-400);
+  }
+}
+
+/* Explicit theme override (runtime toggle): data-theme wins over media query. */
+[data-theme="dark"] {
+  --color-bg: var(--neutral-950);
+  --color-bg-subtle: var(--neutral-900);
+  --color-bg-muted: var(--neutral-800);
+  --color-surface: var(--neutral-900);
+  --color-fg: var(--neutral-100);
+  --color-fg-muted: var(--neutral-400);
+  --color-accent: var(--brand-400);
+  --color-accent-hover: var(--brand-300);
+  --color-accent-fg: var(--neutral-950);
+  --color-ring: var(--brand-400);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+}
