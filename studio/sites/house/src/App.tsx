@@ -1,6 +1,7 @@
 import { Badge, Button, Card } from "@mwstudio/ui";
 import { FeedbackWidget } from "@mwstudio/feedback/widget";
 import type { FeedbackClient } from "@mwstudio/feedback";
+import { useAnalytics, usePageView } from "@mwstudio/analytics/react";
 import { engines, flagships, MODEL_LABEL, type BillingModel } from "./products";
 
 const APP_VERSION = "0.1.0";
@@ -23,6 +24,9 @@ export interface AppProps {
  * @mwstudio/feedback widget so any visitor can file an in-tool request.
  */
 export function App({ feedbackClient }: AppProps) {
+  const analytics = useAnalytics();
+  usePageView("/");
+
   return (
     <div className="house">
       <header className="house__bar">
@@ -32,6 +36,9 @@ export function App({ feedbackClient }: AppProps) {
           productId="house"
           appVersion={APP_VERSION}
           featureId="home"
+          onSubmitted={(id) =>
+            analytics.track("feedback_submitted", { feedbackId: id })
+          }
         />
       </header>
 
@@ -42,7 +49,11 @@ export function App({ feedbackClient }: AppProps) {
             既存製品が古い／専用ツールが無いニッチに、エンジン共有型で最高品質の
             プロダクトを量産する工房。
           </p>
-          <Button intent="primary" size="lg">
+          <Button
+            intent="primary"
+            size="lg"
+            onClick={() => analytics.track("cta_click", { id: "hero-portfolio" })}
+          >
             ポートフォリオを見る
           </Button>
         </section>
