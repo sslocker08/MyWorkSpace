@@ -22,9 +22,11 @@ client's EventSource will then auto-reconnect (and re-degrade) on its own retry.
 import asyncio
 import json
 import logging
+import time
+from collections import defaultdict, deque
 from typing import AsyncGenerator, Optional
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sse_starlette.sse import EventSourceResponse
 
 from core.event_bus import get_event_bus, EventBus
@@ -32,6 +34,30 @@ from core.event_bus import get_event_bus, EventBus
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+# web-security: limit how many SSE connections a single IP can open per minute.
+_STREAM_RATE_MAX = 20
+_STREAM_RATE_WINDOW = 60.0
+_stream_hits: dict[str, deque] = defaultdict(deque)
+_stream_lock = asyncio.Lock()
+
+
+async def _rate_limit_stream(request: Request) -> None:
+    client_ip = request.client.host if request.client else "unknown"
+    now = time.monotonic()
+    async with _stream_lock:
+        hits = _stream_hits[client_ip]
+        cutoff = now - _STREAM_RATE_WINDOW
+        while hits and hits[0] <= cutoff:
+            hits.popleft()
+        if len(hits) >= _STREAM_RATE_MAX:
+            retry_after = int(_STREAM_RATE_WINDOW - (now - hits[0])) + 1
+            raise HTTPException(
+                status_code=429,
+                detail="Rate limit exceeded for SSE stream",
+                headers={"Retry-After": str(max(retry_after, 1))},
+            )
+        hits.append(now)
 
 HEARTBEAT_SECONDS = 15.0
 
@@ -124,7 +150,7 @@ async def signal_event_generator(
                 pass
 
 
-@router.get("/signals")
+@router.get("/signals", dependencies=[Depends(_rate_limit_stream)])
 async def stream_signals(request: Request) -> EventSourceResponse:
     """GET /api/stream/signals — Server-Sent Events stream of signal events.
 

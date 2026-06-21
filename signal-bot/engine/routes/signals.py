@@ -1,7 +1,10 @@
 """Signal CRUD and ranking endpoints."""
+import asyncio
+import time
+from collections import defaultdict, deque
 from datetime import datetime, timedelta
 from typing import Optional
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 
@@ -10,9 +13,34 @@ from models.signal import Signal, SignalStatus, Direction, Market
 
 router = APIRouter()
 
+# web-security: best-effort sliding-window limiter (in-process, per-worker).
+_LIST_RATE_MAX = 60
+_LIST_RATE_WINDOW = 60.0
+_list_hits: dict[str, deque] = defaultdict(deque)
+_list_lock = asyncio.Lock()
+
+
+async def _rate_limit_list(request: Request) -> None:
+    client_ip = request.client.host if request.client else "unknown"
+    now = time.monotonic()
+    async with _list_lock:
+        hits = _list_hits[client_ip]
+        cutoff = now - _LIST_RATE_WINDOW
+        while hits and hits[0] <= cutoff:
+            hits.popleft()
+        if len(hits) >= _LIST_RATE_MAX:
+            retry_after = int(_LIST_RATE_WINDOW - (now - hits[0])) + 1
+            raise HTTPException(
+                status_code=429,
+                detail="Rate limit exceeded",
+                headers={"Retry-After": str(max(retry_after, 1))},
+            )
+        hits.append(now)
+
 
 @router.get("/")
 async def list_signals(
+    _rl: None = Depends(_rate_limit_list),
     limit: int = Query(20, ge=1, le=100),
     # web-security: validate every query param against a strict allowlist. Binding
     # these to the existing enums makes FastAPI reject out-of-allowlist values with

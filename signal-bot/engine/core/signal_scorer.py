@@ -100,6 +100,7 @@ class SignalScorer:
                 unaffected.
             sentiment_score: -1 to +1 (positive = bullish)
         """
+        ceiling_score = max(0.0, min(100.0, ceiling_score))
         # 1. Strategy hits (max 30 points)
         n = len(triggered_strategies)
         strategy_score = min(n * 10, 30)
