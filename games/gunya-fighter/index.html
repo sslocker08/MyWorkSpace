@@ -112,6 +112,7 @@ input[type=text]:focus { border-color:#c77dff; }
   <div class="screen" id="s-round">
     <h2 id="rnd-title">ラウンド結果</h2>
     <p class="sub" id="rnd-sub"></p>
+    <button class="btn-g" id="rnd-back" style="display:none" onclick="goTitle()">← タイトルへ戻る</button>
   </div>
 
   <div class="screen" id="s-controls">
@@ -551,14 +552,16 @@ class Game {
     ];
     this.p1in = { left:false, right:false, jump:false, punch:false };
     this.p2in = { left:false, right:false, jump:false, punch:false };
-    this.phase = 'playing';
+    this.phase = 'idle';
     this.shX = 0; this.shY = 0;
   }
 
   resize() {
     const score = [...this.score];
+    const phase = this.phase;
     this._initRound();
     this.score = score;
+    this.phase = phase;
     updateHUD(score);
   }
 
@@ -602,7 +605,7 @@ class Game {
       : (winner === 1 ? '🩷 P1 ポイント！' : winner === 2 ? '💚 P2 ポイント！' : '引き分け');
     const sub = `スコア: ${this.score[0]} – ${this.score[1]}`;
 
-    showRoundScreen(msg, sub);
+    showRoundScreen(msg, sub, gameOver);
     this.send({ t: 'rnd', w: winner, sc: [...this.score], over: gameOver });
 
     if (!gameOver) {
@@ -611,6 +614,7 @@ class Game {
         const score = [...this.score];
         this._initRound();
         this.score = score;
+        this.phase = 'playing';
       }, 2600);
     }
   }
@@ -647,7 +651,7 @@ class Game {
       ? (d.sc[0] >= 3 ? '🏆 P1 の勝ち！' : '🏆 P2 の勝ち！')
       : (d.w === 1 ? '🩷 P1 ポイント！' : d.w === 2 ? '💚 P2 ポイント！' : '引き分け');
     const sub = `スコア: ${d.sc[0]} – ${d.sc[1]}`;
-    showRoundScreen(msg, sub);
+    showRoundScreen(msg, sub, d.over);
     if (!d.over) setTimeout(hideRoundScreen, 2600);
   }
 
@@ -669,9 +673,10 @@ function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id)?.classList.add('active');
 }
-function showRoundScreen(msg, sub) {
+function showRoundScreen(msg, sub, showBack = false) {
   document.getElementById('rnd-title').textContent = msg;
   document.getElementById('rnd-sub').textContent = sub;
+  document.getElementById('rnd-back').style.display = showBack ? 'block' : 'none';
   show('s-round');
 }
 function hideRoundScreen() {
@@ -762,7 +767,7 @@ function setupConn(conn) {
     }
   });
   conn.on('close', () => {
-    if (GAME) showRoundScreen('接続が切れました', '再接続してください');
+    if (GAME) showRoundScreen('接続が切れました', '再接続してください', true);
   });
 }
 
@@ -782,7 +787,7 @@ function startGame(role) {
   show('s-controls');
   setTimeout(() => {
     hideRoundScreen();
-    countdown(3, () => {});
+    countdown(3, () => { if (GAME) GAME.phase = 'playing'; });
   }, 2800);
 
   document.addEventListener('keydown', onKD);
