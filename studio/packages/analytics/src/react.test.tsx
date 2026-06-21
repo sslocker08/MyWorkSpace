@@ -41,6 +41,17 @@ describe("analytics/react", () => {
     });
   });
 
+  it("usePageView emits on path change but not for the same path", () => {
+    const { sink, wrapper } = setup();
+    const { rerender } = renderHook(({ p }) => usePageView(p), {
+      wrapper,
+      initialProps: { p: "/a" },
+    });
+    rerender({ p: "/a" }); // same path → no new event
+    rerender({ p: "/b" }); // navigation → new event
+    expect(sink.byName("page_view").map((e) => e.props.path)).toEqual(["/a", "/b"]);
+  });
+
   it("a component can track via the hook", () => {
     const { sink, analytics } = setup();
     function Cta() {

@@ -28,15 +28,20 @@ export function useAnalytics(): Analytics {
   return a;
 }
 
-/** Fire a page_view exactly once on mount (StrictMode double-invoke safe). */
+/**
+ * Fire a page_view whenever `path` changes. Guarding on the last reported path
+ * (not a one-time boolean) makes it both StrictMode-safe (no duplicate for the
+ * same path) and correct for client-side navigation in a persistent layout
+ * (each new path emits).
+ */
 export function usePageView(path: string, props?: EventProps): void {
   const analytics = useAnalytics();
-  const fired = useRef(false);
+  const lastPath = useRef<string | null>(null);
   useEffect(() => {
-    if (fired.current) return;
-    fired.current = true;
+    if (lastPath.current === path) return;
+    lastPath.current = path;
     analytics.page(path, props);
-    // intentionally run once per mounted path
+    // emit on path change; analytics is stable, props read at emit time
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [path]);
 }
