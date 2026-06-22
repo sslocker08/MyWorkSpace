@@ -16,6 +16,7 @@ from core.exceptions import (
     validation_exception_handler,
 )
 from routes import signals, scanner, market_intel, sectors, anomaly, health, stream, ohlcv, institutional
+from routes.sentiment import router as sentiment_router
 from scheduler.main import start_scheduler, stop_scheduler
 
 logging.basicConfig(level=settings.log_level)
@@ -74,6 +75,7 @@ app.include_router(anomaly.router, prefix="/api/anomaly", tags=["anomaly"])
 app.include_router(stream.router, prefix="/api/stream", tags=["stream"])
 app.include_router(ohlcv.router, prefix="/api/ohlcv", tags=["ohlcv"])
 app.include_router(institutional.router, prefix="/api/institutional", tags=["institutional"])
+app.include_router(sentiment_router, prefix="/api/sentiment", tags=["sentiment"])
 
 # Prometheus metrics endpoint — unauthenticated, scrape-only, Prometheus text format.
 app.mount("/metrics", make_asgi_app())

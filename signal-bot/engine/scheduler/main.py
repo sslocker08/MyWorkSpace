@@ -213,6 +213,65 @@ async def _refresh_13f_job():
         logger.error("13F refresh job failed: %s", e)
 
 
+async def _run_jp_scan():
+    """JP market scan job: anomaly detection on TOPIX 500 top-50 tickers.
+
+    Runs Mon-Fri at 09:00 UTC (≈ 18:00 JST, after JP market close at 15:30 JST + buffer).
+    Skips JP national holidays using jpholiday.
+
+    ported from: jpholiday (jpholiday>=0.1.8) for holiday detection
+    """
+    now = datetime.utcnow()
+
+    # Skip JP public holidays
+    try:
+        import jpholiday  # ported from: jpholiday>=0.1.8
+
+        # Convert UTC → JST (UTC+9) for holiday check
+        jst_date = (now + timedelta(hours=9)).date()
+        if jpholiday.is_holiday(jst_date):
+            logger.info("JP scan skipped: %s is a JP public holiday", jst_date.isoformat())
+            return
+    except ImportError:
+        logger.debug("jpholiday not installed; skipping holiday check")
+
+    from universe.topix500 import TOPIX500_TICKERS, fetch_jp_ohlcv
+    from core.anomaly_detector import detect_anomaly, AnomalyResult
+
+    logger.info("Starting JP market anomaly scan (%d tickers)", len(TOPIX500_TICKERS))
+    flagged: list[AnomalyResult] = []
+    errors = 0
+
+    semaphore = asyncio.Semaphore(5)  # conservative concurrency for Stooq
+
+    async def _scan_jp_ticker(ticker: str) -> None:
+        nonlocal errors
+        async with semaphore:
+            try:
+                df = await fetch_jp_ohlcv(ticker, days=60)
+                if df is None or df.empty:
+                    logger.debug("No OHLCV data for JP ticker %s", ticker)
+                    return
+                result = detect_anomaly(ticker, df)
+                if result.is_flagged:
+                    flagged.append(result)
+                    logger.info(
+                        "JP anomaly flagged: %s [%s] vol_z=%.2f price=%.2f%%",
+                        ticker, result.anomaly_type, result.volume_zscore,
+                        result.price_change_pct,
+                    )
+            except Exception as exc:
+                errors += 1
+                logger.warning("JP scan failed for %s: %s", ticker, exc)
+
+    await asyncio.gather(*[_scan_jp_ticker(t) for t in TOPIX500_TICKERS])
+
+    logger.info(
+        "JP market scan complete: %d/%d flagged, %d errors",
+        len(flagged), len(TOPIX500_TICKERS), errors,
+    )
+
+
 async def start_scheduler():
     global _scheduler
     _scheduler = AsyncIOScheduler()
@@ -231,6 +290,15 @@ async def start_scheduler():
         _refresh_13f_job,
         trigger=CronTrigger(day_of_week="sun", hour=2, minute=0),
         id="institutional_13f_refresh",
+        max_instances=1,
+        coalesce=True,
+    )
+
+    # JP market scan: Mon-Fri at 09:00 UTC (= 18:00 JST, after JP market close 15:30 JST)
+    _scheduler.add_job(
+        _run_jp_scan,
+        trigger=CronTrigger(day_of_week="mon-fri", hour=9, minute=0),
+        id="jp_market_scan",
         max_instances=1,
         coalesce=True,
     )
