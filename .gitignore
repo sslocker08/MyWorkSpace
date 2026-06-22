@@ -9,6 +9,9 @@ Kofukuron23/
 **/dashboard/_pipeline.json
 **/dashboard/summaries/
 
+# ── Claude Code internal (worktrees, local settings) ──
+.claude/
+
 # ── OS / エディタ / ランタイム ──
 .DS_Store
 Thumbs.db
