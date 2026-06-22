@@ -128,8 +128,9 @@ async def _fetch_infotable_xml(
         logger.warning("EDGAR filing index fetch failed (%s): %s", accession_nodashes, e)
         return None
 
+    # EDGAR filing index JSON uses directory.item, not a top-level documents array.
     xml_url = None
-    for doc in idx.get("documents", []):
+    for doc in idx.get("directory", {}).get("item", []):
         name = doc.get("name", "").lower()
         if "infotable" in name and name.endswith(".xml"):
             xml_url = (
