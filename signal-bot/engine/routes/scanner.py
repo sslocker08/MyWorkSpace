@@ -121,3 +121,79 @@ async def _compute_and_persist_ceiling_safe():
 @router.get("/status")
 async def scan_status():
     return {"scanning": _scan_lock.locked()}
+
+
+@router.post("/backtest", dependencies=[Depends(rate_limit_trigger)])
+async def run_backtest(
+    ticker: str = Query(..., min_length=1, max_length=20),
+    strategy_name: str = Query(..., min_length=1, max_length=80),
+    hold_bars: int = Query(10, ge=1, le=252),
+) -> dict:
+    """Run a backtest for a given ticker and strategy (query parameters).
+
+    Available strategy names (12 total):
+      EMACrossoverStrategy, MomentumLongStrategy, BreakoutLongStrategy,
+      BreakoutShortStrategy, MomentumShortStrategy, ReversalLongStrategy,
+      ReversalShortStrategy, MACDSignalStrategy, BollingerSqueezeStrategy,
+      ADXTrendStrategy, VolumeSurgeStrategy, RSIDivergenceStrategy
+    """
+    import asyncio as _asyncio
+    from core.backtest_engine import BacktestEngine
+    from core.risk_manager import RiskManager
+    from strategies import ALL_STRATEGIES
+
+    # Resolve strategy by exact class-name match (case-insensitive) to avoid
+    # ambiguous substring matches (e.g. "momentum" matching both Long/Short).
+    normalized = strategy_name.lower().replace(" ", "").replace("_", "")
+    strategy = None
+    for s in ALL_STRATEGIES:
+        cls_lower = type(s).__name__.lower()
+        if normalized == cls_lower or normalized == cls_lower.replace("strategy", ""):
+            strategy = s
+            break
+
+    if strategy is None:
+        available = [type(s).__name__ for s in ALL_STRATEGIES]
+        raise HTTPException(
+            status_code=404,
+            detail=f"Strategy '{strategy_name}' not found. Available: {available}",
+        )
+
+    # Fetch OHLCV data
+    try:
+        df = await _fetcher.get_ohlcv(ticker.upper(), days=252)
+    except Exception as e:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Failed to fetch OHLCV for {ticker}: {e}",
+        )
+
+    if df is None or df.empty or len(df) < 20:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Insufficient OHLCV data for {ticker} (got {len(df) if df is not None else 0} bars)",
+        )
+
+    risk_manager = RiskManager()
+    engine = BacktestEngine()
+
+    # Backtest is CPU-bound (bar-by-bar walk); offload to thread to avoid blocking
+    # the event loop and stalling health probes / SSE streams during the run.
+    try:
+        result = await _asyncio.to_thread(
+            engine.run, df, strategy=strategy, risk_manager=risk_manager, hold_bars=hold_bars
+        )
+    except Exception as e:
+        logger.error("run_backtest failed for %s/%s: %s", ticker, strategy_name, e)
+        raise HTTPException(status_code=500, detail=f"Backtest failed: {e}")
+
+    return {
+        "ticker": ticker.upper(),
+        "strategy": type(strategy).__name__,
+        "hold_bars": hold_bars,
+        "total_trades": result.total_trades,
+        "win_rate": round(result.win_rate, 4),
+        "avg_return": round(result.avg_return, 4),
+        "sharpe": round(result.sharpe, 4),
+        "max_drawdown": round(result.max_drawdown, 4),
+    }

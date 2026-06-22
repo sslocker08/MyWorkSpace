@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import List
+from typing import List, Optional
 
 
 class Settings(BaseSettings):
@@ -25,6 +25,14 @@ class Settings(BaseSettings):
     jquants_api_key: str = ""
     kabu_api_key: str = ""
     kabu_api_secret: str = ""
+
+    # Reddit (optional — for social sentiment)
+    reddit_client_id: Optional[str] = None
+    reddit_client_secret: Optional[str] = None
+    reddit_user_agent: Optional[str] = None
+
+    # Broker (optional — "manual" = paper trading, "sbi" = kabu.com API)
+    broker_type: Optional[str] = "manual"
 
     # App
     secret_key: str = "change-me-in-production"

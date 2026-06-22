@@ -1,0 +1,28 @@
+# Signal Bot Configuration
+# Copy this to config.yml and fill in your API keys.
+# The launch script will convert this to .env automatically if .env is missing.
+
+# === Market Data (US) ===
+polygon_api_key: ""        # Free tier at polygon.io — 15-min delayed data
+fred_api_key: ""           # Free at fred.stlouisfed.org — macro data
+
+# === Notifications ===
+telegram_bot_token: ""     # Create bot via @BotFather
+telegram_chat_id: ""       # Your Telegram chat ID
+
+# === LLM (optional — enables earnings analysis) ===
+anthropic_api_key: ""      # Get at console.anthropic.com
+
+# === Japan Market (optional) ===
+jquants_api_key: ""        # J-Quants Standard plan
+
+# === Broker (optional — enables live trading skeleton) ===
+broker_type: "manual"      # "manual" (paper) or "sbi" (kabu.com API)
+
+# === Reddit Social Sentiment (optional) ===
+reddit_client_id: ""       # Reddit app client ID (reddit.com/prefs/apps)
+reddit_client_secret: ""   # Reddit app client secret
+reddit_user_agent: ""      # e.g. "signal-bot/1.0 by yourusername"
+
+# === Scanning ===
+scan_interval_minutes: 15  # How often to scan the universe
