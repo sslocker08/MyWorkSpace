@@ -1,0 +1,60 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-signalbot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-signalbot}
+      POSTGRES_DB: ${POSTGRES_DB:-signalbot}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U signalbot"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  engine:
+    build: ./engine
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./engine:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  web:
+    build: ./web
+    env_file: .env
+    environment:
+      # Inside the Compose network the FastAPI backend is reachable as `engine`,
+      # not localhost — the Next.js rewrite proxy must target the service name.
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://engine:8000}
+    depends_on:
+      - engine
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+      - /app/.next
+
+volumes:
+  pg_data:
