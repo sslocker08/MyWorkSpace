@@ -1,3 +1,4 @@
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List, Optional
 
@@ -7,6 +8,17 @@ class Settings(BaseSettings):
 
     # Database
     database_url: str = "postgresql+asyncpg://signalbot:signalbot@localhost:5432/signalbot"
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def normalize_database_url(cls, v: str) -> str:
+        # Railway injects DATABASE_URL as postgres:// or postgresql:// (no +asyncpg).
+        if isinstance(v, str):
+            if v.startswith("postgres://"):
+                return v.replace("postgres://", "postgresql+asyncpg://", 1)
+            if v.startswith("postgresql://") and "+asyncpg" not in v:
+                return v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return v
 
     # Redis
     redis_url: str = "redis://localhost:6379/0"
@@ -39,6 +51,15 @@ class Settings(BaseSettings):
     environment: str = "development"
     log_level: str = "INFO"
     cors_origins: List[str] = ["http://localhost:3000"]
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, v) -> List[str]:
+        # Allow comma-separated string from CORS_ORIGINS env var:
+        #   CORS_ORIGINS=https://signal-bot.pages.dev,http://localhost:3000
+        if isinstance(v, str):
+            return [o.strip() for o in v.split(",") if o.strip()]
+        return v
 
     # Scanner config
     scan_interval_minutes: int = 15

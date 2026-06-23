@@ -1,0 +1,15 @@
+# Cloudflare Pages configuration for signal-bot-web.
+# Build settings to configure in the Cloudflare Pages dashboard:
+#   Root directory:   signal-bot/web
+#   Build command:    npx @cloudflare/next-on-pages
+#   Output directory: .vercel/output/static
+#   Node.js version:  20
+#
+# Environment variables to set in the Cloudflare Pages dashboard:
+#   BACKEND_URL  =  https://<your-railway-service>.railway.app
+#   NODE_ENV     =  production
+
+name = "signal-bot-web"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
