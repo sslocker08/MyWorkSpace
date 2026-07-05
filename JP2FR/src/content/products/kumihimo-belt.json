@@ -1,0 +1,37 @@
+{
+  "slug": "kumihimo-belt",
+  "founder": "koike-kumihimo",
+  "order": 2,
+  "published": true,
+  "name": {
+    "fr": "Ceinture Kumihimo Soie",
+    "en": "Silk Kumihimo Belt",
+    "ja": "絹組紐帯"
+  },
+  "description": {
+    "fr": "Ceinture en cordon kumihimo de soie tressée finement, neuf couleurs entrecroisées. Elle se porte comme accessoire de mode ou autour d'un hakama pour un costume formel.",
+    "en": "Fine silk kumihimo cord belt, nine colors interwoven. Worn as a fashion accessory or around a hakama for formal dress.",
+    "ja": "細く編んだ絹組紐の帯。9色が交差していきます。帯や羽織の帯として、また正装時に。"
+  },
+  "materials": {
+    "fr": "Soie purs kumihimo, tressage fin",
+    "en": "Pure silk kumihimo, fine braiding",
+    "ja": "純絹組紐・細編み"
+  },
+  "price": {
+    "amount": 9800,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/kumihimo-belt/01.svg",
+    "/img/products/kumihimo-belt/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  }
+}

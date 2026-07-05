@@ -1,0 +1,37 @@
+{
+  "slug": "kumihimo-pendant",
+  "founder": "koike-kumihimo",
+  "order": 3,
+  "published": true,
+  "name": {
+    "fr": "Cordon Pendentif Kumihimo",
+    "en": "Kumihimo Cord Pendant",
+    "ja": "組紐ペンダント"
+  },
+  "description": {
+    "fr": "Cordon kumihimo en soie pure avec perle de pierre semi-précieuse suspendue, tressé selon une technique traditionnelle raffinée. Pièce unique à chaque exemplaire.",
+    "en": "Pure silk kumihimo cord with semi-precious stone bead pendant, braided in refined traditional technique. Each piece is unique.",
+    "ja": "半貴石の玉が付いた絹の組紐ペンダント。精密な伝統技法で編まれています。ひとつひとつ異なります。"
+  },
+  "materials": {
+    "fr": "Soie kumihimo, perle de cristal semi-précieux",
+    "en": "Silk kumihimo, semi-precious crystal bead",
+    "ja": "絹組紐・半貴石球"
+  },
+  "price": {
+    "amount": 7100,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/kumihimo-pendant/01.svg",
+    "/img/products/kumihimo-pendant/02.svg"
+  ],
+  "stock": {
+    "kind": "unique",
+    "soldOut": false
+  }
+}

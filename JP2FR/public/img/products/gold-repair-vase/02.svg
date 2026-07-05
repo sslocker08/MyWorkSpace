@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="900" viewBox="0 0 1200 900" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="900" fill="#F3EFE4"/>
+
+  <!-- Wave pattern (subtle) -->
+  <g transform="translate(0, 200) rotate(321)">
+    <g fill="none" stroke="#7FA3C7" stroke-width="3" opacity="0.12">
+      <path d="M 0 0 Q 150 -30 300 0 T 600 0 T 900 0 T 1200 0"/>
+      <path d="M 0 40 Q 150 10 300 40 T 600 40 T 900 40 T 1200 40"/>
+      <path d="M 0 80 Q 150 50 300 80 T 600 80 T 900 80 T 1200 80"/>
+    </g>
+  </g>
+
+  <!-- Central indigo rectangle (product placeholder) -->
+  <rect x="200" y="150" width="800" height="600" fill="#33518F" opacity="0.15" rx="8"/>
+
+  <!-- Decorative circles -->
+  <circle cx="300" cy="300" r="80" fill="none" stroke="#7FA3C7" stroke-width="2" opacity="0.2"/>
+  <circle cx="900" cy="550" r="120" fill="none" stroke="#33518F" stroke-width="2" opacity="0.15"/>
+
+  <!-- Product number text -->
+  <text x="600" y="410" font-size="64" font-family="serif" font-weight="bold" text-anchor="middle" fill="#2E2E35" opacity="0.4">
+    2
+  </text>
+
+  <!-- Small vermilion accent -->
+  <rect x="1140" y="40" width="30" height="30" fill="#C2451E" opacity="0.7"/>
+
+  <!-- Decorative line -->
+  <line x1="150" y1="840" x2="1050" y2="840" stroke="#33518F" stroke-width="1" opacity="0.2"/>
+</svg>

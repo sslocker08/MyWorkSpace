@@ -1,0 +1,30 @@
+{
+  "slug": "iida-urushi-lacquer",
+  "order": 8,
+  "published": true,
+  "name": {
+    "fr": "Iida Urushi",
+    "en": "Iida Urushi",
+    "ja": "飯田漆"
+  },
+  "title": {
+    "fr": "Laqueur",
+    "en": "Lacquer artisan",
+    "ja": "漆職人"
+  },
+  "bio": {
+    "fr": "À Wajima, le berceau de la laque noire, Iida Urushi applique la résine de l'arbre à laque sur le bois par couches successives. Ce processus millénaire créé des finitions d'une profondeur incomparable, révélant le reflet de la lumière.",
+    "en": "In Wajima, the cradle of black lacquer, Iida Urushi layers urushi resin on wood through patient repetition. This millennia-old process creates finishes of incomparable depth, reflecting light with elegance.",
+    "ja": "輪島の漆の里で、飯田漆は何層にも重ねられた漆で木地を仕上げます。千年の技が生み出す深い光沢は、光を映し、時とともに美しさを増していきます。"
+  },
+  "region": {
+    "fr": "Wajima",
+    "en": "Wajima",
+    "ja": "輪島"
+  },
+  "portrait": "/img/founders/iida-urushi-lacquer/portrait.svg",
+  "sns": {
+    "instagram": "https://instagram.com/iida.urushi",
+    "x": ""
+  }
+}

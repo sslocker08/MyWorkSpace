@@ -1,0 +1,37 @@
+{
+  "slug": "woven-tapestry",
+  "founder": "hiroto-rag-weaving",
+  "order": 1,
+  "published": true,
+  "name": {
+    "fr": "Tapisserie Tissée Raku",
+    "en": "Woven Rag Tapestry",
+    "ja": "裂き織りタペストリー"
+  },
+  "description": {
+    "fr": "Tapisserie tissée à partir de chutes de coton et de lin colorés, motif inspiré par les vagues d'Okinawa. Les bandes de couleurs créent une sensation de mouvement et de vitalité.",
+    "en": "Tapestry woven from colored cotton and linen scraps, pattern inspired by Okinawan waves. Bands of color create a sense of movement and vitality.",
+    "ja": "色とりどりの綿とリネンの切れ端を織った壁掛け。沖縄の波を題材とした文様が、動きと生命力を表現します。"
+  },
+  "materials": {
+    "fr": "Coton et lin recyclés, tissage traditionnel",
+    "en": "Recycled cotton and linen, traditional weaving",
+    "ja": "リサイクル綿とリネン・伝統織"
+  },
+  "price": {
+    "amount": 8200,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/woven-tapestry/01.svg",
+    "/img/products/woven-tapestry/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  }
+}

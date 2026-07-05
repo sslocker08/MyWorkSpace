@@ -1,0 +1,37 @@
+{
+  "slug": "illustrated-notebook",
+  "founder": "komori-illustration",
+  "order": 2,
+  "published": true,
+  "name": {
+    "fr": "Carnet Illustré",
+    "en": "Illustrated Notebook",
+    "ja": "イラスト手帳"
+  },
+  "description": {
+    "fr": "Carnet de 80 pages avec une couverture illustrée en couleur et des pages intérieures blanches. Idéal pour journaliser, dessiner ou noter les pensées quotidiennes.",
+    "en": "80-page notebook with color-illustrated cover and blank inner pages. Ideal for journaling, sketching, or daily thoughts.",
+    "ja": "カラーイラストの表紙を持つ80ページの手帳。中身は白い無地ページで、日記や思考の記録に適しています。"
+  },
+  "materials": {
+    "fr": "Papier de qualité, reliure couture",
+    "en": "Quality paper, sewn binding",
+    "ja": "上質紙・糸綴じ製本"
+  },
+  "price": {
+    "amount": 3800,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/illustrated-notebook/01.svg",
+    "/img/products/illustrated-notebook/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  }
+}

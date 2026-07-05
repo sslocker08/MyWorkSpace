@@ -1,0 +1,37 @@
+{
+  "slug": "illustrated-print",
+  "founder": "komori-illustration",
+  "order": 3,
+  "published": true,
+  "name": {
+    "fr": "Estampe Murale Illustrée",
+    "en": "Illustrated Wall Print",
+    "ja": "イラスト壁画"
+  },
+  "description": {
+    "fr": "Estampe encadrée de haute qualité, illustration sur papier washi teint, format A4. Motif de jardinage et fleurs saisonnières, parfait pour embellir un petit coin de lecture.",
+    "en": "High-quality framed print, illustration on tinted washi paper, A4 size. Garden and seasonal flower motif, perfect for brightening a reading nook.",
+    "ja": "上質な額付きプリント。色合い抜きの和紙に刷られたイラスト、A4サイズ。庭園と季節の花が題材で、読書室に最適です。"
+  },
+  "materials": {
+    "fr": "Papier washi teint, impression fine art, cadre bois",
+    "en": "Tinted washi paper, fine art print, wooden frame",
+    "ja": "色和紙・ファインアート印刷・木製額"
+  },
+  "price": {
+    "amount": 8900,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/illustrated-print/01.svg",
+    "/img/products/illustrated-print/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  }
+}

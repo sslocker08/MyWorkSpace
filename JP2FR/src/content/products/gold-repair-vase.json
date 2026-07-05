@@ -1,0 +1,37 @@
+{
+  "slug": "gold-repair-vase",
+  "founder": "yamazaki-gold-kintsugi",
+  "order": 3,
+  "published": true,
+  "name": {
+    "fr": "Vase Réparation d'Or",
+    "en": "Gold Repair Vase",
+    "ja": "金継ぎ花瓶"
+  },
+  "description": {
+    "fr": "Un vase en grès ancien réparé avec plusieurs lignes d'or entrecroisées. Chaque réparation raconte une histoire de chute, de transformation et de beauté retrouvée.",
+    "en": "An antique stoneware vase repaired with interlacing gold lines. Each repair tells a story of falling, transformation, and recovered beauty.",
+    "ja": "古い陶製の花瓶が複数の金線で修復されています。落下、変容、美への再発見の物語が刻まれています。"
+  },
+  "materials": {
+    "fr": "Grès ancien, filament d'or",
+    "en": "Antique stoneware, gold filament",
+    "ja": "古陶土・金糸"
+  },
+  "price": {
+    "amount": 18000,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/gold-repair-vase/01.svg",
+    "/img/products/gold-repair-vase/02.svg"
+  ],
+  "stock": {
+    "kind": "unique",
+    "soldOut": false
+  }
+}

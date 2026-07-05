@@ -1,0 +1,37 @@
+{
+  "slug": "glass-tea-cups",
+  "founder": "suzuki-glass",
+  "order": 2,
+  "published": true,
+  "name": {
+    "fr": "Tasses à Thé Verre Soufflé",
+    "en": "Hand-Blown Glass Tea Cups",
+    "ja": "手吹きガラス茶碗"
+  },
+  "description": {
+    "fr": "Ensemble de deux tasses en verre soufflé, légères et délicates. Parfaites pour boire du thé ou des infusions, leur chaleur se propage doucement dans les mains.",
+    "en": "Set of two hand-blown glass cups, light and delicate. Perfect for tea or herbal infusions, their warmth spreads gently in your hands.",
+    "ja": "手吹きガラスの2個セット。軽くて優雅。茶や香りの茶を飲むのに最適。温かさが手にやさしく伝わります。"
+  },
+  "materials": {
+    "fr": "Verre transparent soufflé à la main",
+    "en": "Hand-blown transparent glass",
+    "ja": "透明手吹きガラス"
+  },
+  "price": {
+    "amount": 7500,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/glass-tea-cups/01.svg",
+    "/img/products/glass-tea-cups/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "site": {
+    "name": "JP2FR",
+    "tagline": "日本の工芸品、工房からあなたのお家へ"
+  },
+  "nav": {
+    "home": "ホーム",
+    "founders": "職人",
+    "products": "商品",
+    "cart": "カート",
+    "menu": "メニュー",
+    "close": "閉じる"
+  },
+  "lp": {
+    "intro": {
+      "message": "ものを創る手と出会う。日本から世界へ。",
+      "skip": "スキップ"
+    },
+    "hero": {
+      "title": "日本を代表する職人たち",
+      "subtitle": "心と伝統で創られた日用品",
+      "scroll": "探索する"
+    },
+    "concept": {
+      "kicker": "わたしたちの想い",
+      "line1": "ひとつひとつのものには物語があります。職人の思い、素材、そして何代にもわたる技。",
+      "line2": "日本の創り手とあなたを直接つなぎ、仲介者を排除します。",
+      "line3": "妥協のない品質。永遠の美しさ。ともに負う責任。"
+    },
+    "founders": {
+      "kicker": "職人",
+      "title": "15の工房、15の地域、15の伝統",
+      "cta": "職人を知る"
+    },
+    "products": {
+      "kicker": "厳選作品",
+      "title": "ひとつひとつの想いが詰まった作品",
+      "cta": "すべての商品を見る"
+    },
+    "sns": {
+      "title": "わたしたちのストーリーをフォロー",
+      "follow": "フォローする"
+    }
+  },
+  "founders": {
+    "title": "職人一覧",
+    "breadcrumb": "職人",
+    "products_by": "の作品",
+    "back": "職人一覧へ戻る"
+  },
+  "products": {
+    "title": "商品",
+    "breadcrumb": "商品",
+    "by": "作：",
+    "materials": "素材",
+    "soldOut": "売り切れ",
+    "unique": "一点物"
+  },
+  "cart": {
+    "title": "カート",
+    "empty": "カートに商品がありません",
+    "empty_cta": "ショッピングを続ける",
+    "count": "{count}点",
+    "quantity": "数量",
+    "remove": "削除",
+    "subtotal": "小計",
+    "shipping_note": "送料は次のページで計算されます",
+    "tax_note": "表示価格に税金が含まれています",
+    "confirm_title": "ご注文内容を確認",
+    "confirm_delivery": "配送先住所",
+    "confirm_cancel": "キャンセルして戻る",
+    "checkout": "購入に進む",
+    "processing": "処理中…",
+    "error": "エラーが発生しました。もう一度お試しください。"
+  },
+  "checkout": {
+    "success_title": "ご注文ありがとうございます",
+    "success_body": "ご注文は現在処理中です。確認メールをお送りしました。間もなく配送情報をお受け取りください。",
+    "cancel_title": "支払いがキャンセルされました",
+    "cancel_body": "お支払いがキャンセルされました。ショッピングを続けるか、ご不明な点についてはお問い合わせください。",
+    "back_home": "ホームへ戻る"
+  },
+  "footer": {
+    "legal": "法的表示",
+    "mentions": "法的表示",
+    "privacy": "プライバシーポリシー",
+    "cgv": "利用規約",
+    "tokushoho": "特定商取引法に基づく表示",
+    "cookies": "クッキーポリシー",
+    "rights": "© 2024 JP2FR. All rights reserved."
+  },
+  "cookie": {
+    "title": "クッキーを使用しています",
+    "body": "閲覧体験の向上、サイト利用の分析、コンテンツのカスタマイズのためクッキーを使用しています。すべてのクッキーを受け入れるか、お好みで設定できます。",
+    "accept": "すべて受け入れる",
+    "reject": "拒否",
+    "settings": "設定",
+    "essential": "必須クッキー",
+    "analytics": "分析クッキー"
+  },
+  "a11y": {
+    "skip_to_content": "メインコンテンツへスキップ",
+    "open_menu": "メニューを開く",
+    "close_menu": "メニューを閉じる",
+    "breadcrumb": "パンくずリスト"
+  },
+  "notfound": {
+    "title": "ページが見つかりません",
+    "body": "申し訳ございません。お探しのページが見つかりません。URLをご確認いただくか、ホームへお戻りください。",
+    "back": "ホームへ戻る"
+  }
+}

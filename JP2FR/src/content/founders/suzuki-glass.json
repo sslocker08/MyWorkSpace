@@ -1,0 +1,30 @@
+{
+  "slug": "suzuki-glass",
+  "order": 11,
+  "published": true,
+  "name": {
+    "fr": "Glass Art Suzuki",
+    "en": "Glass Art Suzuki",
+    "ja": "鈴木ガラス"
+  },
+  "title": {
+    "fr": "Maître verrier",
+    "en": "Glass artist",
+    "ja": "ガラス職人"
+  },
+  "bio": {
+    "fr": "À Nagasaki, héritière d'une longue histoire du verre, Glass Art Suzuki fusionne tradition et innovation. Chaque pièce est soufflée à la main, capturant la lumière et créant des jeux d'ombre inégalés.",
+    "en": "In Nagasaki, inheritor of glasswork heritage, Glass Art Suzuki merges tradition and innovation. Each piece is hand-blown, capturing light and creating unmatched interplay of shadow and glow.",
+    "ja": "長崎のガラス文化を受け継ぐ鈴木ガラスは、伝統と創新を融合させています。手で吹かれたひとつひとつの作品が、光を閉じ込め、影と輝きの遊戯を生み出します。"
+  },
+  "region": {
+    "fr": "Nagasaki",
+    "en": "Nagasaki",
+    "ja": "長崎"
+  },
+  "portrait": "/img/founders/suzuki-glass/portrait.svg",
+  "sns": {
+    "instagram": "https://instagram.com/suzuki.glass.art",
+    "x": ""
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "jp2fr",
+  "private": true,
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "validate": "node scripts/validate-content.mjs"
+  },
+  "dependencies": {
+    "astro": "^5",
+    "@astrojs/cloudflare": "^12",
+    "gsap": "^3",
+    "lenis": "^1",
+    "nanostores": "^0.11",
+    "@nanostores/persistent": "^0.10",
+    "stripe": "^17"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9",
+    "typescript": "^5"
+  }
+}

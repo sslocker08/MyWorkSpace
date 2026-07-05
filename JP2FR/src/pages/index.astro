@@ -1,0 +1,20 @@
+---
+// Root redirect to the default locale (fr). Kept as a plain static page
+// (meta refresh) so it works under output: 'static' without needing an
+// SSR redirect. Once real routing/i18n middleware is in place this can be
+// replaced with a proper Astro.redirect() on a prerender:false page.
+const target = '/fr/';
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content={`0;url=${target}`} />
+    <link rel="canonical" href={target} />
+    <title>JP2FR</title>
+  </head>
+  <body>
+    <p>Redirection… <a href={target}>Continuer vers le site</a></p>
+  </body>
+</html>

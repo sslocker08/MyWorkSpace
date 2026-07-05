@@ -1,0 +1,37 @@
+{
+  "slug": "urushi-lacquer-box",
+  "founder": "iida-urushi-lacquer",
+  "order": 1,
+  "published": true,
+  "name": {
+    "fr": "Boîte Laque Urushi",
+    "en": "Urushi Lacquer Box",
+    "ja": "漆塗り箱"
+  },
+  "description": {
+    "fr": "Boîte de bois rectangulaire revêtue de plusieurs couches de laque urushi noire brillante. Son reflet profond et sa chaleur la rendent parfaite pour ranger des bijoux ou des objets précieux.",
+    "en": "Rectangular wooden box coated with multiple layers of glossy black urushi lacquer. Its deep reflection and warmth make it perfect for storing jewelry or precious items.",
+    "ja": "何層にも塗られた黒い漆で仕上げた木製の長方形の箱。深い光沢が大切なものを守ります。"
+  },
+  "materials": {
+    "fr": "Bois de paulownia, laque urushi noire",
+    "en": "Paulownia wood, black urushi lacquer",
+    "ja": "桐材・黒漆"
+  },
+  "price": {
+    "amount": 10500,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/urushi-lacquer-box/01.svg",
+    "/img/products/urushi-lacquer-box/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  }
+}

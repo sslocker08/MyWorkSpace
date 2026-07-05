@@ -1,0 +1,112 @@
+{
+  "site": {
+    "name": "JP2FR",
+    "tagline": "L'artisanat japonais, de l'atelier à votre demeure"
+  },
+  "nav": {
+    "home": "Accueil",
+    "founders": "Artisans",
+    "products": "Produits",
+    "cart": "Panier",
+    "menu": "Menu",
+    "close": "Fermer"
+  },
+  "lp": {
+    "intro": {
+      "message": "Découvrez les mains qui créent. Du cœur du Japon à votre maison.",
+      "skip": "Passer l'introduction"
+    },
+    "hero": {
+      "title": "Les maîtres artisans du Japon",
+      "subtitle": "Objets du quotidien, faits avec cœur et tradition",
+      "scroll": "Parcourir"
+    },
+    "concept": {
+      "kicker": "Notre philosophie",
+      "line1": "Chaque objet raconte une histoire — celle de l'artisan, des matériaux, et des générations de savoir-faire.",
+      "line2": "Nous connectons directement les créateurs japonais avec vous, éliminant les intermédiaires.",
+      "line3": "Qualité sans compromis. Beauté durable. Responsabilité partagée."
+    },
+    "founders": {
+      "kicker": "Les artisans",
+      "title": "15 maîtres, 15 régions, 15 traditions",
+      "cta": "Rencontrer les artisans"
+    },
+    "products": {
+      "kicker": "Nos sélections",
+      "title": "Pièces uniques, créées avec intention",
+      "cta": "Voir tous les produits"
+    },
+    "sns": {
+      "title": "Suivez notre histoire",
+      "follow": "Nous suivre"
+    }
+  },
+  "founders": {
+    "title": "Nos artisans",
+    "breadcrumb": "Artisans",
+    "products_by": "Créations de",
+    "back": "Retour aux artisans"
+  },
+  "products": {
+    "title": "Produits",
+    "breadcrumb": "Produits",
+    "by": "par",
+    "materials": "Matériaux",
+    "soldOut": "Rupture de stock",
+    "unique": "Pièce unique"
+  },
+  "cart": {
+    "title": "Votre panier",
+    "empty": "Votre panier est vide",
+    "empty_cta": "Continuer le shopping",
+    "count": "{count, plural, one {# article} other {# articles}}",
+    "quantity": "Quantité",
+    "remove": "Retirer",
+    "subtotal": "Sous-total",
+    "shipping_note": "Les frais de port sont calculés à la prochaine étape",
+    "tax_note": "Les taxes sont incluses dans le prix affiché",
+    "confirm_title": "Vérifier votre commande",
+    "confirm_delivery": "Adresse de livraison",
+    "confirm_cancel": "Annuler et revenir",
+    "checkout": "Procéder au paiement",
+    "processing": "Traitement en cours…",
+    "error": "Une erreur s'est produite. Veuillez réessayer."
+  },
+  "checkout": {
+    "success_title": "Merci de votre commande",
+    "success_body": "Votre commande est en cours de traitement. Un e-mail de confirmation a été envoyé à votre adresse. Vous recevrez bientôt les détails de suivi de livraison.",
+    "cancel_title": "Paiement annulé",
+    "cancel_body": "Votre paiement a été annulé. Vous pouvez continuer vos achats ou nous contacter si vous avez besoin d'aide.",
+    "back_home": "Retour à l'accueil"
+  },
+  "footer": {
+    "legal": "Mentions légales",
+    "mentions": "Mentions légales",
+    "privacy": "Politique de confidentialité",
+    "cgv": "Conditions générales de vente",
+    "tokushoho": "Loi spéciale (Japon)",
+    "cookies": "Politique relative aux cookies",
+    "rights": "© 2024 JP2FR. Tous droits réservés."
+  },
+  "cookie": {
+    "title": "Nous utilisons des cookies",
+    "body": "Nous utilisons des cookies pour améliorer votre expérience de navigation, analyser l'usage du site, et personnaliser le contenu. Vous pouvez accepter tous les cookies ou gérer vos préférences.",
+    "accept": "Accepter",
+    "reject": "Refuser",
+    "settings": "Paramètres",
+    "essential": "Cookies essentiels",
+    "analytics": "Cookies d'analyse"
+  },
+  "a11y": {
+    "skip_to_content": "Aller au contenu principal",
+    "open_menu": "Ouvrir le menu",
+    "close_menu": "Fermer le menu",
+    "breadcrumb": "Fil d'Ariane"
+  },
+  "notfound": {
+    "title": "Page non trouvée",
+    "body": "Désolé, la page que vous cherchez n'existe pas. Vérifiez l'URL ou retournez à l'accueil.",
+    "back": "Retour à l'accueil"
+  }
+}

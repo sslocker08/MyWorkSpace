@@ -1,0 +1,37 @@
+{
+  "slug": "kintsugi-tea-cup",
+  "founder": "yamazaki-gold-kintsugi",
+  "order": 2,
+  "published": true,
+  "name": {
+    "fr": "Tasse à Thé Kintsugi",
+    "en": "Kintsugi Tea Cup",
+    "ja": "金継ぎ茶碗"
+  },
+  "description": {
+    "fr": "Petite tasse de porcelaine blanche réparée avec une fine ligne d'or, prête pour les préparations de thé délicat. Le contraste entre le blanc pur et l'or reflet crée une harmonie visuelle.",
+    "en": "Small white porcelain cup repaired with fine gold line, ready for delicate tea preparations. The contrast between pure white and reflective gold creates visual harmony.",
+    "ja": "白磁の小さな茶碗が金で修復されています。純白と金の対比が、静寂の美を表現します。"
+  },
+  "materials": {
+    "fr": "Porcelaine blanche, fil d'or",
+    "en": "White porcelain, gold thread",
+    "ja": "白磁・金糸"
+  },
+  "price": {
+    "amount": 11000,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/kintsugi-tea-cup/01.svg",
+    "/img/products/kintsugi-tea-cup/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  }
+}

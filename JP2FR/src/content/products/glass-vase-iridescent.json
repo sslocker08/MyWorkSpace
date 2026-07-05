@@ -1,0 +1,37 @@
+{
+  "slug": "glass-vase-iridescent",
+  "founder": "suzuki-glass",
+  "order": 1,
+  "published": true,
+  "name": {
+    "fr": "Vase Verre Iridescent",
+    "en": "Iridescent Glass Vase",
+    "ja": "虹色ガラス花瓶"
+  },
+  "description": {
+    "fr": "Vase soufflé à la main en verre clair, avec des reflets iridescents issus de la technique historique de Nagasaki. La lumière danse sur sa surface changeante.",
+    "en": "Hand-blown clear glass vase with iridescent shimmer from historic Nagasaki technique. Light dances across its shifting surface.",
+    "ja": "長崎の伝統技法で製作した手吹きガラスの花瓶。光が虹色に躍る表面を見つめていると、時間を忘れます。"
+  },
+  "materials": {
+    "fr": "Verre soufflé à la main, teinture iridescente",
+    "en": "Hand-blown glass, iridescent finish",
+    "ja": "手吹きガラス・虹色加工"
+  },
+  "price": {
+    "amount": 9200,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/glass-vase-iridescent/01.svg",
+    "/img/products/glass-vase-iridescent/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  }
+}

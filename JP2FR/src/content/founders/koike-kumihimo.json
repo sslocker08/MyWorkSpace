@@ -1,0 +1,30 @@
+{
+  "slug": "koike-kumihimo",
+  "order": 14,
+  "published": true,
+  "name": {
+    "fr": "Kumihimo Artisans Koike",
+    "en": "Kumihimo Artisans Koike",
+    "ja": "組紐職人小池"
+  },
+  "title": {
+    "fr": "Maître de kumihimo",
+    "en": "Kumihimo master",
+    "ja": "組紐職人"
+  },
+  "bio": {
+    "fr": "À Ayase, centre traditionnel du kumihimo, les artisans Koike tressent des cordons avec une précision millénaire. Chaque fil de soie est guidé à la main pour créer des motifs géométriques complexes et des couleurs en harmonie.",
+    "en": "In Ayase, the traditional home of kumihimo, Koike's artisans hand-braid cords with millennial precision. Each silk thread is guided to create intricate geometric patterns and harmonious colors.",
+    "ja": "綾瀬の組紐の里で、小池の職人たちは幾千年の技を引き継いで、絹糸を手で組み上げます。複雑な幾何学模様と調和した色彩が、ひとつひとつの組紐に息づいています。"
+  },
+  "region": {
+    "fr": "Ayase",
+    "en": "Ayase",
+    "ja": "綾瀬"
+  },
+  "portrait": "/img/founders/koike-kumihimo/portrait.svg",
+  "sns": {
+    "instagram": "https://instagram.com/koike.kumihimo",
+    "x": ""
+  }
+}

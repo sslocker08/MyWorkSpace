@@ -1,0 +1,37 @@
+{
+  "slug": "sashiko-apron",
+  "founder": "matsuda-sashiko",
+  "order": 2,
+  "published": true,
+  "name": {
+    "fr": "Tablier Sashiko",
+    "en": "Sashiko Apron",
+    "ja": "刺し子エプロン"
+  },
+  "description": {
+    "fr": "Tablier de lin indigo avec détails sashiko brodés aux épaules et à la ceinture. Fonctionnel et élégant, il transforme le travail quotidien en un acte de beauté.",
+    "en": "Indigo linen apron with sashiko embroidered details on shoulders and waist. Functional and elegant, it transforms daily work into an act of beauty.",
+    "ja": "藍のリネンエプロンに、肩と腰に刺し子の刺繍があります。実用的で優雅。日常の仕事を美の営みへと変えます。"
+  },
+  "materials": {
+    "fr": "Lin indigo, embellissement sashiko",
+    "en": "Indigo linen, sashiko embellishment",
+    "ja": "藍リネン・刺し子装飾"
+  },
+  "price": {
+    "amount": 6200,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/sashiko-apron/01.svg",
+    "/img/products/sashiko-apron/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  }
+}

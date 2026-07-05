@@ -1,0 +1,37 @@
+{
+  "slug": "woodblock-print-flora",
+  "founder": "yamamoto-woodblock",
+  "order": 2,
+  "published": true,
+  "name": {
+    "fr": "Estampe Fleur Cerisier",
+    "en": "Cherry Blossom Print",
+    "ja": "桜版画"
+  },
+  "description": {
+    "fr": "Estampe gravée sur bois, fleurs de cerisier en floraison. Les motifs délicats et la teinte rose pâle capturent l'instant fugace du printemps japonais.",
+    "en": "Woodblock print of blooming cherry blossoms. Delicate patterns and pale pink hue capture the fleeting moment of Japanese spring.",
+    "ja": "さくら花の版画。繊細な文様とうすいピンク色が、日本の春のはかない瞬間を映します。"
+  },
+  "materials": {
+    "fr": "Papier washi, encre rose et noir",
+    "en": "Washi paper, pink and black ink",
+    "ja": "和紙・ピンク墨と黒墨"
+  },
+  "price": {
+    "amount": 10800,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/woodblock-print-flora/01.svg",
+    "/img/products/woodblock-print-flora/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "slug": "kumihimo-bookmark",
+  "founder": "koike-kumihimo",
+  "order": 1,
+  "published": true,
+  "name": {
+    "fr": "Signet Kumihimo",
+    "en": "Kumihimo Bookmark",
+    "ja": "組紐栞"
+  },
+  "description": {
+    "fr": "Signet en cordon kumihimo, tressé à la main en quatre couleurs. La géométrie du motif crée un effet de profondeur hypnotique, gardant la page tout en ornant le livre.",
+    "en": "Hand-braided kumihimo cord bookmark in four colors. The geometric pattern creates hypnotic depth, holding your page while adorning your book.",
+    "ja": "4色で手で編んだ組紐の栞。幾何学模様が深さの錯覚を生み出します。本を守りながら、本を飾ります。"
+  },
+  "materials": {
+    "fr": "Soie kumihimo, tressage à la main",
+    "en": "Silk kumihimo, hand-braided",
+    "ja": "絹組紐・手編み"
+  },
+  "price": {
+    "amount": 4700,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/kumihimo-bookmark/01.svg",
+    "/img/products/kumihimo-bookmark/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "slug": "glass-pendant-light",
+  "founder": "suzuki-glass",
+  "order": 3,
+  "published": true,
+  "name": {
+    "fr": "Lampe Suspendue Verre Unique",
+    "en": "Unique Glass Pendant Lamp",
+    "ja": "ガラスペンダント照明"
+  },
+  "description": {
+    "fr": "Lampe suspendue soufflée à la main, pièce unique avec teinte légèrement ambrée et fines bulles d'air emprisonnées. Chaque exemplaire révèle une personnalité lumineuse différente.",
+    "en": "Hand-blown pendant lamp, one-of-a-kind with soft amber tint and trapped air bubbles. Each piece reveals a different luminous personality.",
+    "ja": "手吹きのペンダント照明。淡い琥珀色と閉じ込められた気泡を持つ一点物。光の性格がひとつひとつ異なります。"
+  },
+  "materials": {
+    "fr": "Verre soufflé à la main, teinte ambrée, ampoule LED",
+    "en": "Hand-blown glass, amber tint, LED bulb",
+    "ja": "手吹きガラス・琥珀色・LED電球"
+  },
+  "price": {
+    "amount": 13500,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/glass-pendant-light/01.svg",
+    "/img/products/glass-pendant-light/02.svg"
+  ],
+  "stock": {
+    "kind": "unique",
+    "soldOut": false
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "slug": "ai-no-tsuki-apparel",
+  "order": 15,
+  "published": true,
+  "name": {
+    "fr": "Ai no Tsuki",
+    "en": "Ai no Tsuki",
+    "ja": "藍の月"
+  },
+  "title": {
+    "fr": "Designer textile indigo",
+    "en": "Indigo textile designer",
+    "ja": "藍染テキスタイルデザイナー"
+  },
+  "bio": {
+    "fr": "À Kobe, Ai no Tsuki transforme le denim classique en pièces distinctives. Chaque vêtement est teint à l'indigo puis façonné avec minutie, combinant le savoir-faire traditionnel et une esthétique minimaliste moderne.",
+    "en": "In Kobe, Ai no Tsuki transforms classic denim into distinctive pieces. Each garment is indigo-dyed then crafted with precision, merging traditional craftsmanship with minimalist modern aesthetics.",
+    "ja": "神戸の藍の月は、古典的なデニムを独特の装いへと変えています。藍で染められ、丁寧に仕立てられたひとつひとつの衣は、伝統技法と現代的な美意識の出会いです。"
+  },
+  "region": {
+    "fr": "Kobe",
+    "en": "Kobe",
+    "ja": "神戸"
+  },
+  "portrait": "/img/founders/ai-no-tsuki-apparel/portrait.svg",
+  "sns": {
+    "instagram": "https://instagram.com/ainotsuki.kobe",
+    "x": "https://x.com/ainotsuki"
+  }
+}

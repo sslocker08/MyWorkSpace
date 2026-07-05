@@ -1,0 +1,287 @@
+@import './tokens.css';
+
+/* Modern CSS reset (minimal, project-agnostic baseline) */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  overflow-x: clip;
+}
+
+body {
+  overflow-x: clip;
+  line-height: var(--leading-body-en);
+  -webkit-font-smoothing: antialiased;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+}
+
+/* 和文本文は行間 1.9（§2） */
+:lang(ja) {
+  line-height: var(--leading-body-ja);
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+#root,
+#__next {
+  isolation: isolate;
+}
+
+/* ---------------------------------------------------------------------
+ * Headings — 明朝 display, no italic (AI-tell), tight leading.
+ * ------------------------------------------------------------------- */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  line-height: var(--leading-heading);
+  font-style: normal;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------------
+ * Focus — global :focus-visible ring (朱, 2px, offset 2px). Default
+ * browser outline suppressed only once the custom ring is guaranteed.
+ * ------------------------------------------------------------------- */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-shu);
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
+/* ---------------------------------------------------------------------
+ * Selection
+ * ------------------------------------------------------------------- */
+::selection {
+  background: var(--color-ai);
+  color: var(--color-kinari);
+}
+
+/* ---------------------------------------------------------------------
+ * Utilities
+ * ------------------------------------------------------------------- */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+
+/* Buttons — 8 states: default / hover / focus-visible / active /
+ * disabled / loading / error / success (§5). Radius 2px. Hover shifts
+ * hue toward 浅葱, it does not lighten. Registration-drift (版ズレ) is
+ * intentionally NOT applied here — §3 reserves that effect for the
+ * founder-card hover and signature heading only. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  padding: var(--space-3) var(--space-6);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-ui) var(--ease-mie),
+    border-color var(--duration-ui) var(--ease-mie),
+    color var(--duration-ui) var(--ease-mie),
+    transform var(--duration-ui-fast) var(--ease-mie);
+}
+
+.btn--primary {
+  background: var(--color-ai);
+  color: var(--color-kinari);
+  border-color: var(--color-ai);
+}
+
+.btn--primary:hover {
+  background: var(--color-asagi);
+  border-color: var(--color-asagi);
+}
+
+.btn--primary:active {
+  background: var(--color-ai);
+  transform: translateY(1px) scale(0.98);
+}
+
+.btn--secondary {
+  background: var(--color-kinari);
+  color: var(--color-sumi);
+  border-color: var(--color-sumi);
+}
+
+.btn--secondary:hover {
+  background: var(--color-washi);
+  border-color: var(--color-ai);
+  color: var(--color-ai);
+}
+
+.btn--secondary:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.btn[disabled],
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+}
+
+.btn.is-loading {
+  position: relative;
+  color: transparent;
+  pointer-events: none;
+}
+
+.btn.is-loading::after {
+  content: '';
+  position: absolute;
+  width: 1em;
+  height: 1em;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  color: inherit;
+  animation: btn-spin 800ms linear infinite;
+}
+
+.btn--primary.is-loading::after {
+  color: var(--color-kinari);
+}
+
+.btn--secondary.is-loading::after {
+  color: var(--color-sumi);
+}
+
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.btn.is-error {
+  background: var(--color-kinari);
+  border-color: var(--color-shu);
+  color: var(--color-shu);
+}
+
+.btn.is-error::before {
+  content: '\26A0';
+  font-size: var(--text-sm);
+}
+
+.btn.is-success {
+  background: var(--color-kinari);
+  border-color: var(--color-ai);
+  color: var(--color-ai);
+}
+
+.btn.is-success::before {
+  content: '\2713';
+  font-size: var(--text-sm);
+}
+
+/* Card — 和紙面. Multi-layer paper shadow, hairline 墨20% border. */
+.card {
+  background: var(--color-washi);
+  border: var(--border-hairline);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-paper);
+  padding: var(--space-6);
+}
+
+/* Kicker — 詞書 (kotobagaki) style label integrated as a wa motif:
+ * a short 藍 hairline tick rather than a bare "01 / FEATURES" eyebrow. */
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-variant: small-caps;
+  font-style: normal;
+  letter-spacing: 0.14em;
+  color: var(--color-sumi-usu);
+}
+
+.kicker::before {
+  content: '';
+  display: inline-block;
+  width: var(--space-3);
+  height: 1px;
+  background: var(--color-ai);
+}
+
+/* Grain overlay — 和紙グレイン, opacity 3–5%, soft-light, full-viewport. */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url('/textures/washi-grain.svg');
+  background-repeat: repeat;
+  background-size: 400px 400px;
+  opacity: 0.04;
+  mix-blend-mode: soft-light;
+  z-index: var(--z-grain);
+}
+
+/* ---------------------------------------------------------------------
+ * Motion safety — reduced motion kills all animation/transition (§4).
+ * ------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

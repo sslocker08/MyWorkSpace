@@ -1,0 +1,37 @@
+{
+  "slug": "washi-scroll",
+  "founder": "takeda-washi-paper",
+  "order": 2,
+  "published": true,
+  "name": {
+    "fr": "Rouleau Washi Broché",
+    "en": "Washi Scroll Roll",
+    "ja": "和紙巻物"
+  },
+  "description": {
+    "fr": "Rouleau de papier washi blanc épais, idéal pour calligraphie, peinture ou simple décoration murale. La texture naturelle du kozo accepte généreusement l'encre et le pinceau.",
+    "en": "Roll of thick white washi paper, ideal for calligraphy, painting, or wall decoration. The natural kozo texture generously accepts ink and brush.",
+    "ja": "白い厚い和紙の巻物。書道や墨絵、または壁飾りに最適です。楮の自然な質感が、墨と筆をやさしく受け止めます。"
+  },
+  "materials": {
+    "fr": "Papier washi kozo blanc",
+    "en": "White washi kozo paper",
+    "ja": "白楮和紙"
+  },
+  "price": {
+    "amount": 6500,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/washi-scroll/01.svg",
+    "/img/products/washi-scroll/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  }
+}

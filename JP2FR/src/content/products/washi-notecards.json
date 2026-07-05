@@ -1,0 +1,37 @@
+{
+  "slug": "washi-notecards",
+  "founder": "takeda-washi-paper",
+  "order": 1,
+  "published": true,
+  "name": {
+    "fr": "Cartes de Vœux Washi",
+    "en": "Washi Note Cards",
+    "ja": "和紙絵葉書"
+  },
+  "description": {
+    "fr": "Ensemble de 5 cartes de vœux en washi épais, avec des motifs de saisons imprimés délicatement. Le toucher du papier naturel inspire la correspondance sincère.",
+    "en": "Set of 5 thick washi note cards with delicate seasonal motif prints. The feel of natural paper inspires sincere correspondence.",
+    "ja": "厚い和紙に季節の文様を優しく刷った絵葉書5枚セット。自然な紙の手触りが、心のこもった手紙を誘います。"
+  },
+  "materials": {
+    "fr": "Papier washi kozo, impression traditionnelle",
+    "en": "Washi kozo paper, traditional printing",
+    "ja": "楮和紙・伝統版画"
+  },
+  "price": {
+    "amount": 4200,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/washi-notecards/01.svg",
+    "/img/products/washi-notecards/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  }
+}

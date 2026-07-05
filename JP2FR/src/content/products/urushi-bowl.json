@@ -1,0 +1,37 @@
+{
+  "slug": "urushi-bowl",
+  "founder": "iida-urushi-lacquer",
+  "order": 2,
+  "published": true,
+  "name": {
+    "fr": "Bol Laque Wajima",
+    "en": "Wajima Lacquer Bowl",
+    "ja": "輪島漆碗"
+  },
+  "description": {
+    "fr": "Bol en bois léger avec plusieurs couches de laque noire brillante et intérieur laqué rouge. Chaque utilisation le rend plus beau, révélant la profondeur de la laque.",
+    "en": "Lightweight wooden bowl with multiple layers of glossy black lacquer and red lacquered interior. Each use makes it more beautiful, revealing lacquer's depth.",
+    "ja": "軽い木製の碗に何層もの黒漆が塗られ、内側は赤漆で仕上げられています。使うほどに美しくなります。"
+  },
+  "materials": {
+    "fr": "Bois léger, laque urushi noir et rouge",
+    "en": "Lightweight wood, black and red urushi lacquer",
+    "ja": "軽木材・黒漆と赤漆"
+  },
+  "price": {
+    "amount": 8800,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/urushi-bowl/01.svg",
+    "/img/products/urushi-bowl/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  }
+}

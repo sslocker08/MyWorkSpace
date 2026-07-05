@@ -1,0 +1,37 @@
+{
+  "slug": "woodblock-print-landscape",
+  "founder": "yamamoto-woodblock",
+  "order": 1,
+  "published": true,
+  "name": {
+    "fr": "Estampe Paysage Montagne",
+    "en": "Mountain Landscape Print",
+    "ja": "山風景版画"
+  },
+  "description": {
+    "fr": "Estampe gravée sur bois et imprimée à la main, paysage montagneux minimaliste. Teintes de bleu et noir capturent le calme serein de la nature japonaise.",
+    "en": "Hand-carved and hand-printed woodblock print, minimalist mountain landscape. Blue and black tones capture the serene calm of Japanese nature.",
+    "ja": "手彫りして手刷りした木版画。山の風景を最小限の描写で。青と黒の色合いが、静寂を映します。"
+  },
+  "materials": {
+    "fr": "Papier washi, encre traditionnelle, gravure sur bois",
+    "en": "Washi paper, traditional ink, woodblock",
+    "ja": "和紙・伝統墨・木版"
+  },
+  "price": {
+    "amount": 11500,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/woodblock-print-landscape/01.svg",
+    "/img/products/woodblock-print-landscape/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  }
+}

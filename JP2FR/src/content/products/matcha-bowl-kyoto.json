@@ -1,0 +1,37 @@
+{
+  "slug": "matcha-bowl-kyoto",
+  "founder": "atelier-tanaka-ceramic",
+  "order": 2,
+  "published": true,
+  "name": {
+    "fr": "Bol à matcha Kyoto",
+    "en": "Kyoto Matcha Bowl",
+    "ja": "京都抹茶碗"
+  },
+  "description": {
+    "fr": "Un bol de céramique raku, façonné à la main et cuit au four à bois, idéal pour préparer le matcha. La forme épouse naturellement la main et sa glaçure blanche-crème révèle la technique du maître.",
+    "en": "A hand-thrown raku ceramic bowl, wood-fired, perfect for preparing matcha. The form fits naturally in hand and its cream glaze reveals the master's technique.",
+    "ja": "手ろくろで成形した楽焼きの抹茶碗。薪窯で焼成され、白クリーム色の釉薬が職人の技を映し出します。"
+  },
+  "materials": {
+    "fr": "Céramique raku, glaçure naturelle",
+    "en": "Raku ceramic, natural glaze",
+    "ja": "楽焼き陶土・天然釉"
+  },
+  "price": {
+    "amount": 8500,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/matcha-bowl-kyoto/01.svg",
+    "/img/products/matcha-bowl-kyoto/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  }
+}

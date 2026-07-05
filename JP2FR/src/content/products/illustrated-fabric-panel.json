@@ -1,0 +1,37 @@
+{
+  "slug": "illustrated-fabric-panel",
+  "founder": "komori-illustration",
+  "order": 1,
+  "published": true,
+  "name": {
+    "fr": "Panneau Textile Illustré",
+    "en": "Illustrated Fabric Panel",
+    "ja": "イラストファブリック"
+  },
+  "description": {
+    "fr": "Panneau de linen 100% imprimé avec une illustration originale d'oiseaux et de fleurs sauvages. Parfait pour encadrement ou remboîtage sur un coussin.",
+    "en": "100% linen panel printed with original illustration of wild birds and flowers. Perfect for framing or as a pillow cover.",
+    "ja": "野鳥と野花のイラストが刷られた100%リネンのパネル。額装やクッションカバーに最適です。"
+  },
+  "materials": {
+    "fr": "Lin 100%, impression textile",
+    "en": "100% linen, textile print",
+    "ja": "リネン100%・テキスタイルプリント"
+  },
+  "price": {
+    "amount": 5500,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/illustrated-fabric-panel/01.svg",
+    "/img/products/illustrated-fabric-panel/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  }
+}

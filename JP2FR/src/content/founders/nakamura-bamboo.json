@@ -1,0 +1,30 @@
+{
+  "slug": "nakamura-bamboo",
+  "order": 9,
+  "published": true,
+  "name": {
+    "fr": "Bamboo Master Nakamura",
+    "en": "Bamboo Master Nakamura",
+    "ja": "竹仙人中村"
+  },
+  "title": {
+    "fr": "Maître du bambou",
+    "en": "Bamboo craftsman",
+    "ja": "竹細工職人"
+  },
+  "bio": {
+    "fr": "À Beppu, centre traditionnel du travail du bambou, le maître Nakamura transforme les tiges fraîches en objets délicats. Son savoir-faire, transmis sur quatre générations, révèle la souplesse et la force du bambou.",
+    "en": "In Beppu, the traditional heart of bamboo work, Master Nakamura transforms fresh stems into delicate objects. His craft, passed down through four generations, reveals bamboo's flexibility and strength.",
+    "ja": "別府の竹細工の中心で、中村職人は新しい竹を優雅な道具へと変えていきます。四代にわたって受け継がれた技は、竹のしなやかさと強さを引き出しています。"
+  },
+  "region": {
+    "fr": "Beppu",
+    "en": "Beppu",
+    "ja": "別府"
+  },
+  "portrait": "/img/founders/nakamura-bamboo/portrait.svg",
+  "sns": {
+    "instagram": "https://instagram.com/nakamura.bamboo",
+    "x": ""
+  }
+}
