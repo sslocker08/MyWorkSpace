@@ -24,8 +24,10 @@ export function initCursor(): () => void {
   cursor.style.marginLeft = `${-CURSOR_SIZE / 2}px`;
   cursor.style.marginTop = `${-CURSOR_SIZE / 2}px`;
   cursor.style.borderRadius = '50%';
+  // Solid 朱 dot — no blend mode: exclusion over the kinari ground shifted
+  // the dot to an off-palette teal (caught in the visual gate); the palette
+  // is a closed set (DESIGN.md §1).
   cursor.style.background = 'var(--color-shu)';
-  cursor.style.mixBlendMode = 'exclusion';
   cursor.style.pointerEvents = 'none';
   cursor.style.zIndex = 'var(--z-toast)';
   cursor.style.willChange = 'transform';

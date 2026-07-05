@@ -32,9 +32,7 @@ const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
-  <div class="seigaiha-divider" aria-hidden="true">
-    <img src="/textures/seigaiha.svg" alt="" width="1440" height="48" loading="lazy" decoding="async" />
-  </div>
+  <div class="seigaiha-divider" aria-hidden="true"></div>
 
   <div class="site-footer-inner">
     <div class="footer-col footer-brand">
@@ -104,17 +102,16 @@ const year = new Date().getFullYear();
     color: var(--color-kinari);
   }
 
+  /* seigaiha.svg is a 40x40 pattern tile — repeat it, never stretch it
+     (a stretched single tile renders as one giant off-scale arc). */
   .seigaiha-divider {
     width: 100%;
-    line-height: 0;
-    overflow: hidden;
+    height: 24px;
+    background-image: url('/textures/seigaiha.svg');
+    background-repeat: repeat-x;
+    background-size: 40px 40px;
+    background-position: bottom;
     transform: translateY(1px);
-  }
-
-  .seigaiha-divider img {
-    width: 100%;
-    height: auto;
-    display: block;
   }
 
   .site-footer-inner {

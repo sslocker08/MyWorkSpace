@@ -188,6 +188,20 @@ const copy = confirmCopy[locale];
   }
 
   /* ---- Empty state -------------------------------------------------- */
+  /* Root cause (A1): the [hidden] attribute this.CartPage.ts toggles is
+     an author-origin rule fight, not a specificity fight -- any author
+     rule that sets `display` on the same element beats the UA
+     `[hidden] { display: none }` rule regardless of specificity. Without
+     an explicit `[hidden]` override here, `.cart-empty { display: flex }`
+     always won, so the empty-state block stayed visible even when the
+     island had already set `hidden = true`, rendering it at the same time
+     as populated `.cart-row`s. The `[hidden]` selector below is MORE
+     specific than the base rule (attribute + class vs. class alone) so it
+     wins the cascade once JS marks the block hidden. */
+  [data-cart-root] .cart-empty[hidden] {
+    display: none;
+  }
+
   [data-cart-root] .cart-empty {
     display: flex;
     flex-direction: column;
@@ -220,6 +234,13 @@ const copy = confirmCopy[locale];
   }
 
   /* ---- Rows (emitted by CartPage.ts — see its file header) ----------- */
+  /* Same [hidden]-vs-display fight as .cart-empty above; kept for
+     consistency even though an empty rows container has no visible
+     content of its own. */
+  [data-cart-root] .cart-rows[hidden] {
+    display: none;
+  }
+
   [data-cart-root] .cart-rows {
     display: flex;
     flex-direction: column;
@@ -399,6 +420,12 @@ const copy = confirmCopy[locale];
     box-shadow: var(--shadow-paper);
     padding: var(--space-6);
     align-self: start;
+    /* .cart-summary is a grid item (see .cart-body); grid items default to
+       min-width: auto, which lets their own content's min-content size
+       override the minmax(0, 22rem) track and push the card (and anything
+       set to width: 100% inside it, like .cart-checkout) past its own
+       right edge. min-width: 0 lets the card actually shrink to its track. */
+    min-width: 0;
   }
 
   [data-cart-root] .cart-summary-row {
@@ -455,10 +482,16 @@ const copy = confirmCopy[locale];
   [data-cart-root] .cart-error {
     font-size: var(--text-sm);
     color: var(--color-shu);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-shu);
+    border-radius: var(--radius);
+    background: var(--color-washi);
   }
 
   [data-cart-root] .cart-checkout {
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   @media (prefers-reduced-motion: reduce) {

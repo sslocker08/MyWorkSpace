@@ -13,9 +13,9 @@ export function debounce<T extends (...args: never[]) => void>(fn: T, waitMs: nu
   }) as T;
 }
 
-/** Cheap, conservative proxy for "mobile-low-end" hardware — used only to
- * gate the wave-sequence canvas scrub per the brief (skip pin+scrub, draw a
- * single static frame instead). Any environment that doesn't expose
+/** Cheap, conservative proxy for "mobile-low-end" hardware — used to gate
+ * the emaki pan (src/motion/emakiPan.ts) per the brief (skip pin+scrub,
+ * show a single static scene instead). Any environment that doesn't expose
  * `hardwareConcurrency` is treated as capable (fails open). */
 export function isLowEndDevice(): boolean {
   if (typeof navigator === 'undefined') return false;

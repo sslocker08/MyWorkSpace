@@ -39,7 +39,53 @@ if (introShown) {
 // 3. motion init loaded, ScrollTrigger pins exist
 await page.waitForTimeout(800);
 const pinCount = await page.locator('.pin-spacer').count();
-check('ScrollTrigger pins active (wave-seq + rail)', pinCount >= 1, `pin-spacers=${pinCount}`);
+check('ScrollTrigger pins active (emaki + rail)', pinCount >= 1, `pin-spacers=${pinCount}`);
+
+// 3b. emaki track exists (the concept-section handscroll pan)
+const emakiTrack = page.locator('[data-emaki-track]');
+check('emaki track exists', (await emakiTrack.count()) === 1);
+
+// 3c. emaki pan on capable hardware: spoof hardwareConcurrency=10 (so
+// isLowEndDevice() reads false) in a fresh context, then scroll through the
+// pinned concept section at 3 depths and assert the track's computed
+// translateX differs at each — proof the scrub tween is actually live
+// (replaces the old wave-canvas frame-hash check).
+const emakiPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+await emakiPage.addInitScript(() => {
+  Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 10 });
+});
+await emakiPage.goto(`${BASE}/fr/`, { waitUntil: 'load' });
+await emakiPage.waitForTimeout(1200);
+const emakiIntro = emakiPage.locator('[data-intro]');
+if ((await emakiIntro.count()) === 1 && (await emakiIntro.isVisible().catch(() => false))) {
+  await emakiPage.locator('[data-intro-skip]').click().catch(() => {});
+  await emakiPage.waitForTimeout(900);
+}
+const readTrackX = async () =>
+  emakiPage.locator('[data-emaki-track]').evaluate((el) => {
+    const m = getComputedStyle(el).transform;
+    if (m === 'none') return 0;
+    const parts = /matrix\(([^)]+)\)/.exec(m)?.[1]?.split(',').map(Number);
+    return parts?.[4] ?? 0;
+  });
+const sectionTop = await emakiPage
+  .locator('[data-concept]')
+  .evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
+await emakiPage.evaluate((y) => window.scrollTo(0, y), sectionTop);
+await emakiPage.waitForTimeout(500);
+const xAtStart = await readTrackX();
+await emakiPage.evaluate((y) => window.scrollTo(0, y), sectionTop + 900);
+await emakiPage.waitForTimeout(500);
+const xAt900 = await readTrackX();
+await emakiPage.evaluate((y) => window.scrollTo(0, y), sectionTop + 1800);
+await emakiPage.waitForTimeout(500);
+const xAt1800 = await readTrackX();
+check(
+  'emaki pan: track translateX differs across 3 scroll depths (10-core spoof)',
+  xAtStart !== xAt900 && xAt900 !== xAt1800 && xAtStart !== xAt1800,
+  `x0=${xAtStart} x900=${xAt900} x1800=${xAt1800}`,
+);
+await emakiPage.close();
 
 // 4. hreflang cluster
 const hreflangs = await page.locator('link[rel="alternate"][hreflang]').count();

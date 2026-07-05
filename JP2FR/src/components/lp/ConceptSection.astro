@@ -1,13 +1,20 @@
 ---
 // critique: P4 H4 E4 S4 R4 V4
 //
-// Concept section: philosophy kicker + a wave-sequence canvas placeholder
-// (the motion layer paints scroll-scrubbed frames here) + the three
-// concept lines, fully visible statically (no opacity:0 — reveals are
-// below-fold and JS-driven only, per DESIGN.md §4).
+// Concept section — SIGNATURE moment: a horizontal 絵巻 (handscroll) pan
+// through three real ukiyo-e prints (The Met, CC0 — assetgen/SOURCES.md),
+// telling the JP→FR journey (出発 → 渡り → 海越え) while the section is
+// pinned and scrubbed. Replaces the previous procedural wave-canvas
+// placeholder (removed) now that real prints exist under
+// public/img/sections + public/media/hero (DESIGN.md §8 asset-swap
+// contract). Static/no-JS state: the track sits at x=0 (scene 1, 出発,
+// visible), viewport overflow is hidden (acceptable per brief — the
+// concept lines below remain fully visible either way), reveals are
+// JS-driven only (no opacity:0 on anything above the fold, per DESIGN.md
+// §4 — the viewport itself is below-fold on every real viewport).
 import { useT } from '../../lib/i18n';
 import type { Locale } from '../../lib/i18n';
-import { sectionAssets } from '../../lib/assets';
+import { sectionPrints } from '../../lib/assets';
 
 export interface Props {
   locale: Locale;
@@ -17,32 +24,59 @@ const { locale } = Astro.props;
 const t = useT(locale);
 
 const lineKeys = ['lp.concept.line1', 'lp.concept.line2', 'lp.concept.line3'] as const;
+
+// Fixed captions — identical across all locales (real provenance, not
+// translated copy; DESIGN.md §6 honesty gate). Dimensions are the actual
+// source-file aspect ratios (assetgen/SOURCES.md), set explicitly so CLS=0.
+const panels = [
+  {
+    src: sectionPrints.bridge,
+    width: 1600,
+    height: 1089,
+    alt: '歌川広重《東海道五十三次 日本橋》— Morning View of Nihonbashi',
+    caption: '広重《東海道五十三次 日本橋》· The Met (CC0)',
+  },
+  {
+    src: sectionPrints.crane,
+    width: 1600,
+    height: 3553,
+    alt: '葛飾北斎《雪松に鶴》— Cranes on Branch of Snow-covered Pine',
+    caption: '北斎《雪松に鶴》· The Met (CC0)',
+  },
+  {
+    src: sectionPrints.waveDetail,
+    width: 1600,
+    height: 1087,
+    alt: '歌川広重《東海道五十三次 荒井 渡舟ノ図》— Arai: Ferryboats crossing',
+    caption: '広重《荒井 渡舟ノ図》· The Met (CC0)',
+  },
+] as const;
 ---
 
 <section data-concept class="concept">
+  <div data-emaki class="emaki">
+    <div data-emaki-track class="emaki-track">
+      {
+        panels.map((panel, index) => (
+          <figure class="emaki-panel">
+            <img
+              src={panel.src}
+              width={panel.width}
+              height={panel.height}
+              alt={panel.alt}
+              loading={index === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+            />
+            <span class="emaki-frame" aria-hidden="true" />
+            <figcaption class="emaki-caption">{panel.caption}</figcaption>
+          </figure>
+        ))
+      }
+    </div>
+  </div>
+
   <div class="concept-inner">
     <p class="kicker">{t('lp.concept.kicker')}</p>
-
-    {/*
-      Progressive canvas contract: the canvas starts fully transparent, so
-      the seigaiha fallback image beneath shows straight through with no
-      JS/class toggle required. Once the motion layer acquires a 2D
-      context and paints the wave sequence, its opaque frames naturally
-      cover the fallback — a stacking-only progressive-enhancement, not a
-      state machine this file needs to own.
-    */}
-    <div data-wave-seq-wrap class="wave-seq-wrap">
-      <img
-        src={sectionAssets.seigaiha}
-        alt=""
-        width="1600"
-        height="900"
-        class="wave-seq-fallback"
-        loading="lazy"
-        decoding="async"
-      />
-      <canvas data-wave-seq width="1600" height="900" class="wave-seq-canvas" aria-hidden="true"></canvas>
-    </div>
 
     <div class="concept-lines">
       {
@@ -61,6 +95,80 @@ const lineKeys = ['lp.concept.line1', 'lp.concept.line2', 'lp.concept.line3'] as
     padding-block: var(--space-12);
   }
 
+  /* ── The emaki viewport: full-bleed (edge to edge of the section, which
+     itself has no inline padding), washi ground beneath the panels. ── */
+  .emaki {
+    position: relative;
+    width: 100%;
+    height: 62vh;
+    overflow: hidden;
+    background: var(--color-washi);
+  }
+
+  @media (max-width: 767px) {
+    .emaki {
+      height: 46vh;
+    }
+  }
+
+  .emaki-track {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    height: 100%;
+    width: max-content;
+    /* Enough inline padding that scene 1 doesn't start flush against the
+       viewport edge and scene 3 doesn't end flush either — both the first
+       and last panel get breathing room to settle toward center at the
+       extremes of the pan. */
+    padding-inline: clamp(4rem, 12vw, 16rem);
+  }
+
+  .emaki-panel {
+    position: relative;
+    flex: none;
+    height: 100%;
+    width: auto;
+    margin: 0;
+  }
+
+  .emaki-panel img {
+    height: 100%;
+    width: auto;
+    display: block;
+  }
+
+  /* Frame line + 版ズレ offset — exact language of Hero.astro's
+     .hero-frame/.hero-frame::before, panel-scoped. */
+  .emaki-frame {
+    position: absolute;
+    inset: var(--space-3);
+    border: 1px solid oklch(0.955 0.012 95 / 0.85);
+    pointer-events: none;
+  }
+
+  .emaki-frame::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    translate: 3px 3px;
+    border: 1px solid oklch(0.55 0.185 32 / 0.5);
+  }
+
+  /* Caption chip — exact language of Hero.astro's .hero-caption. */
+  .emaki-caption {
+    position: absolute;
+    left: var(--space-3);
+    bottom: var(--space-3);
+    margin: 0;
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    color: var(--color-sumi);
+    background: oklch(0.955 0.012 95 / 0.92);
+    border-left: 2px solid var(--color-shu);
+  }
+
   .concept-inner {
     max-width: var(--container-max);
     margin-inline: auto;
@@ -68,28 +176,8 @@ const lineKeys = ['lp.concept.line1', 'lp.concept.line2', 'lp.concept.line3'] as
     text-align: center;
   }
 
-  .wave-seq-wrap {
-    position: relative;
-    width: 100%;
-    max-width: 50rem;
-    margin: var(--space-9) auto;
-    aspect-ratio: 16 / 9;
-    border-radius: var(--radius);
-    overflow: hidden;
-    background: var(--color-washi);
-  }
-
-  .wave-seq-fallback,
-  .wave-seq-canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  .wave-seq-fallback {
-    object-fit: cover;
-    opacity: 0.55;
+  .kicker {
+    margin-top: var(--space-9);
   }
 
   .concept-lines {

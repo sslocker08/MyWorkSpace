@@ -13,7 +13,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import { initIntro } from './intro';
 import { initHero } from './hero';
-import { initWaveSequence } from './waveSequence';
+import { initEmakiPan } from './emakiPan';
 import { initFoundersRail } from './foundersRail';
 import { initStagger, initFoundersRailMobileStagger } from './stagger';
 import { initCursor } from './cursor';
@@ -40,12 +40,12 @@ function setupLenis(): () => void {
 
 /** prefers-reduced-motion: reduce — show final states only, no tweens, no
  * pin/scrub. DESIGN.md §4: "全演出停止"; intro is removed outright rather
- * than left in its server-rendered [hidden] state, and the wave canvas gets
- * a single static final-frame paint instead of staying blank behind the
- * seigaiha fallback. */
+ * than left in its server-rendered [hidden] state, and the emaki track gets
+ * a single static scene-1 frame with every concept line already visible,
+ * instead of pinning + panning. */
 function applyReducedMotionState(): void {
   document.querySelector('[data-intro]')?.remove();
-  initWaveSequence({ staticProgress: 1 });
+  initEmakiPan({ static: true });
 }
 
 function initMotion(): void {
@@ -58,7 +58,7 @@ function initMotion(): void {
   mm.add('(prefers-reduced-motion: no-preference)', () => {
     initIntro();
     initHero();
-    const cleanupWaveSequence = initWaveSequence();
+    const cleanupEmakiPan = initEmakiPan();
     initStagger();
 
     const mmViewport = gsap.matchMedia();
@@ -94,7 +94,7 @@ function initMotion(): void {
 
     return () => {
       mmViewport.revert();
-      cleanupWaveSequence();
+      cleanupEmakiPan();
     };
   });
 }

@@ -285,3 +285,9 @@ h6 {
     scroll-behavior: auto !important;
   }
 }
+
+/* [hidden] must always win over author display rules (cart badge, empty
+   states, any island-toggled element). Modern-reset staple. */
+[hidden] {
+  display: none !important;
+}

@@ -1,32 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="1200" height="900" viewBox="0 0 1200 900" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background -->
   <rect width="1200" height="900" fill="#F3EFE4"/>
-
-  <!-- Wave pattern (subtle) -->
-  <g transform="translate(0, 200) rotate(247)">
-    <g fill="none" stroke="#7FA3C7" stroke-width="3" opacity="0.12">
-      <path d="M 0 0 Q 150 -30 300 0 T 600 0 T 900 0 T 1200 0"/>
-      <path d="M 0 40 Q 150 10 300 40 T 600 40 T 900 40 T 1200 40"/>
-      <path d="M 0 80 Q 150 50 300 80 T 600 80 T 900 80 T 1200 80"/>
-    </g>
+  <rect x="22" y="22" width="1156" height="856" fill="none" stroke="#2E2E35" stroke-width="1" opacity="0.25"/>
+  <rect x="32" y="32" width="1136" height="836" fill="none" stroke="#33518F" stroke-width="3"/>
+  
+  <clipPath id="plate-woodblock-print-flora-1">
+    <rect x="40.0" y="40.0" width="974.0" height="820.0"/>
+  </clipPath>
+  <pattern id="pat-plate-woodblock-print-flora-1" x="40.0" y="40.0" width="117.8" height="102.0" patternUnits="userSpaceOnUse" patternTransform="rotate(105 527.0 450.0)">
+    <g transform="scale(1.0)"><line x1="0" y1="0" x2="124.0" y2="0" stroke="#33518F" stroke-width="1.25" opacity="0.5"/><line x1="0" y1="107.4" x2="124.0" y2="107.4" stroke="#33518F" stroke-width="1.25" opacity="0.5"/><line x1="-62.0" y1="0" x2="-124.0" y2="107.4" stroke="#33518F" stroke-width="1.25" opacity="0.5"/><line x1="-62.0" y1="0" x2="0.0" y2="107.4" stroke="#33518F" stroke-width="1.25" opacity="0.5"/><line x1="62.0" y1="0" x2="0.0" y2="107.4" stroke="#33518F" stroke-width="1.25" opacity="0.5"/><line x1="62.0" y1="0" x2="124.0" y2="107.4" stroke="#33518F" stroke-width="1.25" opacity="0.5"/><line x1="186.0" y1="0" x2="124.0" y2="107.4" stroke="#33518F" stroke-width="1.25" opacity="0.5"/><line x1="186.0" y1="0" x2="248.0" y2="107.4" stroke="#33518F" stroke-width="1.25" opacity="0.5"/></g>
+  </pattern>
+  <g clip-path="url(#plate-woodblock-print-flora-1)">
+    <rect x="40.0" y="40.0" width="974.0" height="820.0" fill="#F3EFE4"/>
+    <rect x="40.0" y="40.0" width="974.0" height="820.0" fill="url(#pat-plate-woodblock-print-flora-1)"/>
   </g>
-
-  <!-- Central indigo rectangle (product placeholder) -->
-  <rect x="200" y="150" width="800" height="600" fill="#33518F" opacity="0.15" rx="8"/>
-
-  <!-- Decorative circles -->
-  <circle cx="300" cy="300" r="80" fill="none" stroke="#7FA3C7" stroke-width="2" opacity="0.2"/>
-  <circle cx="900" cy="550" r="120" fill="none" stroke="#33518F" stroke-width="2" opacity="0.15"/>
-
-  <!-- Product number text -->
-  <text x="600" y="410" font-size="64" font-family="serif" font-weight="bold" text-anchor="middle" fill="#2E2E35" opacity="0.4">
-    1
-  </text>
-
-  <!-- Small vermilion accent -->
-  <rect x="1140" y="40" width="30" height="30" fill="#C2451E" opacity="0.7"/>
-
-  <!-- Decorative line -->
-  <line x1="150" y1="840" x2="1050" y2="840" stroke="#33518F" stroke-width="1" opacity="0.2"/>
+  <line x1="1024.0" y1="40.0" x2="1024.0" y2="860.0" stroke="#2E2E35" stroke-width="1" opacity="0.2"/>
+  <text x="1100.0" y="76.0" font-family="'Hiragino Mincho ProN','Yu Mincho','Noto Serif JP',serif" font-size="56.0" text-anchor="middle" fill="#2E2E35"><tspan x="1100.0" dy="0">桜</tspan><tspan x="1100.0" dy="64.4">版</tspan><tspan x="1100.0" dy="64.4">画</tspan></text>
+  <g transform="translate(58.0, 786.0)">
+    <rect width="56" height="56" fill="#C2451E"/>
+    <text x="28" y="38.64" font-family="serif" font-size="32.48" text-anchor="middle" fill="#F3EFE4">桜</text>
+  </g>
 </svg>

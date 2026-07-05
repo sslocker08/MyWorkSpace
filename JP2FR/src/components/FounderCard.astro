@@ -13,7 +13,7 @@ const { founder, locale } = Astro.props;
 const href = localePath(locale, `/founders/${founder.slug}/`);
 ---
 
-<a href={href} class="founder-card" style={`--portrait-url: url(${founder.portrait})`}>
+<a href={href} class="founder-card">
   <span class="portrait-frame">
     <img src={founder.portrait} width="480" height="480" alt="" loading="lazy" decoding="async" />
   </span>
@@ -64,17 +64,23 @@ const href = localePath(locale, `/founders/${founder.slug}/`);
   }
 
   /* 版ズレ (misregistration) — hover-only, restrained to this card per
-     DESIGN.md §3. Two tinted duplicates of the portrait shift 1–2px in the
-     ai/shu channels; only opacity + transform are animated (§4). */
+     DESIGN.md §3. Root cause of the muddy olive/gray-green portrait bug:
+     these layers used to duplicate the portrait image itself and recolor
+     it with `background-blend-mode: color`, which takes hue+saturation
+     from the (multi-hue, cream-dominated) portrait and forces the
+     luminosity of --color-ai / --color-shu onto it. Cream's warm,
+     slightly yellow-green hue combined with ai's/shu's much darker forced
+     luminosity produced an uncontrolled, off-palette muddy hybrid colour
+     that has nothing to do with either token. A solid ai/shu fill offset
+     1–2px (no image, no blend-mode) reads as a thin ink-channel fringe at
+     the portrait's edges — exactly the "1–2px offset ink channel" 版ズレ
+     described in DESIGN.md §3 — while the overlap stays a plain alpha mix
+     of two on-palette colors, so it can never drift off-palette. */
   .portrait-frame::before,
   .portrait-frame::after {
     content: '';
     position: absolute;
     inset: 0;
-    background-image: var(--portrait-url);
-    background-size: cover;
-    background-position: center;
-    background-blend-mode: color;
     opacity: 0;
     pointer-events: none;
     transition:
