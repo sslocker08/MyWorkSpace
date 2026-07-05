@@ -1,0 +1,133 @@
+---
+// critique: P5 H4 E4 S4 R4 V4
+import type { CollectionEntry } from 'astro:content';
+import type { Locale } from '../lib/i18n';
+import { localePath } from '../lib/routes';
+
+export interface Props {
+  founder: CollectionEntry<'founders'>['data'];
+  locale: Locale;
+}
+
+const { founder, locale } = Astro.props;
+const href = localePath(locale, `/founders/${founder.slug}/`);
+---
+
+<a href={href} class="founder-card" style={`--portrait-url: url(${founder.portrait})`}>
+  <span class="portrait-frame">
+    <img src={founder.portrait} width="480" height="480" alt="" loading="lazy" decoding="async" />
+  </span>
+  <span class="founder-copy">
+    <span class="founder-name">{founder.name[locale]}</span>
+    <span class="founder-meta">{founder.title[locale]} — {founder.region[locale]}</span>
+  </span>
+</a>
+
+<style>
+  .founder-card {
+    display: block;
+    background: var(--color-washi);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-paper);
+    text-decoration: none;
+    color: inherit;
+    padding: var(--space-4);
+    transition: transform var(--duration-ui) var(--ease-mie);
+  }
+
+  .founder-card:hover,
+  .founder-card:focus-visible {
+    transform: translateY(-2px);
+  }
+
+  .founder-card:focus-visible {
+    outline: 2px solid var(--color-shu);
+    outline-offset: 3px;
+  }
+
+  .founder-card:active {
+    transform: translateY(0);
+  }
+
+  .portrait-frame {
+    position: relative;
+    display: block;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: var(--radius);
+  }
+
+  .portrait-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* 版ズレ (misregistration) — hover-only, restrained to this card per
+     DESIGN.md §3. Two tinted duplicates of the portrait shift 1–2px in the
+     ai/shu channels; only opacity + transform are animated (§4). */
+  .portrait-frame::before,
+  .portrait-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: var(--portrait-url);
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: color;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity var(--duration-ui) var(--ease-mie),
+      transform var(--duration-ui) var(--ease-mie);
+  }
+
+  .portrait-frame::before {
+    background-color: var(--color-ai);
+    transform: translate(-1px, 0);
+  }
+
+  .portrait-frame::after {
+    background-color: var(--color-shu);
+    transform: translate(1px, 0);
+  }
+
+  .founder-card:hover .portrait-frame::before,
+  .founder-card:focus-visible .portrait-frame::before {
+    opacity: 0.45;
+    transform: translate(-2px, 0);
+  }
+
+  .founder-card:hover .portrait-frame::after,
+  .founder-card:focus-visible .portrait-frame::after {
+    opacity: 0.45;
+    transform: translate(2px, 0);
+  }
+
+  .founder-copy {
+    display: block;
+    margin-top: var(--space-4);
+  }
+
+  .founder-name {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    color: var(--color-sumi);
+  }
+
+  .founder-meta {
+    display: block;
+    margin-top: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--color-sumi-usu);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .founder-card,
+    .portrait-frame::before,
+    .portrait-frame::after {
+      transition: none;
+    }
+  }
+</style>

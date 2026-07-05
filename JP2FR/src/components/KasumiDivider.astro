@@ -1,0 +1,32 @@
+---
+// critique: P4 H3 E5 S4 R5 V3
+export interface Props {
+  flip?: boolean;
+}
+
+const { flip = false } = Astro.props;
+---
+
+<div class="kasumi-divider" class:list={{ 'is-flipped': flip }} aria-hidden="true">
+  <img src="/textures/kasumi.svg" alt="" width="1440" height="120" loading="lazy" decoding="async" />
+</div>
+
+<style>
+  /* Emaki (絵巻) scene-transition seam between LP sections — replaces a hard
+     rule per DESIGN.md §0 macro-structure declaration. */
+  .kasumi-divider {
+    width: 100%;
+    line-height: 0;
+    overflow: hidden;
+  }
+
+  .kasumi-divider img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .kasumi-divider.is-flipped img {
+    transform: scaleY(-1);
+  }
+</style>

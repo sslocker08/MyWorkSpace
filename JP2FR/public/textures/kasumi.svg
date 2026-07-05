@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="220" viewBox="0 0 1440 220" preserveAspectRatio="none">
+  <!--
+    霞 (kasumi) — emaki-style mist-band section divider (DESIGN.md §0/§3):
+    layered, rounded horizontal cloud bands standing in for a hard border
+    between sections ("scene change" of the scroll). Single fill color
+    (the color-washi token, literal OKLCH), depth conveyed by opacity layering only
+    — no gradients, no second hue. viewBox is wide/flat for a full-width
+    <img>/background-image divider; preserveAspectRatio="none" lets it
+    stretch to any section width without distorting the intent (a thin,
+    wide band).
+  -->
+  <g fill="oklch(0.93 0.015 90)">
+    <path
+      opacity="0.9"
+      d="M0,70
+         C120,30 240,30 360,70
+         C480,110 600,110 720,70
+         C840,30 960,30 1080,70
+         C1200,110 1320,110 1440,70
+         L1440,140
+         C1320,180 1200,180 1080,140
+         C960,100 840,100 720,140
+         C600,180 480,180 360,140
+         C240,100 120,100 0,140
+         Z"
+    />
+    <path
+      opacity="0.55"
+      d="M0,110
+         C120,80 240,80 360,110
+         C480,140 600,140 720,110
+         C840,80 960,80 1080,110
+         C1200,140 1320,140 1440,110
+         L1440,165
+         C1320,195 1200,195 1080,165
+         C960,135 840,135 720,165
+         C600,195 480,195 360,165
+         C240,135 120,135 0,165
+         Z"
+    />
+    <path
+      opacity="0.3"
+      d="M0,150
+         C120,125 240,125 360,150
+         C480,175 600,175 720,150
+         C840,125 960,125 1080,150
+         C1200,175 1320,175 1440,150
+         L1440,200
+         C1320,220 1200,220 1080,200
+         C960,180 840,180 720,200
+         C600,220 480,220 360,200
+         C240,180 120,180 0,200
+         Z"
+    />
+  </g>
+</svg>

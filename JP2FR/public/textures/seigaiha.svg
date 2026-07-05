@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+  <!--
+    青海波 (seigaiha) — nested-arc "ocean wave" line motif (DESIGN.md §3).
+    Line art only (no fill), meant for footer / section-divider strokes.
+    Tileable 40x40 unit: repeat via CSS background-repeat. Stroke color is
+    the literal ai-ink OKLCH value (the color-ai token; external SVGs cannot
+    read host page custom properties). Assumes an oklch()-capable renderer
+    (evergreen Chrome/Firefox/Safari); revisit if legacy-engine support
+    is ever required.
+  -->
+  <g fill="none" stroke="oklch(0.40 0.095 255)" stroke-width="1.25" stroke-linecap="round">
+    <!-- lower row: arcs centered at both tile edges (x=0, x=40) so the
+         motif joins seamlessly when the tile repeats horizontally -->
+    <path d="M -32 40 A 32 32 0 0 1 32 40" />
+    <path d="M -24 40 A 24 24 0 0 1 24 40" />
+    <path d="M -16 40 A 16 16 0 0 1 16 40" />
+    <path d="M -8 40 A 8 8 0 0 1 8 40" />
+
+    <path d="M 8 40 A 32 32 0 0 1 72 40" />
+    <path d="M 16 40 A 24 24 0 0 1 64 40" />
+    <path d="M 24 40 A 16 16 0 0 1 56 40" />
+    <path d="M 32 40 A 8 8 0 0 1 48 40" />
+
+    <!-- upper row: shifted by half the period (x=20) and half the
+         vertical rhythm (y=20) to interlock with the row above/below -->
+    <path d="M 4 20 A 16 16 0 0 1 36 20" />
+    <path d="M 8 20 A 12 12 0 0 1 32 20" />
+    <path d="M 12 20 A 8 8 0 0 1 28 20" />
+    <path d="M 16 20 A 4 4 0 0 1 24 20" />
+  </g>
+</svg>

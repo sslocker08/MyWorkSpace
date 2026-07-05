@@ -1,0 +1,95 @@
+---
+// critique: P4 H4 E5 S4 R5 V4
+import { locales } from '../lib/i18n';
+import type { Locale } from '../lib/i18n';
+import { localePath } from '../lib/routes';
+
+export interface Props {
+  locale: Locale;
+  path: string;
+}
+
+const { locale, path } = Astro.props;
+
+// Language names are shown in their own language by convention — not a
+// translation-key lookup (a language name doesn't get "translated" per se).
+const labels: Record<Locale, string> = { fr: 'FR', en: 'EN', ja: '日本語' };
+---
+
+<ul class="locale-switcher">
+  {
+    locales.map((l) => {
+      const isCurrent = l === locale;
+      return (
+        <li>
+          <a href={localePath(l, path)} aria-current={isCurrent ? 'page' : undefined} class:list={['locale-link', { 'is-current': isCurrent }]}>
+            {labels[l]}
+          </a>
+        </li>
+      );
+    })
+  }
+</ul>
+
+<style>
+  .locale-switcher {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    list-style: none;
+  }
+
+  .locale-link {
+    position: relative;
+    color: var(--color-sumi-usu);
+    text-decoration: none;
+    font-size: var(--text-sm);
+    font-family: var(--font-body);
+    padding-block-end: var(--space-1);
+  }
+
+  .locale-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 2px;
+    background: var(--color-shu);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--duration-ui) var(--ease-mie);
+  }
+
+  .locale-link:hover {
+    color: var(--color-sumi);
+  }
+
+  .locale-link:hover::after {
+    transform: scaleX(1);
+  }
+
+  .locale-link:focus-visible {
+    outline: 2px solid var(--color-shu);
+    outline-offset: 2px;
+  }
+
+  .locale-link:active {
+    color: var(--color-ai);
+  }
+
+  .locale-link.is-current {
+    color: var(--color-sumi);
+    font-weight: 600;
+  }
+
+  .locale-link.is-current::after {
+    transform: scaleX(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .locale-link::after {
+      transition: none;
+    }
+  }
+</style>

@@ -1,0 +1,213 @@
+---
+// critique: P5 H4 E4 S5 R4 V3
+import { useT } from '../lib/i18n';
+import type { Locale } from '../lib/i18n';
+import { localePath } from '../lib/routes';
+
+export interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useT(locale);
+const cookiesHref = localePath(locale, '/legal/cookies/');
+---
+
+<div id="cookie-consent" class="cookie-consent" role="region" aria-live="polite" aria-label={t('cookie.title')} hidden>
+  <div class="cookie-consent-inner">
+    <div class="cookie-copy">
+      <p class="cookie-title">{t('cookie.title')}</p>
+      <p class="cookie-body">{t('cookie.body')}</p>
+    </div>
+    <div class="cookie-actions">
+      <button type="button" class="btn btn-secondary" data-cookie-reject>{t('cookie.reject')}</button>
+      <button type="button" class="btn btn-primary" data-cookie-accept>{t('cookie.accept')}</button>
+      <a href={cookiesHref} class="cookie-settings-link">{t('cookie.settings')}</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // No third-party scripts run in this MVP — there is nothing to gate yet.
+  // This banner is the consent record + event bus a future analytics snippet
+  // (loaded only after `analytics: true`) will read via 'consentchange'.
+  const STORAGE_KEY = 'jp2fr:consent';
+
+  interface ConsentRecord {
+    v: 1;
+    essential: true;
+    analytics: boolean;
+    ts: number;
+  }
+
+  const banner = document.getElementById('cookie-consent');
+
+  function readConsent(): ConsentRecord | null {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? (JSON.parse(raw) as ConsentRecord) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function saveConsent(analytics: boolean): void {
+    const record: ConsentRecord = { v: 1, essential: true, analytics, ts: Date.now() };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(record));
+    } catch {
+      // Storage unavailable (private browsing) — consent still applies for
+      // this page load via the dispatched event; it just won't persist.
+    }
+    document.dispatchEvent(new CustomEvent<ConsentRecord>('consentchange', { detail: record }));
+  }
+
+  function showBanner(): void {
+    if (!banner) return;
+    banner.hidden = false;
+    banner.querySelector<HTMLButtonElement>('[data-cookie-reject]')?.focus();
+  }
+
+  function hideBanner(): void {
+    if (!banner) return;
+    banner.hidden = true;
+  }
+
+  if (banner && !readConsent()) {
+    showBanner();
+  }
+
+  banner?.querySelector('[data-cookie-reject]')?.addEventListener('click', () => {
+    saveConsent(false);
+    hideBanner();
+  });
+
+  banner?.querySelector('[data-cookie-accept]')?.addEventListener('click', () => {
+    saveConsent(true);
+    hideBanner();
+  });
+
+  document.querySelectorAll('[data-cookie-settings]').forEach((el) => {
+    el.addEventListener('click', (event) => {
+      event.preventDefault();
+      showBanner();
+    });
+  });
+</script>
+
+<style>
+  .cookie-consent {
+    position: fixed;
+    left: var(--space-4);
+    right: var(--space-4);
+    bottom: var(--space-4);
+    z-index: var(--z-modal);
+    max-width: 40rem;
+    margin-inline: auto;
+    background: var(--color-washi);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-paper);
+  }
+
+  .cookie-consent-inner {
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .cookie-title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    color: var(--color-sumi);
+  }
+
+  .cookie-body {
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-sumi-usu);
+  }
+
+  .cookie-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .btn {
+    border-radius: var(--radius);
+    padding: var(--space-3) var(--space-5);
+    font-size: var(--text-sm);
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: transform var(--duration-ui-fast) var(--ease-mie);
+  }
+
+  /* Reject is first in DOM and matched in visual weight to Accept — no
+     GDPR "dark pattern" de-emphasis of the refusal path. */
+  .btn-secondary {
+    background: var(--color-kinari);
+    border: var(--border-hairline);
+    color: var(--color-sumi);
+  }
+
+  .btn-secondary:hover {
+    color: var(--color-ai);
+    border-color: var(--color-ai);
+  }
+
+  .btn-primary {
+    background: var(--color-ai);
+    border: 1px solid var(--color-ai);
+    color: var(--color-kinari);
+  }
+
+  .btn-primary:hover {
+    background: var(--color-asagi);
+    border-color: var(--color-asagi);
+  }
+
+  .btn:focus-visible {
+    outline: 2px solid var(--color-shu);
+    outline-offset: 2px;
+  }
+
+  .btn:active {
+    transform: scale(0.97);
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .cookie-settings-link {
+    font-size: var(--text-sm);
+    color: var(--color-ai);
+    text-decoration: underline;
+  }
+
+  .cookie-settings-link:hover {
+    color: var(--color-shu);
+  }
+
+  .cookie-settings-link:focus-visible {
+    outline: 2px solid var(--color-shu);
+    outline-offset: 2px;
+  }
+
+  @media (min-width: 640px) {
+    .cookie-consent-inner {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn {
+      transition: none;
+    }
+  }
+</style>
