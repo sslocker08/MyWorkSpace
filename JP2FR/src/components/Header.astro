@@ -9,9 +9,12 @@ import Hamburger from './Hamburger.astro';
 export interface Props {
   locale: Locale;
   path: string;
+  /** 'dark' = LP「夜の版元」: fixed overlay over the night hero, transparent
+   *  → kon on scroll, on-dark text. Default 'light' = sticky kinari. */
+  variant?: 'light' | 'dark';
 }
 
-const { locale, path } = Astro.props;
+const { locale, path, variant = 'light' } = Astro.props;
 const t = useT(locale);
 
 const navLinks = [
@@ -22,7 +25,7 @@ const cartHref = localePath(locale, '/cart/');
 const homeHref = localePath(locale, '/');
 ---
 
-<header class="site-header">
+<header class="site-header" data-variant={variant}>
   <div class="site-header-inner">
     <a href={homeHref} class="logo" aria-label={t('nav.home')}>
       <span class="logo-seal" aria-hidden="true">版</span>
@@ -111,6 +114,33 @@ const homeHref = localePath(locale, '/');
 
   .site-header.is-scrolled::before {
     opacity: 1;
+  }
+
+  /* ── dark variant (LP・夜の版元): overlays the night hero instead of
+     occupying layout space; transparent at top → kon on scroll. ── */
+  .site-header[data-variant='dark'] {
+    position: fixed;
+    inset-inline: 0;
+  }
+
+  .site-header[data-variant='dark']::before {
+    background: var(--color-kon);
+    box-shadow: none;
+    border-bottom: 1px solid oklch(0.955 0.012 95 / 0.1);
+  }
+
+  .site-header[data-variant='dark'] .logo,
+  .site-header[data-variant='dark'] .nav-link,
+  .site-header[data-variant='dark'] .menu-toggle {
+    color: var(--on-dark);
+  }
+
+  .site-header[data-variant='dark'] :global(.locale-switcher a) {
+    color: var(--on-dark-dim);
+  }
+
+  .site-header[data-variant='dark'] :global(.locale-switcher a[aria-current]) {
+    color: var(--on-dark);
   }
 
   .site-header-inner {

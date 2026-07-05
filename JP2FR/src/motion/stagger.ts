@@ -29,17 +29,12 @@ function revealOnScroll(items: HTMLElement[]): void {
   });
 }
 
-/** [data-stagger-item] — currently the 4 featured product cards. Runs on
- * both desktop and mobile (below-fold reveal is not a breakpoint concern). */
+/** [data-stagger-item] — the 4 featured product cards + the LP category
+ * cards (ProductsSection.astro). Runs on both desktop and mobile (below-fold
+ * reveal is not a breakpoint concern). v2: the founders carousel no longer
+ * has a bespoke stagger path here — it's a plain scroll-snap track with its
+ * own progressive-enhancement island (src/islands/Carousel.ts), not a
+ * ScrollTrigger.batch reveal. */
 export function initStagger(): void {
   revealOnScroll(gsap.utils.toArray<HTMLElement>('[data-stagger-item]'));
-}
-
-/** Mobile-only: the founders rail keeps its native overflow-x/scroll-snap
- * behavior (foundersRail.ts's pinned scrub is desktop-only), so its cards
- * get the same vertical reveal-on-scroll treatment instead. Call this only
- * from the mobile matchMedia branch — on desktop the cards are handled by
- * the horizontal pin scrub and should not also fade in vertically. */
-export function initFoundersRailMobileStagger(): void {
-  revealOnScroll(gsap.utils.toArray<HTMLElement>('[data-founders-rail] .rail-item'));
 }

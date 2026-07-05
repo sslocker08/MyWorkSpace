@@ -96,26 +96,29 @@ const portraitSrc = duotone ? founder.portrait.replace(/portrait\.webp$/, 'portr
       transform var(--duration-ui) var(--ease-mie);
   }
 
+  /* 版ズレ = thin misregistered FRAME LINES only, never a full-surface fill
+     (a full offset fill at 45% reads as a color wash over the whole
+     portrait — caught in the v2 visual gate). */
   .portrait-frame::before {
-    background-color: var(--color-ai);
+    border: 1.5px solid var(--color-ai);
     transform: translate(-1px, 0);
   }
 
   .portrait-frame::after {
-    background-color: var(--color-shu);
-    transform: translate(1px, 0);
+    border: 1.5px solid var(--color-shu);
+    transform: translate(1px, 1px);
   }
 
   .founder-card:hover .portrait-frame::before,
   .founder-card:focus-visible .portrait-frame::before {
-    opacity: 0.45;
-    transform: translate(-2px, 0);
+    opacity: 0.85;
+    transform: translate(-2px, -1px);
   }
 
   .founder-card:hover .portrait-frame::after,
   .founder-card:focus-visible .portrait-frame::after {
-    opacity: 0.45;
-    transform: translate(2px, 0);
+    opacity: 0.7;
+    transform: translate(2px, 2px);
   }
 
   .founder-copy {

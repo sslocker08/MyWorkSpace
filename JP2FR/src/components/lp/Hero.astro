@@ -157,34 +157,7 @@ const t = useT(locale);
     margin-top: var(--space-7);
   }
 
-  /* CTA — shu solid + kinari text (DESIGN.md §1 top-priority emphasis).
-     Scoped here (not global.css) since it's a one-off variant; a parallel
-     worker may add a shared .btn--shu later without conflicting with this
-     scoped copy. */
-  .btn--shu {
-    background: var(--color-shu);
-    border-color: var(--color-shu);
-    color: var(--color-kinari);
-    padding: 1rem 2rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  /* Hover = a gold ring floats off the button, not a lighter fill (mie
-     restraint — DESIGN.md §5). outline is not in .btn's transition list,
-     so this is an instant state swap, not an animation (DESIGN.md §4:
-     transform/opacity are the only ANIMATED properties; this one isn't). */
-  .btn--shu:hover {
-    outline: 1px solid var(--color-kin);
-    outline-offset: 3px;
-  }
-
-  /* .btn.is-loading sets color:transparent and ::after inherits it via
-     currentColor — override so the spinner stays visible on a shu ground
-     (same pattern as .btn--primary/.btn--secondary in global.css). */
-  .btn--shu.is-loading::after {
-    color: var(--color-kinari);
-  }
+  /* .btn--shu lives in global.css (shared with product add-to-cart). */
 
   .scroll-cue {
     margin-top: var(--space-8);

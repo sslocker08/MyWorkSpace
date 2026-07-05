@@ -15,6 +15,14 @@ gsap.registerPlugin(ScrollTrigger);
 const ENTRANCE_DURATION = 0.9;
 const ENTRANCE_Y = 28;
 
+// [data-hero-bg]'s media (img/video) — .hero-media in Hero.astro's CSS —
+// ships at CSS `scale: 1.08` (parallax headroom so its edges never show
+// while [data-parallax] translates it). This is a one-time settle from that
+// baked-in scale down to 1.0, tweening the same `scale` property CSS already
+// set rather than fighting it with a transform. Transform-only, no layout
+// impact (DESIGN.md §4).
+const BG_REVEAL_DURATION = 1.6;
+
 export function initHero(): void {
   const hero = document.querySelector<HTMLElement>('[data-hero]');
   if (!hero) return;
@@ -22,6 +30,7 @@ export function initHero(): void {
   const title = hero.querySelector<HTMLElement>('.hero-title');
   const subtitle = hero.querySelector<HTMLElement>('.hero-subtitle');
   const scrollCue = hero.querySelector<HTMLElement>('[data-scroll-cue]');
+  const bgMedia = hero.querySelector<HTMLElement>('[data-hero-bg] .hero-media');
 
   const runEntrance = (): void => {
     const tl = gsap.timeline();
@@ -44,14 +53,24 @@ export function initHero(): void {
     }
   };
 
+  const runBgReveal = (): void => {
+    if (!bgMedia) return;
+    gsap.to(bgMedia, { scale: 1, duration: BG_REVEAL_DURATION, ease: 'power2.out' });
+  };
+
+  const boot = (): void => {
+    runEntrance();
+    runBgReveal();
+  };
+
   // If the intro overlay is still in the DOM, it hasn't finished (or was
   // never checked) yet — wait for it. intro.ts runs its own sessionStorage
   // check and removes the overlay synchronously before this file's
   // initHero() is called by init.ts, so this read is race-free.
   if (document.querySelector('[data-intro]')) {
-    window.addEventListener(INTRO_DONE_EVENT, runEntrance, { once: true });
+    window.addEventListener(INTRO_DONE_EVENT, boot, { once: true });
   } else {
-    runEntrance();
+    boot();
   }
 
   const parallaxLayers = hero.querySelectorAll<SVGElement>('[data-parallax]');

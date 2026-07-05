@@ -5,7 +5,8 @@
 //  - the prefers-reduced-motion split (gsap.matchMedia contexts, so every
 //    tween/ScrollTrigger created inside a context is auto-reverted if the
 //    media query stops matching — no manual gsap cleanup needed below);
-//  - the desktop/mobile split nested inside the "motion ok" context;
+//  - the desktop-fine-pointer split nested inside the "motion ok" context
+//    (Lenis + the custom cursor — both a poor fit for touch/coarse input);
 //  - Lenis, wired only for desktop fine-pointer, via the standard gsap
 //    ticker integration.
 import { gsap } from 'gsap';
@@ -14,8 +15,7 @@ import Lenis from 'lenis';
 import { initIntro } from './intro';
 import { initHero } from './hero';
 import { initEmakiPan } from './emakiPan';
-import { initFoundersRail } from './foundersRail';
-import { initStagger, initFoundersRailMobileStagger } from './stagger';
+import { initStagger } from './stagger';
 import { initCursor } from './cursor';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -61,36 +61,21 @@ function initMotion(): void {
     const cleanupEmakiPan = initEmakiPan();
     initStagger();
 
+    // v2: the founders section is now a plain arrow carousel
+    // (src/islands/Carousel.ts, progressive enhancement loaded from
+    // FoundersSection.astro itself, outside this motion layer) — there is no
+    // more desktop pin-scrub / mobile rail-stagger split to gate here, so
+    // isDesktopFine (Lenis + custom cursor) is the only viewport condition
+    // this module still needs.
     const mmViewport = gsap.matchMedia();
 
-    mmViewport.add(
-      {
-        isDesktop: '(min-width: 768px)',
-        isDesktopFine: '(min-width: 768px) and (pointer: fine)',
-        isMobile: '(max-width: 767.98px)',
-      },
-      (context) => {
-        const conditions = context.conditions as { isDesktop: boolean; isDesktopFine: boolean; isMobile: boolean };
-        const cleanups: Array<() => void> = [];
+    mmViewport.add('(min-width: 768px) and (pointer: fine)', () => {
+      const cleanups: Array<() => void> = [setupLenis(), initCursor()];
 
-        if (conditions.isDesktop) {
-          cleanups.push(initFoundersRail());
-        }
-
-        if (conditions.isDesktopFine) {
-          cleanups.push(setupLenis());
-          cleanups.push(initCursor());
-        }
-
-        if (conditions.isMobile) {
-          initFoundersRailMobileStagger();
-        }
-
-        return () => {
-          cleanups.forEach((cleanup) => cleanup());
-        };
-      },
-    );
+      return () => {
+        cleanups.forEach((cleanup) => cleanup());
+      };
+    });
 
     return () => {
       mmViewport.revert();

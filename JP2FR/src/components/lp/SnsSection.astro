@@ -26,23 +26,19 @@ const t = useT(locale);
         flare, shimaki tie-beam, two pillars, nuki cross-beam. Single stroke
         color (--color-shu) per DESIGN.md §1 palette contract; fill:none so
         it's pure line art, not a filled glyph. */}
-    <svg
-      class="sns-torii"
-      viewBox="0 0 120 130"
-      width="166"
-      height="180"
-      fill="none"
-      stroke="var(--color-shu)"
-      stroke-width="2.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M10,34 L26,20 L94,20 L110,34" />
-      <path d="M22,41 L98,41" />
-      <path d="M32,42 L28,112" />
-      <path d="M88,42 L92,112" />
-      <path d="M32,72 L88,72" />
+    {/* 明神鳥居 — filled silhouette (not thin strokes): curved 笠木+島木,
+        貫 passing through the pillars, 額束, inward-leaning pillars. */}
+    <svg class="sns-torii" viewBox="0 0 140 120" width="180" height="154" fill="var(--color-shu)" aria-hidden="true">
+      {/* 笠木 (top beam, gentle upward curve at ends) + 島木 below it */}
+      <path d="M6 22 Q70 10 134 22 L131 30 Q70 19.5 9 30 Z" />
+      <path d="M14 33 L126 33 L124.5 41 L15.5 41 Z" />
+      {/* 額束 (center strut between 島木 and 貫) */}
+      <path d="M66 41 L74 41 L74 56 L66 56 Z" />
+      {/* 貫 (tie beam, protrudes past the pillars) */}
+      <path d="M18 56 L122 56 L122 63 L18 63 Z" />
+      {/* pillars (slight inward lean, footed) */}
+      <path d="M30 41 L40 41 L43 114 L31 114 Z" />
+      <path d="M100 41 L110 41 L109 114 L97 114 Z" />
     </svg>
 
     <h2 class="sns-title">{t('lp2.sns_title')}</h2>

@@ -305,3 +305,24 @@ h6 {
 [hidden] {
   display: none !important;
 }
+
+/* 朱 CTA — the single most-important action (DESIGN.md v2 §1 emphasis
+   ranking): hero CTA + add-to-cart. Hover = a kin ring floats off (instant
+   state swap, not an animated property). */
+.btn--shu {
+  background: var(--color-shu);
+  border-color: var(--color-shu);
+  color: var(--color-kinari);
+  padding: 1rem 2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.btn--shu:hover {
+  outline: 1px solid var(--color-kin);
+  outline-offset: 3px;
+}
+
+.btn--shu.is-loading::after {
+  color: var(--color-kinari);
+}

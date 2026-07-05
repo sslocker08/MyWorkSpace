@@ -28,6 +28,12 @@ export function initCursor(): () => void {
   // the dot to an off-palette teal (caught in the visual gate); the palette
   // is a closed set (DESIGN.md §1).
   cursor.style.background = 'var(--color-shu)';
+  // v2 dark zones: a bare shu dot can disappear against dark ōkubi-e/bridge
+  // imagery (low contrast shu-on-kon). A 1px kinari ring keeps the dot
+  // legible on any ground without a blend mode — static border, not
+  // animated, box-sizing kept so the ring doesn't grow the dot's footprint.
+  cursor.style.boxSizing = 'border-box';
+  cursor.style.border = '1px solid var(--color-kinari)';
   cursor.style.pointerEvents = 'none';
   cursor.style.zIndex = 'var(--z-toast)';
   cursor.style.willChange = 'transform';
