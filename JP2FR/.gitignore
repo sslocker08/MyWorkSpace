@@ -19,3 +19,4 @@ assetgen/raw/
 # misc
 .DS_Store
 *.log
+tests/e2e/shot-*.png

@@ -66,3 +66,14 @@ const featuredProducts = availableProducts
 <KasumiDivider flip />
 
 <SnsSection locale={locale} />
+
+<script>
+  // LCP-safe: the motion layer is pure enhancement (every hook it drives is
+  // fully visible/usable without it), so it loads after the page's load
+  // event rather than competing with the initial render for bandwidth/CPU.
+  if (document.readyState === 'complete') {
+    import('../../motion/init');
+  } else {
+    window.addEventListener('load', () => import('../../motion/init'), { once: true });
+  }
+</script>

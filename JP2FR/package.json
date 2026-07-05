@@ -9,19 +9,21 @@
     "preview": "astro preview",
     "check": "astro check",
     "validate": "node scripts/validate-content.mjs",
-    "test": "node --test tests/unit/*.test.mjs"
+    "test": "node --test tests/unit/*.test.mjs",
+    "test:e2e": "node tests/e2e/smoke.mjs"
   },
   "dependencies": {
-    "astro": "^5",
     "@astrojs/cloudflare": "^12",
+    "@nanostores/persistent": "^0.10",
+    "astro": "^5",
     "gsap": "^3",
     "lenis": "^1",
     "nanostores": "^0.11",
-    "@nanostores/persistent": "^0.10",
     "stripe": "^17"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9",
+    "playwright": "^1.61.1",
     "typescript": "^5"
   }
 }
