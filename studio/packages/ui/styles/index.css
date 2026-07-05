@@ -1,3 +1,0 @@
-/* Single import for consumers: tokens + component styles. */
-@import "./tokens.css";
-@import "./components.css";
