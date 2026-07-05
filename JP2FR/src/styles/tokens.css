@@ -22,11 +22,26 @@
   --color-moegi: oklch(0.46 0.09 150);
   --color-kaki: oklch(0.6 0.14 48);
 
+  /* v2 ダーク層「夜の版元」— 実測WCAG比を併記（DESIGN.md §1）
+   * kinari on kon = 16.8:1 / kinari on kon-raised = 15.6:1 /
+   * kinari-dim on kon = 10.3:1 / kin on kon = 9.5:1（大型表示・fill限定）/
+   * asagi on kon = 5.6:1 / kinari on shu = 4.66:1（CTA文字・AA） */
+  --color-kon: oklch(0.17 0.03 264); /* 紺墨: 暗ゾーンの地 */
+  --color-kon-raised: oklch(0.21 0.03 264); /* 暗ゾーンのカード面 */
+  --color-kon-high: oklch(0.26 0.035 264); /* 暗ゾーン最上面（hover等） */
+  --color-kin: oklch(0.78 0.1 85); /* 金: 大型見出し・罫線・fillのみ。本文禁止 */
+  --color-kinari-dim: oklch(0.8 0.015 95); /* 暗ゾーンの補助テキスト */
+
   /* 意味論（semantic aliases — components reference these, not raw ink) */
   --color-bg: var(--color-kinari);
   --color-text: var(--color-sumi);
   --color-accent: var(--color-ai);
   --color-danger: var(--color-shu);
+  --surface-dark: var(--color-kon);
+  --surface-dark-raised: var(--color-kon-raised);
+  --surface-dark-high: var(--color-kon-high);
+  --on-dark: var(--color-kinari);
+  --on-dark-dim: var(--color-kinari-dim);
 
   /* ---------------------------------------------------------------------
    * §2 Typography — self-contained system stacks (no external font CDN).

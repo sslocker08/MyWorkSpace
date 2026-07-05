@@ -1,16 +1,17 @@
-# JP2FR — DESIGN.md（ブランド契約・全ビジュアル判断の正本）
+# JP2FR — DESIGN.md v2（ブランド契約・全ビジュアル判断の正本）
 
 > 全実装ワーカーはこのファイルに従う。ここに無い視覚判断は発明せず、トークンと規範から導出する。
 > 対象: 日本の個人製作プロダクト（工芸・イラスト・衣類）をフランスへ届ける越境ECサイト。
+> v2（2026-07-05）: ユーザー提供の設計カンプに基づく**「夜の版元」エディション** — 紺墨ダーク基調へ大胆化。
 
 ## 0. Material World 宣言（唯一・不変）
 
 **「木版画（浮世絵）× 和紙」** — 全ページ・全UI・全画像処理はこの一つの物質世界に属する。
-- 画面は「刷り物」である: 紙地（生成り）の上に、限定インク（藍・墨・朱）を版で重ねた表現。
+- **v2 の舞台は「夜の版元」**: LP の主要セクションは**紺墨（--color-kon）の闇**に版画と朱・金のインクが浮かぶ。コンセプト節と商用ページ（一覧・詳細・カート）は従来の紙地（生成り）— 明暗2ゾーンが交互に現れる構成そのものが絵巻の昼夜。
 - デジタル的な光沢・ガラスモーフィズム・グラデーションボタン・ネオン発光は**世界の外＝禁止**。
-- 影は「紙の浮き」: 多層の薄い影（§5）。光源は**左上に統一**（全要素共通）。
+- 影は「紙の浮き」: 明ゾーン=多層の薄い影（§5）。**暗ゾーンのエレベーションは影でなく明度の階段**（kon→kon-raised→kon-high）。光源は左上に統一。
 
-**マクロ構造宣言（anti-slop: テンプレ回避の指紋）**: LP は「**絵巻物（emaki）**」— 上から下へ読む一巻の巻物。セクション間の区切りは直線ボーダーではなく**霞（かすみ）の帯**（絵巻の場面転換の伝統技法・SVGで描く）。中央ヒーロー+3カラム特徴+CTAという頻出AIテンプレ構造を採らない。
+**マクロ構造宣言（anti-slop: テンプレ回避の指紋）**: LP は「**絵巻物（emaki）**」— 上から下へ読む一巻の巻物。闇の帳（イントロ）→夜景（ヒーロー）→紙（コンセプト）→旅（絵巻パン）→夜の座敷（ファウンダー・商品）→鳥居（SNS）。セクション間は霞の帯。中央ヒーロー+3カラム特徴+CTAという頻出AIテンプレ構造を採らない。
 
 ## 1. Palette（OKLCH トークン・インラインhex禁止・tokens.css 経由のみ）
 
@@ -27,21 +28,34 @@
 /* 定式幕（イントロ専用・本編では使わない） */
 --color-moegi:    oklch(0.46 0.09 150);
 --color-kaki:     oklch(0.60 0.14 48);
-/* 意味論 */
+/* v2 ダーク層（夜の版元）— 実測コントラスト付き（color-systems 規律: L≠WCAG輝度） */
+--color-kon:        oklch(0.17 0.03 264);   /* 紺墨: 暗ゾーンの地。kinari文字=16.8:1 */
+--color-kon-raised: oklch(0.21 0.03 264);   /* 暗ゾーンのカード面。kinari=15.6:1 */
+--color-kon-high:   oklch(0.26 0.035 264);  /* 暗ゾーンの最上面（hover等） */
+--color-kin:        oklch(0.78 0.10 85);    /* 金: 大型見出し・罫線・fill限定。kon上=9.5:1（本文サイズ禁止） */
+--color-kinari-dim: oklch(0.80 0.015 95);   /* 暗ゾーンの補助テキスト。kon上=10.3:1 */
+/* 意味論（surface はゾーン毎に切替・アクセント合否もゾーン毎に再監査） */
 --color-bg: var(--color-kinari);
 --color-text: var(--color-sumi);
 --color-accent: var(--color-ai);
 --color-danger: var(--color-shu);
+--surface-dark: var(--color-kon);
+--surface-dark-raised: var(--color-kon-raised);
+--on-dark: var(--color-kinari);
+--on-dark-dim: var(--color-kinari-dim);
 ```
-- 強調の序列: **藍ベタ面＋生成り抜き文字（最重要1要素のみ）→ 浅葱淡面 → 紙地＋墨罫線 → 藍文字 → 墨太字**。色数を増やさず濃淡と塗り面積で階層化。
-- ダーク面（フッター・イントロ幕）= 墨地に生成り文字。コントラストは全て WCAG AA 以上。
+- **強調の序列（v2・カンプ準拠）**: **朱ベタCTA＋生成り文字（=最重要アクション・kinari on shu 4.66:1 AA）→ 金の大型見出し/罫線（暗地のみ）→ 生成り文字 on 紺墨 → 藍ベタ → 紙地＋墨罫線**。
+- 暗ゾーンの浅葱リンク=5.6:1（AA可）。**金・朱を小さな本文/マイクロラベルに使わない**（輝度の罠）。
+- 明暗どちらのゾーンでも新しい fg/bg ペアを作る時は実測してから使う（`python3` OKLCH→sRGB→WCAG。既測値は上のコメント）。
 
-## 2. Typography
+## 2. Typography（v2・カンプ指定準拠）
 
-- **見出し: 明朝（セリフ）系** / **本文: 同系統**。MVP はシステムスタック自己完結（外部フォントCDN禁止＝GDPR）:
-  - `--font-display: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", "Georgia", serif;`
-  - `--font-body: 同上`（和欧混植の統一感優先）・`--font-mono: ui-monospace, monospace`（価格・型番）
-  - 本番は自己ホストのサブセット済み Web フォント（例: しっぽり明朝 / Noto Serif JP self-host + 欧文 serif）に差し替え（`public/fonts/`・ライセンス確認後）。
+- **display（欧文見出し）: Cormorant Garamond 600/700** / **本文: Noto Sans** / **和文: Noto Sans JP**。全て **@fontsource で自己ホスト**（外部フォントCDN禁止＝GDPR。fontsource パッケージは unicode-range 分割済み）:
+  - `--font-display: "Cormorant Garamond", "Hiragino Mincho ProN", "Yu Mincho", "Georgia", serif;`
+  - `--font-body: "Noto Sans", "Noto Sans JP", "Hiragino Sans", sans-serif;`
+  - `--font-mono: ui-monospace, monospace`
+  - **価格・数量・小計は `font-variant-numeric: tabular-nums lining-nums` + 本文フォント**（Cormorant はオールドスタイル数字＝価格列で禁止）。
+  - preload は本文 woff2 1本のみ。size-adjust フォールバックで CLS<0.1。
 - **display 見出しにイタリック禁止**（AI-tell）。ヒーロー見出しは**7語以内/50字以内**・roman。
 - 縦書き（`writing-mode: vertical-rl`）は**署名的アクセントとして限定使用**（セクション題字・落款）。本文には使わない。
 - スケール: `--text-xs:0.75rem --text-sm:0.875rem --text-base:1rem --text-lg:1.25rem --text-xl:1.75rem --text-2xl:2.5rem --text-hero:clamp(2.5rem,6vw,4.5rem)`。行間: 和文本文 1.9・欧文本文 1.65・見出し 1.2。
@@ -49,7 +63,9 @@
 ## 3. テクスチャ・質感（texture-depth-tactile-craft 準拠）
 
 - **和紙グレイン**: SVG `feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"` を全画面オーバーレイ。**opacity 3–5%・mix-blend-mode: soft-light**（10%超は禁止=安っぽい）。`public/textures/washi-grain.svg`。
-- **版ズレ（見当ズレ）**: hover/署名箇所限定。藍・朱チャンネルを 1–2px オフセット（`filter` or 疑似要素）。木版の摺りの揺らぎ＝反AIシグナル。乱用禁止（ファウンダーカード hover と署名見出しのみ）。
+- **版ズレ（見当ズレ）**: hover/署名箇所限定。明ゾーン=藍・朱、**暗ゾーン=生成り・金のオフセット**（暗地で朱/藍は沈む）。1–2px。乱用禁止（ファウンダーカード hover と署名見出しのみ）。
+- **画像 on 暗地**: 文字を載せる画像には必ずスクリム（`linear-gradient(to top, oklch(0.17 0.03 264 / .78), transparent 60%)` 等）。判定は画像の**最明部**に対して行う。版画を闇に溶かす時は `mask-image` の羽根グラデ（フチの直線切りを見せない）。
+- **15ポートレートの統一**: 一覧・グリッド・カルーセルでは**藍デュオトーン版**（`portrait-duo.webp`・sharp一括生成）を使い1セットに見せる。詳細ページのみフルカラー原画。
 - **多層影（紙の浮き）**: `--shadow-paper: 0 1px 2px oklch(0.24 0.012 270 / 0.06), 0 4px 8px oklch(0.24 0.012 270 / 0.06), 0 12px 24px oklch(0.24 0.012 270 / 0.05);` 単一の重い影は禁止。
 - **罫線**: 1px 墨 20%。角丸は最大 2px（刷り物に大きい角丸は無い）。`--radius: 2px`。
 - **和柄**: 青海波（seigaiha）= フッター/デバイダの線モチーフ。市松 = ローディング/プレースホルダ。**柄は線画SVGのみ**（塗り絵文字的な和柄ラスタは禁止）。
