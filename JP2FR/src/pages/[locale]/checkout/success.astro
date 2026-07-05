@@ -1,0 +1,86 @@
+---
+// critique: P4 H4 E3 S4 R4 V3
+//
+// Landed on after a successful Stripe Checkout redirect (see
+// src/pages/api/checkout.ts success_url: `/${locale}/checkout/success/?session_id={CHECKOUT_SESSION_ID}`).
+// Copy deliberately avoids asserting the order is confirmed/paid — Stripe's
+// webhook (src/pages/api/stripe-webhook.ts) is the actual source of truth;
+// this page only reports that the request was received and processing has
+// started (see checkout.success_body wording).
+import Base from '../../../layouts/Base.astro';
+import { locales, useT, type Locale } from '../../../lib/i18n';
+import { localePath } from '../../../lib/routes';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({ params: { locale } }));
+}
+
+const locale = Astro.params.locale as Locale;
+const t = useT(locale);
+const homeHref = localePath(locale, '/');
+
+// No catalog key exists for a bare "reference" label (cart.* / checkout.*
+// don't cover it) — kept as a tiny page-local map rather than expanding the
+// shared i18n JSON for one word.
+const refLabel: Record<Locale, string> = { fr: 'Réf.', en: 'Ref.', ja: '注文番号' };
+---
+
+<Base locale={locale} title={t('checkout.success_title')} path="/checkout/success/">
+  <div class="container checkout-page">
+    <h1>{t('checkout.success_title')}</h1>
+    <p>{t('checkout.success_body')}</p>
+
+    <p class="checkout-session" data-session-line hidden>
+      <span class="checkout-session-label">{refLabel[locale]}</span> <span data-session-id></span>
+    </p>
+
+    <a class="btn btn--primary" href={homeHref}>{t('checkout.back_home')}</a>
+  </div>
+</Base>
+
+<script>
+  // Cart is only meaningful pre-purchase; a successful redirect here means
+  // Stripe accepted the session, so the local cart no longer reflects
+  // anything the shopper still needs to check out.
+  import { clearCart } from '../../../lib/cart';
+  clearCart();
+
+  // Best-effort, read-only display of Stripe's session id for support
+  // reference. textContent only (never innerHTML) — the query param is
+  // untrusted input and this avoids any XSS surface even though Stripe's
+  // {CHECKOUT_SESSION_ID} placeholder is expected to be an opaque id.
+  const params = new URLSearchParams(window.location.search);
+  const sessionId = params.get('session_id');
+
+  if (sessionId) {
+    const line = document.querySelector<HTMLElement>('[data-session-line]');
+    const slot = document.querySelector('[data-session-id]');
+    if (line && slot) {
+      slot.textContent = sessionId;
+      line.hidden = false;
+    }
+  }
+</script>
+
+<style>
+  .checkout-page {
+    max-width: 36rem;
+    padding-block: var(--space-12);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-5);
+  }
+
+  .checkout-session {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--color-sumi-usu);
+    word-break: break-all;
+  }
+
+  .checkout-session-label {
+    color: var(--color-sumi);
+    font-weight: 600;
+  }
+</style>

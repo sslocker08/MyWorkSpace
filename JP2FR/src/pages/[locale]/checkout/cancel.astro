@@ -1,0 +1,38 @@
+---
+// critique: P4 H4 E4 S4 R4 V3
+//
+// Landed on when Stripe Checkout redirects back via cancel_url (see
+// src/pages/api/checkout.ts: `/${locale}/checkout/cancel/`). The cart is
+// left untouched here — the shopper backed out before paying, so their
+// items should still be waiting for them if they go back to /cart/.
+import Base from '../../../layouts/Base.astro';
+import { locales, useT, type Locale } from '../../../lib/i18n';
+import { localePath } from '../../../lib/routes';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({ params: { locale } }));
+}
+
+const locale = Astro.params.locale as Locale;
+const t = useT(locale);
+const cartHref = localePath(locale, '/cart/');
+---
+
+<Base locale={locale} title={t('checkout.cancel_title')} path="/checkout/cancel/">
+  <div class="container checkout-page">
+    <h1>{t('checkout.cancel_title')}</h1>
+    <p>{t('checkout.cancel_body')}</p>
+    <a class="btn btn--primary" href={cartHref}>{t('cart.title')}</a>
+  </div>
+</Base>
+
+<style>
+  .checkout-page {
+    max-width: 36rem;
+    padding-block: var(--space-12);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-5);
+  }
+</style>

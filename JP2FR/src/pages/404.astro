@@ -1,0 +1,135 @@
+---
+// critique: P4 H4 E4 S4 R4 V3
+//
+// Locale-less 404 — there is no [locale] param to key off here, so it
+// can't use ../layouts/Base.astro (which requires one). Renders all three
+// languages at once (fr/en/ja), each linking to that locale's home, via
+// the existing notfound.* catalog keys — no new i18n content invented.
+import '../styles/global.css';
+import { locales, useT, type Locale } from '../lib/i18n';
+import { localePath } from '../lib/routes';
+
+const lines = locales.map((locale: Locale) => {
+  const t = useT(locale);
+  return {
+    locale,
+    title: t('notfound.title'),
+    body: t('notfound.body'),
+    back: t('notfound.back'),
+    href: localePath(locale, '/'),
+  };
+});
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>404 — JP2FR</title>
+    <meta name="robots" content="noindex, nofollow" />
+  </head>
+  <body>
+    <div class="grain-overlay" aria-hidden="true"></div>
+
+    <main class="notfound-page container">
+      <svg class="notfound-motif" viewBox="0 0 200 160" width="200" height="160" aria-hidden="true">
+        <path
+          d="M6 122 Q 36 92 66 122 T 126 122 T 186 122"
+          class="motif-fold"
+          fill="none"
+          stroke-width="1.5"
+        />
+        <path
+          d="M6 142 Q 36 112 66 142 T 126 142 T 186 142"
+          class="motif-outer"
+          fill="none"
+          stroke-width="1.5"
+        />
+        <text x="100" y="82" text-anchor="middle" class="notfound-kanji">迷</text>
+      </svg>
+
+      <ul class="notfound-lines">
+        {
+          lines.map((line) => (
+            <li lang={line.locale}>
+              <p class="notfound-title">{line.title}</p>
+              <p class="notfound-body">{line.body}</p>
+              <a class="btn btn--primary" href={line.href}>
+                {line.back}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </main>
+  </body>
+</html>
+
+<style>
+  body {
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
+  }
+
+  .notfound-page {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-9);
+    padding-block: var(--space-12);
+    text-align: center;
+  }
+
+  .notfound-motif {
+    color: var(--color-sumi);
+  }
+
+  .notfound-motif .motif-outer {
+    stroke: var(--color-ai);
+  }
+
+  .notfound-motif .motif-fold {
+    stroke: var(--color-asagi);
+  }
+
+  .notfound-kanji {
+    font-family: var(--font-display);
+    font-size: 4rem;
+    fill: var(--color-sumi);
+  }
+
+  .notfound-lines {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    list-style: none;
+    max-width: 32rem;
+    width: 100%;
+  }
+
+  .notfound-lines li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .notfound-title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+  }
+
+  .notfound-body {
+    color: var(--color-sumi-usu);
+    font-size: var(--text-sm);
+  }
+
+  .notfound-lines li:not(:last-child) {
+    border-bottom: var(--border-hairline);
+    padding-bottom: var(--space-8);
+  }
+</style>

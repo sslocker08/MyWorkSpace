@@ -1,0 +1,470 @@
+---
+// critique: P4 H4 E4 S4 R4 V3
+//
+// Cart page. Renders the DOM contract documented in the header of
+// ../../../islands/CartPage.ts: a single [data-cart-root] wrapper carrying
+// #cart-catalog (a pre-localized product lookup for every published
+// product, built here at build time from the `products`/`founders`
+// content collections) plus the empty/rows/subtotal/error/checkout hooks
+// that island fills in and drives client-side. This file owns markup +
+// styling only; all interactivity lives in CartPage.ts (not touched here).
+import { getCollection } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import { locales, useT, type Locale } from '../../../lib/i18n';
+import { localePath, breadcrumbTrail } from '../../../lib/routes';
+import { formatPrice } from '../../../lib/format';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({ params: { locale } }));
+}
+
+const locale = Astro.params.locale as Locale;
+const t = useT(locale);
+
+interface CatalogEntry {
+  name: string;
+  priceCents: number;
+  image: string;
+  unique: boolean;
+  soldOut: boolean;
+  founderName: string;
+}
+
+// Every published product goes in, regardless of soldOut — a shopper's
+// existing cart may already hold one, and CartPage.ts needs the entry to
+// render the sold-out badge + disable checkout rather than silently
+// dropping the line (self-heal only removes *unpublished/unknown* slugs).
+const products = await getCollection('products', (entry) => entry.data.published);
+const founders = await getCollection('founders', (entry) => entry.data.published);
+const founderNameBySlug = new Map(founders.map((founder) => [founder.data.slug, founder.data.name]));
+
+const catalog: Record<string, CatalogEntry> = {};
+for (const { data } of products) {
+  const founderName = founderNameBySlug.get(data.founder);
+  catalog[data.slug] = {
+    name: data.name[locale],
+    priceCents: data.price.amount,
+    image: data.images[0] ?? '',
+    unique: data.stock.kind === 'unique',
+    soldOut: data.stock.soldOut,
+    founderName: founderName ? founderName[locale] : '',
+  };
+}
+
+// Defensive escape so no product/founder name can ever break out of the
+// application/json script tag (content is trusted/static today, but this
+// costs nothing and removes the class of bug entirely).
+const catalogJson = JSON.stringify(catalog).replace(/</g, '\\u003c');
+
+const zeroPrice = formatPrice(0, locale);
+const productsHref = localePath(locale, '/products/');
+const breadcrumbs = breadcrumbTrail(locale, t, [{ label: t('cart.title'), path: '/cart/' }]);
+
+// Static per-locale copy for the 特定商取引法(2022改正) final-confirmation
+// box below. The 2022 amendment requires the last screen before payment to
+// state 引渡時期 (delivery timing) and 解約条件 (cancellation/return terms)
+// alongside the already-dynamic quantity/price. Real figures for both are
+// still open (docs/LEGAL-OPEN-QUESTIONS.md #2: DDP/DDU + return-shipping
+// cost undecided) — placeholders per DESIGN.md §6, not invented facts.
+const confirmCopy: Record<Locale, { delivery: string; cancel: string }> = {
+  fr: {
+    delivery:
+      "Expédié depuis le Japon vers la France métropolitaine. Délai estimé : [PLACEHOLDER: X–Y jours ouvrés]. Droits de douane et taxe à l'import : [PLACEHOLDER: régime DDP/DDU en attente de décision].",
+    cancel:
+      "Droit de rétractation de 14 jours à compter de la réception (voir nos CGV). Frais de retour vers le Japon à la charge de : [PLACEHOLDER: à déterminer].",
+  },
+  en: {
+    delivery:
+      'Shipped from Japan to metropolitan France. Estimated delivery: [PLACEHOLDER: X–Y business days]. Customs duties and import tax: [PLACEHOLDER: DDP/DDU arrangement pending decision].',
+    cancel:
+      'You have a 14-day right of withdrawal from receipt (see our terms and conditions). Return shipping cost to Japan borne by: [PLACEHOLDER: to be determined].',
+  },
+  ja: {
+    delivery:
+      '日本からフランス本土へ発送します。お届けまでの目安：[PLACEHOLDER: 〇〜〇営業日]。関税・輸入消費税：[PLACEHOLDER: DDP/DDU方針は決定待ち]。',
+    cancel:
+      '商品到着後14日間の契約撤回権があります（利用規約参照）。日本への返送料の負担者：[PLACEHOLDER: 未定]。',
+  },
+};
+const copy = confirmCopy[locale];
+---
+
+<Base locale={locale} title={t('cart.title')} path="/cart/" breadcrumbs={breadcrumbs}>
+  <div class="cart-page container" data-cart-root data-locale={locale}>
+    <h1 class="cart-heading">{t('cart.title')}</h1>
+
+    <script type="application/json" id="cart-catalog" set:html={catalogJson} />
+
+    <div class="cart-body">
+      <div class="cart-lines">
+        <div data-cart-rows class="cart-rows"></div>
+
+        <div data-cart-empty class="cart-empty">
+          <svg
+            class="furoshiki-motif"
+            viewBox="0 0 96 96"
+            width="96"
+            height="96"
+            aria-hidden="true"
+          >
+            <path
+              d="M48 8 C 22 20, 20 76, 48 90 C 76 76, 74 20, 48 8 Z"
+              class="motif-outer"
+              fill="none"
+              stroke-width="1.5"
+            />
+            <path
+              d="M48 8 L48 90 M18 32 L78 32 M18 66 L78 66"
+              class="motif-fold"
+              fill="none"
+              stroke-width="1"
+            />
+            <circle cx="48" cy="49" r="7" class="motif-knot" fill="none" stroke-width="1.5" />
+          </svg>
+          <p class="cart-empty-message">{t('cart.empty')}</p>
+          <a class="btn btn--primary" href={productsHref}>{t('cart.empty_cta')}</a>
+        </div>
+      </div>
+
+      <aside class="cart-summary">
+        <div class="cart-summary-row">
+          <span>{t('cart.subtotal')}</span>
+          <strong data-cart-subtotal>{zeroPrice}</strong>
+        </div>
+        <p class="cart-note">{t('cart.shipping_note')}</p>
+        <p class="cart-note">{t('cart.tax_note')}</p>
+
+        <div class="cart-confirm-box">
+          <p class="cart-confirm-title">{t('cart.confirm_title')}</p>
+          <dl>
+            <div class="cart-confirm-row">
+              <dt>{t('cart.confirm_delivery')}</dt>
+              <dd>{copy.delivery}</dd>
+            </div>
+            <div class="cart-confirm-row">
+              <dt>{t('cart.confirm_cancel')}</dt>
+              <dd>{copy.cancel}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <p data-cart-error class="cart-error" role="alert" hidden></p>
+
+        <button type="button" class="btn btn--primary cart-checkout" data-checkout disabled>
+          {t('cart.checkout')}
+        </button>
+      </aside>
+    </div>
+  </div>
+</Base>
+
+<script>
+  import '../../../islands/CartPage';
+</script>
+
+<style is:global>
+  [data-cart-root] {
+    padding-block: var(--space-8) var(--space-12);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  [data-cart-root] .cart-heading {
+    font-size: var(--text-2xl);
+  }
+
+  [data-cart-root] .cart-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-8);
+    align-items: start;
+  }
+
+  @media (min-width: 900px) {
+    [data-cart-root] .cart-body {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 22rem);
+    }
+  }
+
+  /* ---- Empty state -------------------------------------------------- */
+  [data-cart-root] .cart-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-4);
+    padding: var(--space-11) var(--space-5);
+    border: var(--border-hairline);
+    border-radius: var(--radius);
+    background: var(--color-washi);
+    box-shadow: var(--shadow-paper);
+  }
+
+  [data-cart-root] .cart-empty-message {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    color: var(--color-sumi);
+  }
+
+  [data-cart-root] .motif-outer {
+    stroke: var(--color-ai);
+  }
+
+  [data-cart-root] .motif-fold {
+    stroke: var(--color-asagi);
+  }
+
+  [data-cart-root] .motif-knot {
+    stroke: var(--color-shu);
+  }
+
+  /* ---- Rows (emitted by CartPage.ts — see its file header) ----------- */
+  [data-cart-root] .cart-rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  [data-cart-root] .cart-row {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-areas:
+      'image info'
+      'image qty'
+      'total total'
+      'remove remove';
+    gap: var(--space-2) var(--space-4);
+    align-items: center;
+    background: var(--color-washi);
+    border: var(--border-hairline);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-paper);
+    padding: var(--space-4);
+  }
+
+  @media (min-width: 640px) {
+    [data-cart-root] .cart-row {
+      grid-template-columns: 96px minmax(0, 1fr) auto auto auto;
+      grid-template-areas: 'image info qty total remove';
+    }
+  }
+
+  [data-cart-root] .cart-row.is-soldout {
+    opacity: 0.6;
+  }
+
+  [data-cart-root] .cart-row__image {
+    grid-area: image;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: var(--radius);
+    background: var(--color-kinari);
+  }
+
+  [data-cart-root] .cart-row.is-soldout .cart-row__image {
+    filter: grayscale(0.85);
+  }
+
+  [data-cart-root] .cart-row__info {
+    grid-area: info;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  [data-cart-root] .cart-row__name {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    color: var(--color-sumi);
+  }
+
+  [data-cart-root] .cart-row__founder {
+    font-size: var(--text-sm);
+    color: var(--color-sumi-usu);
+  }
+
+  [data-cart-root] .cart-row__unit-price {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--color-ai);
+  }
+
+  [data-cart-root] .cart-row__soldout-badge {
+    align-self: flex-start;
+    margin-top: var(--space-1);
+    background: var(--color-sumi);
+    color: var(--color-kinari);
+    font-size: var(--text-xs);
+    font-family: var(--font-mono);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius);
+  }
+
+  [data-cart-root] .cart-row__qty {
+    grid-area: qty;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  [data-cart-root] .cart-row__qty-fixed {
+    font-size: var(--text-sm);
+    font-family: var(--font-mono);
+    color: var(--color-sumi-usu);
+  }
+
+  [data-cart-root] .cart-row__qty-btn {
+    width: 2rem;
+    height: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: var(--border-hairline);
+    border-radius: var(--radius);
+    background: var(--color-kinari);
+    color: var(--color-sumi);
+    font-family: var(--font-mono);
+    cursor: pointer;
+    transition:
+      background-color var(--duration-ui-fast) var(--ease-mie),
+      border-color var(--duration-ui-fast) var(--ease-mie),
+      color var(--duration-ui-fast) var(--ease-mie),
+      transform var(--duration-ui-fast) var(--ease-mie);
+  }
+
+  [data-cart-root] .cart-row__qty-btn:hover {
+    background: var(--color-washi);
+    border-color: var(--color-ai);
+    color: var(--color-ai);
+  }
+
+  [data-cart-root] .cart-row__qty-btn:active {
+    transform: translateY(1px) scale(0.96);
+  }
+
+  [data-cart-root] .cart-row__qty-input {
+    width: 3rem;
+    text-align: center;
+    border: var(--border-hairline);
+    border-radius: var(--radius);
+    padding: var(--space-1);
+    background: var(--color-kinari);
+    color: var(--color-sumi);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+  }
+
+  [data-cart-root] .cart-row__line-total {
+    grid-area: total;
+    justify-self: end;
+    font-family: var(--font-mono);
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--color-sumi);
+  }
+
+  [data-cart-root] .cart-row__remove {
+    grid-area: remove;
+    justify-self: start;
+    background: none;
+    border: none;
+    padding: var(--space-1) 0;
+    color: var(--color-sumi-usu);
+    font-size: var(--text-sm);
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color var(--duration-ui-fast) var(--ease-mie);
+  }
+
+  [data-cart-root] .cart-row__remove:hover {
+    color: var(--color-shu);
+  }
+
+  [data-cart-root] .cart-row__remove:active {
+    color: var(--color-ai);
+  }
+
+  /* ---- Summary / checkout -------------------------------------------- */
+  [data-cart-root] .cart-summary {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    background: var(--color-washi);
+    border: var(--border-hairline);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-paper);
+    padding: var(--space-6);
+    align-self: start;
+  }
+
+  [data-cart-root] .cart-summary-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    font-size: var(--text-lg);
+    font-family: var(--font-mono);
+  }
+
+  [data-cart-root] .cart-note {
+    font-size: var(--text-xs);
+    color: var(--color-sumi-usu);
+    margin-top: calc(var(--space-2) * -1);
+  }
+
+  [data-cart-root] .cart-confirm-box {
+    border: var(--border-hairline);
+    border-radius: var(--radius);
+    padding: var(--space-4);
+    background: var(--color-kinari);
+  }
+
+  [data-cart-root] .cart-confirm-title {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    color: var(--color-sumi);
+    margin-bottom: var(--space-3);
+  }
+
+  [data-cart-root] .cart-confirm-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin-bottom: var(--space-3);
+  }
+
+  [data-cart-root] .cart-confirm-row:last-child {
+    margin-bottom: 0;
+  }
+
+  [data-cart-root] .cart-confirm-row dt {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--color-sumi);
+  }
+
+  [data-cart-root] .cart-confirm-row dd {
+    font-size: var(--text-xs);
+    color: var(--color-sumi-usu);
+    margin-inline-start: 0;
+  }
+
+  [data-cart-root] .cart-error {
+    font-size: var(--text-sm);
+    color: var(--color-shu);
+  }
+
+  [data-cart-root] .cart-checkout {
+    width: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-cart-root] .cart-row__qty-btn,
+    [data-cart-root] .cart-row__remove {
+      transition: none;
+    }
+  }
+</style>
