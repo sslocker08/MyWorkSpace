@@ -26,6 +26,9 @@ const FOUNDERS_DIR = path.join(rootDir, 'src', 'content', 'founders');
 const PRODUCTS_DIR = path.join(rootDir, 'src', 'content', 'products');
 const I18N_DIR = path.join(rootDir, 'src', 'i18n');
 
+const VALID_CRAFTS = ['ceramique', 'textile', 'illustration', 'objets', 'mode'];
+const VALID_CATEGORIES = ['ceramique', 'textile', 'illustration', 'objets', 'mode'];
+
 const errors = [];
 
 function readJsonEntries(dir, label) {
@@ -78,6 +81,12 @@ for (const { filename, slugFromFilename, data } of founderEntries) {
     errors.push(`[founders] ${filename}: filename does not match slug field ("${slug}")`);
   }
 
+  // Validate craft field
+  const craft = data.craft;
+  if (typeof craft !== 'string' || !VALID_CRAFTS.includes(craft)) {
+    errors.push(`[founders] ${filename}: craft must be one of [${VALID_CRAFTS.join(', ')}] (got "${craft}")`);
+  }
+
   founderSlugCounts.set(slug, (founderSlugCounts.get(slug) ?? 0) + 1);
   founderSlugs.add(slug);
 }
@@ -115,6 +124,12 @@ for (const { filename, slugFromFilename, data } of productEntries) {
     errors.push(
       `[products] ${filename}: founder reference "${data.founder}" does not match any founder slug`,
     );
+  }
+
+  // Validate category field
+  const category = data.category;
+  if (typeof category !== 'string' || !VALID_CATEGORIES.includes(category)) {
+    errors.push(`[products] ${filename}: category must be one of [${VALID_CATEGORIES.join(', ')}] (got "${category}")`);
   }
 
   // (d) price.amount must be a positive integer

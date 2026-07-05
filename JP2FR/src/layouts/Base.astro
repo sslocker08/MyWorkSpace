@@ -1,6 +1,12 @@
 ---
 // critique: P5 H4 E4 S4 R5 V4
 import '../styles/global.css';
+import '../styles/fonts.css';
+// Preload target: body-font latin-400 woff2 only (DESIGN.md §2 — "preload
+// is body woff2 1 only"). `?url` gives the vite-hashed emitted asset URL
+// (e.g. /_astro/noto-sans-latin-400-normal.<hash>.woff2) so the preload
+// href always matches what fonts.css actually references.
+import notoSans400Url from '@fontsource/noto-sans/files/noto-sans-latin-400-normal.woff2?url';
 import { useT } from '../lib/i18n';
 import type { Locale } from '../lib/i18n';
 import { localePath, hreflangLinks } from '../lib/routes';
@@ -35,6 +41,8 @@ const canonicalHref = new URL(localePath(locale, path), Astro.site).toString();
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
     <meta name="description" content={metaDescription} />
+
+    <link rel="preload" as="font" type="font/woff2" href={notoSans400Url} crossorigin />
 
     <link rel="canonical" href={canonicalHref} />
     {

@@ -46,8 +46,13 @@
   /* ---------------------------------------------------------------------
    * §2 Typography — self-contained system stacks (no external font CDN).
    * ------------------------------------------------------------------- */
-  --font-display: 'Hiragino Mincho ProN', 'Yu Mincho', 'Noto Serif JP', 'Georgia', serif;
-  --font-body: 'Hiragino Mincho ProN', 'Yu Mincho', 'Noto Serif JP', 'Georgia', serif;
+  /* Cormorant only ships Latin glyphs, so ja headings fall through past it
+     straight to the Mincho/serif system fallbacks below — that fallthrough
+     is intentional (DESIGN.md §2: display serif for Latin, JP mincho for ja). */
+  --font-display: 'Cormorant Garamond', 'Hiragino Mincho ProN', 'Yu Mincho', 'Georgia', serif;
+  /* 'Noto Sans Fallback' (fonts.css) is a metric-matched local Arial swap-in
+     that engages before Noto Sans JP/system fallbacks load, keeping CLS low. */
+  --font-body: 'Noto Sans', 'Noto Sans JP', 'Noto Sans Fallback', 'Hiragino Sans', 'Yu Gothic', sans-serif;
   --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 
   --text-xs: 0.75rem;

@@ -65,6 +65,12 @@ h6 {
 
 /* ---------------------------------------------------------------------
  * Headings — 明朝 display, no italic (AI-tell), tight leading.
+ * `--font-display` (tokens.css) = 'Cormorant Garamond', ...mincho/serif
+ * fallbacks. Cormorant Garamond only covers Latin glyphs, so ja headings
+ * have no explicit override here on purpose: they fall straight through
+ * to 'Hiragino Mincho ProN'/'Yu Mincho' — still a display serif, just the
+ * JP one — matching DESIGN.md §2 (display serif for Latin, JP mincho for
+ * ja, no separate ja stack needed).
  * ------------------------------------------------------------------- */
 h1,
 h2,
@@ -76,6 +82,14 @@ h6 {
   line-height: var(--leading-heading);
   font-style: normal;
   font-weight: 600;
+}
+
+/* Price/quantity/subtotal — tabular figures in the body font (Cormorant is
+   old-style figures, banned for price columns per DESIGN.md §2). */
+.price,
+.tabular {
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 /* ---------------------------------------------------------------------

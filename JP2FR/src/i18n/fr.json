@@ -111,5 +111,39 @@
     "title": "Page non trouvée",
     "body": "Désolé, la page que vous cherchez n'existe pas. Vérifiez l'URL ou retournez à l'accueil.",
     "back": "Retour à l'accueil"
+  },
+  "categories": {
+    "all": "Tous",
+    "ceramique": "Céramique",
+    "textile": "Textile",
+    "illustration": "Illustration",
+    "objets": "Objets",
+    "mode": "Mode"
+  },
+  "filters": {
+    "results": "{count, plural, one {# résultat} other {# résultats}}",
+    "clear": "Effacer les filtres"
+  },
+  "product": {
+    "tabs_description": "Description",
+    "tabs_details": "Détails",
+    "tabs_shipping": "Livraison & Retours",
+    "quantity": "Quantité"
+  },
+  "lp2": {
+    "hero_cta": "Découvrir les produits",
+    "categories_kicker": "Nos créations",
+    "categories_title": "Découvrez nos créations",
+    "founders_meet": "Rencontrez nos fondateurs",
+    "sns_title": "Suivez-nous",
+    "sns_sub": "Inspiration, nouveautés et coulisses du Japon.",
+    "concept_feat1_t": "Authentique",
+    "concept_feat1_b": "Fait main au Japon",
+    "concept_feat2_t": "Sélectionné",
+    "concept_feat2_b": "Par nos experts",
+    "concept_feat3_t": "Livraison en France",
+    "concept_feat3_b": "Rapide et fiable",
+    "concept_feat4_t": "Paiement sécurisé",
+    "concept_feat4_b": "Stripe et 3D Secure"
   }
 }

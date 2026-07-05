@@ -21,6 +21,7 @@ const founders = defineCollection({
     bio: zLocalized,
     region: zLocalized,
     portrait: z.string(),
+    craft: z.enum(['ceramique', 'textile', 'illustration', 'objets', 'mode']),
     sns: z.object({
       instagram: z.string().optional(),
       x: z.string().optional(),
@@ -39,6 +40,7 @@ const products = defineCollection({
     name: zLocalized,
     description: zLocalized,
     materials: zLocalized,
+    category: z.enum(['ceramique', 'textile', 'illustration', 'objets', 'mode']),
     price: z.object({
       amount: z.number().int(),
       currency: z.literal('EUR'),

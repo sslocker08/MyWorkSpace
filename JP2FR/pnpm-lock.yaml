@@ -11,6 +11,15 @@ importers:
       '@astrojs/cloudflare':
         specifier: ^12
         version: 12.6.13(@types/node@26.1.0)(astro@5.18.2(@types/node@26.1.0)(rollup@4.62.2)(typescript@5.9.3)(yaml@2.9.0))(yaml@2.9.0)
+      '@fontsource/cormorant-garamond':
+        specifier: ^5.2.11
+        version: 5.2.11
+      '@fontsource/noto-sans':
+        specifier: ^5.2.10
+        version: 5.2.10
+      '@fontsource/noto-sans-jp':
+        specifier: ^5.2.9
+        version: 5.2.9
       '@nanostores/persistent':
         specifier: ^0.10
         version: 0.10.2(nanostores@0.11.4)
@@ -650,6 +659,15 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@fontsource/cormorant-garamond@5.2.11':
+    resolution: {integrity: sha512-5JjpN023lhA5soijgVT0BdRGzmlijm402ppjccMd6h+vRE0mX2lJnE+41UPfnlidrkV9/rCo1mf58WZlHnB0CA==}
+
+  '@fontsource/noto-sans-jp@5.2.9':
+    resolution: {integrity: sha512-6yVGiofnrnbiJjU8ch4JGSs2HqyozxMvsVyVmFwOnDH3u//qQKLqmKM4n0lqN0637uaJNzUW9nIJqbbMgHVQzw==}
+
+  '@fontsource/noto-sans@5.2.10':
+    resolution: {integrity: sha512-J58RVfS/C0Z2VBF+PoU260Tx8cdRGYuS+e3yQe4hYaIYDl0sEVn5CzlLo5zVRvQD0HaIUTV8AZMfqR7rtdEpqQ==}
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -2848,6 +2866,12 @@ snapshots:
 
   '@esbuild/win32-x64@0.27.7':
     optional: true
+
+  '@fontsource/cormorant-garamond@5.2.11': {}
+
+  '@fontsource/noto-sans-jp@5.2.9': {}
+
+  '@fontsource/noto-sans@5.2.10': {}
 
   '@img/colour@1.1.0': {}
 

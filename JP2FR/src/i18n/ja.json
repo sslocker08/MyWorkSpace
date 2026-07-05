@@ -111,5 +111,39 @@
     "title": "ページが見つかりません",
     "body": "申し訳ございません。お探しのページが見つかりません。URLをご確認いただくか、ホームへお戻りください。",
     "back": "ホームへ戻る"
+  },
+  "categories": {
+    "all": "すべて",
+    "ceramique": "陶芸",
+    "textile": "テキスタイル",
+    "illustration": "イラスト",
+    "objets": "工芸品",
+    "mode": "ファッション"
+  },
+  "filters": {
+    "results": "{count}件",
+    "clear": "絞り込みを解除"
+  },
+  "product": {
+    "tabs_description": "説明",
+    "tabs_details": "詳細",
+    "tabs_shipping": "配送と返品",
+    "quantity": "数量"
+  },
+  "lp2": {
+    "hero_cta": "商品を見る",
+    "categories_kicker": "創作の数々",
+    "categories_title": "創作に出会う",
+    "founders_meet": "作り手に会う",
+    "sns_title": "フォローする",
+    "sns_sub": "日本からのインスピレーションと舞台裏。",
+    "concept_feat1_t": "本物",
+    "concept_feat1_b": "日本の手仕事",
+    "concept_feat2_t": "厳選",
+    "concept_feat2_b": "目利きによる選定",
+    "concept_feat3_t": "フランスへお届け",
+    "concept_feat3_b": "迅速・確実",
+    "concept_feat4_t": "安全な決済",
+    "concept_feat4_b": "Stripe・3Dセキュア"
   }
 }

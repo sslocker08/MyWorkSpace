@@ -1,0 +1,59 @@
+/*
+ * Self-hosted fonts — @fontsource only, no external font CDN (GDPR; DESIGN.md §2).
+ * Contract: /DESIGN.md §2 (v2 typography). Weights/subsets kept minimal —
+ * do not add weights here without a DESIGN.md update.
+ *
+ * This file is imported once from src/layouts/Base.astro
+ * (`import '../styles/fonts.css';`) so Vite processes it as part of the
+ * module graph and can resolve the bare `@fontsource/...` specifiers below
+ * (a plain CSS `@import` of node_modules paths only resolves when the CSS
+ * itself enters the JS/Vite pipeline — it will NOT resolve if this file is
+ * ever moved under public/ and linked with a raw <link rel="stylesheet">).
+ * Each @fontsource/*.css below declares its own @font-face + unicode-range,
+ * so the browser only ever fetches the woff2 slice(s) it actually needs.
+ */
+
+/* display（欧文見出し）: Cormorant Garamond 600/700, latin + latin-ext only
+   (no cyrillic/vietnamese — DESIGN.md scopes display to FR/EN latin glyphs). */
+@import '@fontsource/cormorant-garamond/latin-600.css';
+@import '@fontsource/cormorant-garamond/latin-ext-600.css';
+@import '@fontsource/cormorant-garamond/latin-700.css';
+@import '@fontsource/cormorant-garamond/latin-ext-700.css';
+
+/* 本文（Latin body）: Noto Sans 400/500/700, latin + latin-ext only. */
+@import '@fontsource/noto-sans/latin-400.css';
+@import '@fontsource/noto-sans/latin-ext-400.css';
+@import '@fontsource/noto-sans/latin-500.css';
+@import '@fontsource/noto-sans/latin-ext-500.css';
+@import '@fontsource/noto-sans/latin-700.css';
+@import '@fontsource/noto-sans/latin-ext-700.css';
+
+/* 和文本文: Noto Sans JP 400/500/700 — import the package's un-suffixed
+   css (not the single-subset `japanese-*.css`/`latin-*.css` variants).
+   Each un-suffixed file already ships ~120 @font-face rules covering every
+   subset (japanese/latin/cyrillic/vietnamese/CJK-ext) with its own
+   unicode-range, which is the package's own "subset slicing" — mixed
+   JP+half-width-latin-punctuation text stays on Noto Sans JP instead of
+   falling back to the system font mid-sentence. This is expected to emit
+   100+ woff2 files in the build; the browser only ever requests the
+   unicode-range slice(s) actually present on a given page. */
+@import '@fontsource/noto-sans-jp/400.css';
+@import '@fontsource/noto-sans-jp/500.css';
+@import '@fontsource/noto-sans-jp/700.css';
+
+/* ---------------------------------------------------------------------
+ * Fallback metrics — size-adjust/ascent/descent override so the local
+ * system fallback (Arial) reserves the same box as Noto Sans, keeping
+ * CLS < 0.1 during the swap (DESIGN.md §2). Values are the commonly
+ * published Noto-Sans-vs-Arial metric-override pair (size-adjust ~100-105%
+ * per task spec); inserted into --font-body after 'Noto Sans JP' in
+ * tokens.css so it only ever engages before the JP/system serif fallbacks.
+ * ------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Noto Sans Fallback';
+  src: local('Arial');
+  size-adjust: 103%;
+  ascent-override: 101%;
+  descent-override: 28%;
+  line-gap-override: 0%;
+}
