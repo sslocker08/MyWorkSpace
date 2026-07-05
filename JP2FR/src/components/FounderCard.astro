@@ -7,15 +7,23 @@ import { localePath } from '../lib/routes';
 export interface Props {
   founder: CollectionEntry<'founders'>['data'];
   locale: Locale;
+  /** Use the 藍デュオトーン (portrait-duo.webp) instead of the full-color
+   * portrait — DESIGN.md §3 "15ポートレートの統一": listing/carousel
+   * contexts use the duotone set, detail pages keep the full-color
+   * original. Derived by swapping the filename, never a second content
+   * field, so authoring stays single-source (one `portrait` path per
+   * founder JSON). */
+  duotone?: boolean;
 }
 
-const { founder, locale } = Astro.props;
+const { founder, locale, duotone = false } = Astro.props;
 const href = localePath(locale, `/founders/${founder.slug}/`);
+const portraitSrc = duotone ? founder.portrait.replace(/portrait\.webp$/, 'portrait-duo.webp') : founder.portrait;
 ---
 
-<a href={href} class="founder-card">
+<a href={href} class="founder-card" data-craft={founder.craft}>
   <span class="portrait-frame">
-    <img src={founder.portrait} width="480" height="480" alt="" loading="lazy" decoding="async" />
+    <img src={portraitSrc} width="480" height="480" alt="" loading="lazy" decoding="async" />
   </span>
   <span class="founder-copy">
     <span class="founder-name">{founder.name[locale]}</span>

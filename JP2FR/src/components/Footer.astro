@@ -1,5 +1,13 @@
 ---
-// critique: P4 H4 E4 S3 R4 V4
+// critique: P4 H4 E4 S4 R4 V4
+//
+// Footer — v2 restructure per docs/ART-DIRECTION-LP-V2.md §4-7: 4 nav
+// columns (BOUTIQUE / AIDE / À PROPOS / LÉGAL) + a bottom row with the
+// copyright line and non-logo payment-method chips. Background realigned
+// from the old plain --color-sumi to the v2 --surface-dark/--on-dark token
+// pair (DESIGN.md §1 "夜の版元") since the footer was already dark and
+// should read as the same night surface as the LP's .zone-dark band, not a
+// separate ink tone.
 import { useT } from '../lib/i18n';
 import type { Locale } from '../lib/i18n';
 import { localePath } from '../lib/routes';
@@ -11,15 +19,33 @@ export interface Props {
 const { locale } = Astro.props;
 const t = useT(locale);
 
-const navLinks = [
-  { key: 'nav.home', href: localePath(locale, '/') },
+const boutiqueLinks = [
   { key: 'nav.founders', href: localePath(locale, '/founders/') },
   { key: 'nav.products', href: localePath(locale, '/products/') },
+  { key: 'nav.cart', href: localePath(locale, '/cart/') },
 ];
+
+// AIDE reuses the same cgv/cookies destinations as LÉGAL below (deliberate
+// overlap — this brief's columns model two different user mental models,
+// "how do I get help" vs. "what's the legal text", pointing at the same
+// pages). A future "contact" entry is not added here: no contact page/route
+// exists yet in this codebase, and DESIGN.md §6's honesty gate forbids
+// linking to pages that don't exist.
+const aideLinks = [
+  { key: 'footer.cgv', href: localePath(locale, '/legal/cgv/') },
+  { key: 'footer.cookies', href: localePath(locale, '/legal/cookies/') },
+];
+
+// LandingPage.astro (this worker's file) wraps ConceptSection in
+// <div id="concept">, so this anchor is only ever valid on the localized
+// homepage — matches every other footer link here, all of which are
+// locale-prefixed absolute paths from the site root.
+const aboutHref = `${localePath(locale, '/')}#concept`;
 
 // Legal-page slugs are not part of the routes.ts contract beyond the
 // mentions-légales example given in the brief; centralized here so a future
-// legal-routing contract can replace this map in one place.
+// legal-routing contract can replace this map in one place. Hrefs kept
+// byte-for-byte identical to the pre-v2 Footer (brief: "keep exact hrefs").
 const legalLinks = [
   { key: 'footer.mentions', href: localePath(locale, '/legal/mentions-legales/') },
   { key: 'footer.privacy', href: localePath(locale, '/legal/privacy/') },
@@ -27,6 +53,11 @@ const legalLinks = [
   { key: 'footer.tokushoho', href: localePath(locale, '/legal/tokushoho/') },
   { key: 'footer.cookies', href: localePath(locale, '/legal/cookies/') },
 ];
+
+// Brand names, not translatable copy — no i18n lookup, same reasoning as
+// the literal "JP2FR" wordmark just above. No logo images per the brief
+// (bordered text chips only).
+const paymentChips = ['Stripe', 'Visa', 'Mastercard', 'Apple Pay'];
 
 const year = new Date().getFullYear();
 ---
@@ -40,66 +71,72 @@ const year = new Date().getFullYear();
       <p class="footer-tagline">{t('site.tagline')}</p>
     </div>
 
-    <div class="footer-col footer-links">
-      <nav class="footer-nav" aria-label={t('nav.menu')}>
-        <ul>
-          {
-            navLinks.map((link) => (
-              <li>
-                <a href={link.href}>{t(link.key)}</a>
-              </li>
-            ))
-          }
-        </ul>
-      </nav>
+    <nav class="footer-col" aria-label={t('footer.boutique')}>
+      <p class="footer-col-heading">{t('footer.boutique')}</p>
+      <ul>
+        {
+          boutiqueLinks.map((link) => (
+            <li>
+              <a href={link.href}>{t(link.key)}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
 
-      <nav class="footer-legal" aria-label={t('footer.legal')}>
-        <p class="footer-legal-heading">{t('footer.legal')}</p>
-        <ul>
-          {
-            legalLinks.map((link) => (
-              <li>
-                <a href={link.href}>{t(link.key)}</a>
-              </li>
-            ))
-          }
-          <li>
-            <button type="button" class="cookie-settings-btn" data-cookie-settings>
-              {t('cookie.settings')}
-            </button>
-          </li>
-        </ul>
-      </nav>
-    </div>
+    <nav class="footer-col" aria-label={t('footer.aide')}>
+      <p class="footer-col-heading">{t('footer.aide')}</p>
+      <ul>
+        {
+          aideLinks.map((link) => (
+            <li>
+              <a href={link.href}>{t(link.key)}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
 
-    {/* Site-wide SNS profiles are not yet defined (only per-founder sns
-       exists in content) — rendered inert per DESIGN.md §6 honesty gate
-       rather than faked as working links. */}
-    <div class="footer-col footer-sns" aria-hidden="true">
-      <span class="sns-icon">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="3" y="3" width="18" height="18" rx="5" />
-          <circle cx="12" cy="12" r="4" />
-          <circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none" />
-        </svg>
-      </span>
-      <span class="sns-icon">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M4 4l16 16M20 4L4 20" />
-        </svg>
-      </span>
-    </div>
+    <nav class="footer-col" aria-label={t('footer.a_propos')}>
+      <p class="footer-col-heading">{t('footer.a_propos')}</p>
+      <ul>
+        <li>
+          <a href={aboutHref}>{t('footer.our_story')}</a>
+        </li>
+      </ul>
+    </nav>
+
+    <nav class="footer-col" aria-label={t('footer.legal')}>
+      <p class="footer-col-heading">{t('footer.legal')}</p>
+      <ul>
+        {
+          legalLinks.map((link) => (
+            <li>
+              <a href={link.href}>{t(link.key)}</a>
+            </li>
+          ))
+        }
+        <li>
+          <button type="button" class="cookie-settings-btn" data-cookie-settings>
+            {t('cookie.settings')}
+          </button>
+        </li>
+      </ul>
+    </nav>
   </div>
 
   <div class="site-footer-bottom">
-    <p>&copy; {year} JP2FR — {t('footer.rights')}</p>
+    <p class="footer-rights">&copy; {year} JP2FR — {t('footer.rights')}</p>
+    <ul class="payment-chips" aria-label={t('footer.payment_methods')}>
+      {paymentChips.map((chip) => <li class="payment-chip">{chip}</li>)}
+    </ul>
   </div>
 </footer>
 
 <style>
   .site-footer {
-    background: var(--color-sumi);
-    color: var(--color-kinari);
+    background: var(--surface-dark);
+    color: var(--on-dark);
   }
 
   /* seigaiha.svg is a 40x40 pattern tile — repeat it, never stretch it
@@ -119,36 +156,31 @@ const year = new Date().getFullYear();
     margin-inline: auto;
     padding: var(--space-10) var(--space-5);
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
     gap: var(--space-8);
   }
 
   .footer-word {
     font-family: var(--font-display);
     font-size: var(--text-xl);
+    color: var(--on-dark);
   }
 
   .footer-tagline {
     margin-top: var(--space-2);
-    color: color-mix(in oklch, var(--color-kinari) 70%, transparent);
+    color: var(--on-dark-dim);
     font-size: var(--text-sm);
   }
 
-  .footer-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-8);
-  }
-
-  .footer-legal-heading {
+  .footer-col-heading {
     font-size: var(--text-xs);
-    color: color-mix(in oklch, var(--color-kinari) 60%, transparent);
+    color: var(--on-dark-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
     margin-bottom: var(--space-3);
-    letter-spacing: 0.04em;
   }
 
-  .footer-nav ul,
-  .footer-legal ul {
+  .footer-col ul {
     list-style: none;
     display: flex;
     flex-direction: column;
@@ -157,11 +189,10 @@ const year = new Date().getFullYear();
 
   /* Color swap is instant (state, not animation — §4 whitelists only
      transform/opacity as animated properties). */
-  .footer-nav a,
-  .footer-legal a,
+  .footer-col a,
   .cookie-settings-btn {
     display: inline-block;
-    color: var(--color-kinari);
+    color: var(--on-dark);
     text-decoration: none;
     font-size: var(--text-sm);
     background: transparent;
@@ -171,39 +202,30 @@ const year = new Date().getFullYear();
     cursor: pointer;
     text-align: left;
     transform: translateX(0);
-    transition: transform var(--duration-ui-fast) var(--ease-mie);
+    transition:
+      transform var(--duration-ui-fast) var(--ease-mie),
+      color var(--duration-ui-fast) var(--ease-mie);
   }
 
-  .footer-nav a:hover,
-  .footer-legal a:hover,
+  .footer-col a:hover,
   .cookie-settings-btn:hover {
     color: var(--color-asagi);
     transform: translateX(var(--space-2));
   }
 
-  .footer-nav a:focus-visible,
-  .footer-legal a:focus-visible,
+  .footer-col a:focus-visible,
   .cookie-settings-btn:focus-visible {
     outline: 2px solid var(--color-shu);
     outline-offset: 2px;
   }
 
-  .footer-nav a:active,
-  .footer-legal a:active,
+  .footer-col a:active,
   .cookie-settings-btn:active {
     color: var(--color-shu);
   }
 
-  .footer-sns {
-    display: flex;
-    gap: var(--space-4);
-    align-items: flex-start;
-    color: color-mix(in oklch, var(--color-kinari) 70%, transparent);
-  }
-
   @media (prefers-reduced-motion: reduce) {
-    .footer-nav a,
-    .footer-legal a,
+    .footer-col a,
     .cookie-settings-btn {
       transition: none;
     }
@@ -212,8 +234,31 @@ const year = new Date().getFullYear();
   .site-footer-bottom {
     border-top: 1px solid color-mix(in oklch, var(--color-kinari) 15%, transparent);
     padding: var(--space-5);
-    text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-5);
+  }
+
+  .footer-rights {
     font-size: var(--text-xs);
-    color: color-mix(in oklch, var(--color-kinari) 70%, transparent);
+    color: var(--on-dark-dim);
+  }
+
+  .payment-chips {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .payment-chip {
+    font-size: var(--text-xs);
+    font-family: var(--font-mono);
+    color: var(--on-dark-dim);
+    border: 1px solid color-mix(in oklch, var(--color-kinari) 20%, transparent);
+    border-radius: var(--radius);
+    padding: var(--space-1) var(--space-3);
   }
 </style>

@@ -15,8 +15,11 @@ export interface HeroAssets {
 }
 
 export const heroAssets: HeroAssets = {
-  // Real Hokusai "Great Wave" (The Met Open Access, CC0) — see assetgen/SOURCES.md.
-  poster: '/media/hero/poster.avif',
+  // v2 "夜の版元": dark-graded Hiroshige Nihonbashi (same artwork as
+  // sectionPrints.bridge — assetgen/SOURCES.md derive-v2-assets entry) so a
+  // future video swap-in shares one consistent night-bridge poster contract
+  // with the full-bleed hero image below, instead of the old wave poster.
+  poster: '/media/hero/bridge-poster.avif',
   videoWebm: null,
   videoMp4: null,
 };
@@ -25,6 +28,16 @@ export const heroAssets: HeroAssets = {
 export const heroWave = {
   src1200: '/media/hero/wave-1200.webp',
   srcFull: '/media/hero/wave-full.webp',
+} as const;
+
+// v2 full-bleed hero background — dark grade of Utagawa Hiroshige, "Stations
+// One: Morning View of Nihonbashi" (The Met 36922, CC0; same source print as
+// sectionPrints.bridge, processed per assetgen/SOURCES.md §derive-v2-assets:
+// modulate brightness 0.72 / saturation 0.82 → gamma 1.08 for white-text
+// overlay legibility). Consumed by Hero.astro's full-bleed bg image.
+export const heroBridge = {
+  src1200: '/media/hero/bridge-dark-1200.webp',
+  src2000: '/media/hero/bridge-dark-2000.webp',
 } as const;
 
 export interface SectionAssets {

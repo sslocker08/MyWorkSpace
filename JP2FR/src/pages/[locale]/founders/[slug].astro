@@ -1,5 +1,8 @@
 ---
 // critique: P4 H4 E4 S4 R4 V4
+// (band rebuild: duotone backdrop + craft chip + full-color portrait; no
+// separate "story" page exists so the comp's dark CTA button was dropped
+// rather than fabricated — see worker brief item 4)
 import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import Base from '../../../layouts/Base.astro';
@@ -35,6 +38,7 @@ const founderProducts = allProducts
 
 const founderName = founder.name[locale];
 const bioParagraphs = founder.bio[locale].split(/\n{2,}/).filter(Boolean);
+const duoPortrait = founder.portrait.replace(/portrait\.webp$/, 'portrait-duo.webp');
 
 const productsHeading = t('founders.products_by', { name: founderName });
 
@@ -55,36 +59,49 @@ const breadcrumbs = [
 ---
 
 <Base locale={locale} title={founderName} path={`/founders/${founder.slug}/`} breadcrumbs={breadcrumbs}>
-  <article class="founder-hero">
-    <span class="portrait-frame">
-      <img src={founder.portrait} width="480" height="480" alt="" loading="eager" decoding="async" />
-    </span>
-    <div class="founder-copy">
-      <h1 class="signature">{founderName}</h1>
-      <p class="founder-meta">{founder.title[locale]}・{founder.region[locale]}</p>
-      <div class="founder-bio">
-        {bioParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+  <section class="founder-band">
+    <img
+      class="founder-band__backdrop"
+      src={duoPortrait}
+      alt=""
+      aria-hidden="true"
+      width="960"
+      height="960"
+      loading="eager"
+      decoding="async"
+    />
+    <div class="founder-band__inner">
+      <span class="portrait-frame">
+        <img src={founder.portrait} width="480" height="480" alt="" loading="eager" decoding="async" />
+      </span>
+      <div class="founder-copy">
+        <p class="craft-chip">{t(`categories.${founder.craft}`)}</p>
+        <h1 class="signature">{founderName}</h1>
+        <p class="founder-meta">{founder.title[locale]}・{founder.region[locale]}</p>
+        <div class="founder-bio">
+          {bioParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+        </div>
+        {
+          snsLinks.length > 0 && (
+            <ul class="founder-sns">
+              {snsLinks.map(({ key, href }) => (
+                <li>
+                  <a href={href} rel="noopener noreferrer" target="_blank">
+                    {key}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
       </div>
-      {
-        snsLinks.length > 0 && (
-          <ul class="founder-sns">
-            {snsLinks.map(({ key, href }) => (
-              <li>
-                <a href={href} rel="noopener noreferrer" target="_blank">
-                  {key}
-                </a>
-              </li>
-            ))}
-          </ul>
-        )
-      }
     </div>
-  </article>
+  </section>
 
   {
     founderProducts.length > 0 && (
       <section class="founder-products">
-        <h2 class="kicker">{productsHeading}</h2>
+        <h2 class="section-heading">{productsHeading}</h2>
         <div class="product-grid">
           {founderProducts.map((product) => (
             <ProductCard product={product} founderName={founderName} locale={locale} />
@@ -100,20 +117,61 @@ const breadcrumbs = [
 </Base>
 
 <style>
-  .founder-hero {
+  /* Full-width band (comp「PRODUIT—DÉTAIL」sibling section for founders):
+     washi ground spanning the viewport, with the founder's own duotone
+     portrait as a soft, low-opacity backdrop strip on the right — the
+     full-color portrait stays the real focal point, framed left. */
+  .founder-band {
+    position: relative;
+    width: 100%;
+    background: var(--color-washi);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .founder-band__backdrop {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: min(48%, 34rem);
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.16;
+    mask-image: linear-gradient(to right, transparent, black 35%);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 35%);
+    pointer-events: none;
+    z-index: var(--z-base);
+  }
+
+  .founder-band__inner {
+    position: relative;
+    z-index: var(--z-raised);
     max-width: var(--container-max);
     margin-inline: auto;
-    padding: var(--space-8) var(--space-5) var(--space-9);
+    padding: var(--space-9) var(--space-5);
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-6);
   }
 
   @media (min-width: 640px) {
-    .founder-hero {
+    .founder-band__inner {
       grid-template-columns: minmax(200px, 320px) minmax(0, 1fr);
       align-items: start;
     }
+  }
+
+  .craft-chip {
+    display: inline-flex;
+    align-self: flex-start;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-ai);
+    color: var(--color-ai);
+    background: var(--color-kinari);
+    padding: var(--space-1) var(--space-3);
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
   }
 
   .portrait-frame {
@@ -200,9 +258,14 @@ const breadcrumbs = [
     padding: 0 var(--space-5) var(--space-9);
   }
 
-  .founder-products h2 {
+  /* Replaces the former `.kicker` reuse on this h2 — a section heading
+     needs the display serif at real heading weight/size, not the muted
+     small-caps 詞書 label style (which is right for an eyebrow, wrong for
+     the products-by-this-founder heading itself). */
+  .section-heading {
     margin-bottom: var(--space-5);
-    font-size: var(--text-lg);
+    font-size: var(--text-xl);
+    color: var(--color-sumi);
   }
 
   .product-grid {

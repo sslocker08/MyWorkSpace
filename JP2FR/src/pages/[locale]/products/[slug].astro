@@ -1,5 +1,8 @@
 ---
-// critique: P4 H4 E4 S4 R4 V4
+// critique: P4 H4 E4 S4 R3 V4
+// (stepper + feature row + APG tabs added in one pass — dense but each
+// element earns its place per the worker brief; R3 flags that density
+// honestly rather than round it up)
 import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import Base from '../../../layouts/Base.astro';
@@ -37,6 +40,14 @@ const descriptionParagraphs = product.description[locale].split(/\n{2,}/).filter
 const price = formatPrice(product.price.amount, locale);
 const isSoldOut = product.stock.soldOut;
 const isUnique = product.stock.kind === 'unique';
+// Quantity stepper only makes sense for a normal stocked item: a unique
+// (one-of-a-kind) piece is capped at qty 1 by cart.ts regardless, and a
+// sold-out item can't be added at all — AddToCart.ts already disables the
+// button up front for both, see its header contract.
+const canShowStepper = !isUnique && !isSoldOut;
+const qtyInputId = `qty-${product.slug}`;
+const stockLabel = isUnique ? t('products.unique') : isSoldOut ? t('products.soldOut') : t('product.stock_stocked');
+const cgvHref = localePath(locale, '/legal/cgv/');
 
 const breadcrumbs = [
   { label: t('nav.home'), href: localePath(locale, '/') },
@@ -106,16 +117,31 @@ const jsonLd = {
         )
       }
 
-      <p class="product-price">{price}</p>
+      <p class="product-price price">{price}</p>
 
-      <dl class="product-materials">
-        <dt>{t('products.materials')}</dt>
-        <dd>{product.materials[locale]}</dd>
-      </dl>
-
-      <div class="product-description">
-        {descriptionParagraphs.map((paragraph) => <p>{paragraph}</p>)}
-      </div>
+      {
+        canShowStepper && (
+          <div class="qty-stepper" data-qty>
+            <button type="button" class="qty-btn" data-qty-action="decrement" aria-label={t('product.quantity')}>
+              −
+            </button>
+            <input
+              type="number"
+              class="qty-input"
+              id={qtyInputId}
+              data-qty-input
+              value="1"
+              min="1"
+              max="9"
+              step="1"
+              aria-label={t('product.quantity')}
+            />
+            <button type="button" class="qty-btn" data-qty-action="increment" aria-label={t('product.quantity')}>
+              +
+            </button>
+          </div>
+        )
+      }
 
       <button
         type="button"
@@ -126,9 +152,121 @@ const jsonLd = {
         data-soldout={isSoldOut}
         data-label-added={t('products.added')}
         data-label-in-cart={t('products.inCart')}
+        data-qty-input={canShowStepper ? qtyInputId : undefined}
       >
         {t('products.addToCart')}
       </button>
+
+      <ul class="feature-row">
+        <li class="feature-item">
+          <svg class="feature-icon" viewBox="0 0 24 24" width="24" height="24" fill="none" aria-hidden="true">
+            <rect x="4" y="4" width="16" height="16" rx="1" />
+            <path d="M8 8h8M8 12h8M8 16h5" />
+          </svg>
+          <span>
+            <span class="feature-title">{t('lp2.concept_feat1_t')}</span>
+            <span class="feature-body">{t('lp2.concept_feat1_b')}</span>
+          </span>
+        </li>
+        <li class="feature-item">
+          <svg class="feature-icon" viewBox="0 0 24 24" width="24" height="24" fill="none" aria-hidden="true">
+            <path d="M4 18c2 1 14 1 16 0" />
+            <path d="M12 5v13" />
+            <path d="M12 6l6 8h-6z" />
+          </svg>
+          <span>
+            <span class="feature-title">{t('lp2.concept_feat3_t')}</span>
+            <span class="feature-body">{t('lp2.concept_feat3_b')}</span>
+          </span>
+        </li>
+        <li class="feature-item">
+          <svg class="feature-icon" viewBox="0 0 24 24" width="24" height="24" fill="none" aria-hidden="true">
+            <rect x="5" y="11" width="14" height="9" rx="1.5" />
+            <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+          </svg>
+          <span>
+            <span class="feature-title">{t('lp2.concept_feat4_t')}</span>
+            <span class="feature-body">{t('lp2.concept_feat4_b')}</span>
+          </span>
+        </li>
+      </ul>
+
+      <div class="apg-tabs" data-tabs>
+        <div role="tablist" class="apg-tablist" aria-label={productName}>
+          <button
+            type="button"
+            role="tab"
+            id="tab-desc"
+            aria-controls="panel-desc"
+            aria-selected="true"
+            tabindex="0"
+            class="apg-tab"
+          >
+            {t('product.tabs_description')}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            id="tab-details"
+            aria-controls="panel-details"
+            aria-selected="false"
+            tabindex="-1"
+            class="apg-tab"
+          >
+            {t('product.tabs_details')}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            id="tab-shipping"
+            aria-controls="panel-shipping"
+            aria-selected="false"
+            tabindex="-1"
+            class="apg-tab"
+          >
+            {t('product.tabs_shipping')}
+          </button>
+        </div>
+
+        <div role="tabpanel" id="panel-desc" aria-labelledby="tab-desc" class="apg-panel">
+          {descriptionParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+        </div>
+
+        <div role="tabpanel" id="panel-details" aria-labelledby="tab-details" class="apg-panel">
+          <dl class="detail-list">
+            <div class="detail-row">
+              <dt>{t('products.materials')}</dt>
+              <dd>{product.materials[locale]}</dd>
+            </div>
+            {
+              founderHref && (
+                <div class="detail-row">
+                  <dt>{t('product.label_founder')}</dt>
+                  <dd>
+                    <a href={founderHref}>{founderName}</a>
+                  </dd>
+                </div>
+              )
+            }
+            <div class="detail-row">
+              <dt>{t('product.label_category')}</dt>
+              <dd>{t(`categories.${product.category}`)}</dd>
+            </div>
+            <div class="detail-row">
+              <dt>{t('product.label_stock')}</dt>
+              <dd>{stockLabel}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div role="tabpanel" id="panel-shipping" aria-labelledby="tab-shipping" class="apg-panel">
+          <p>{t('product.shipping_delivery')}</p>
+          <p>{t('product.shipping_returns')}</p>
+          <p>
+            <a href={cgvHref}>{t('footer.cgv')}</a>
+          </p>
+        </div>
+      </div>
     </div>
   </article>
 </Base>
@@ -137,6 +275,84 @@ const jsonLd = {
 
 <script>
   import '../../../islands/AddToCart';
+</script>
+
+<script>
+  // Page-scoped progressive enhancement, not islands: both behaviors are
+  // trivial, single-page-context DOM wiring with no shared state, so a full
+  // island module would be pure overhead (agent-token-economy §minimalism —
+  // same call already made for the CSS-only gallery switcher above).
+
+  // ---- Quantity stepper (stocked items only; see canShowStepper above) ----
+  function initQtyStepper() {
+    document.querySelectorAll('[data-qty]').forEach((wrap) => {
+      const input = wrap.querySelector('[data-qty-input]');
+      if (!(input instanceof HTMLInputElement)) return;
+      const min = Number.parseInt(input.min, 10) || 1;
+      const max = Number.parseInt(input.max, 10) || 9;
+
+      const clamp = (value: number) => Math.min(max, Math.max(min, value));
+
+      wrap.querySelectorAll('[data-qty-action]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const delta = btn.getAttribute('data-qty-action') === 'increment' ? 1 : -1;
+          input.value = String(clamp((Number.parseInt(input.value, 10) || min) + delta));
+        });
+      });
+
+      input.addEventListener('change', () => {
+        input.value = String(clamp(Number.parseInt(input.value, 10) || min));
+      });
+    });
+  }
+
+  // ---- APG tabs (roving tabindex, arrow-key nav) --------------------------
+  // Markup ships with every panel visible (no `hidden`) so a no-JS visitor
+  // gets the honest progressive-enhancement fallback: three stacked
+  // sections, nothing lost. This script is the only thing that ever hides
+  // the non-active panels.
+  function initTabs() {
+    document.querySelectorAll('[data-tabs]').forEach((root) => {
+      const tabs = Array.from(root.querySelectorAll('[role="tab"]')).filter(
+        (el): el is HTMLButtonElement => el instanceof HTMLButtonElement,
+      );
+      const panels = tabs.map((tab) => document.getElementById(tab.getAttribute('aria-controls') || ''));
+
+      function activate(index: number, focus: boolean) {
+        tabs.forEach((tab, i) => {
+          const selected = i === index;
+          tab.setAttribute('aria-selected', String(selected));
+          tab.tabIndex = selected ? 0 : -1;
+          const panel = panels[i];
+          if (panel) panel.hidden = !selected;
+        });
+        if (focus && tabs[index]) tabs[index].focus();
+      }
+
+      tabs.forEach((tab, i) => {
+        tab.addEventListener('click', () => activate(i, false));
+        tab.addEventListener('keydown', (event) => {
+          let next: number | null = null;
+          if (event.key === 'ArrowRight') next = (i + 1) % tabs.length;
+          else if (event.key === 'ArrowLeft') next = (i - 1 + tabs.length) % tabs.length;
+          else if (event.key === 'Home') next = 0;
+          else if (event.key === 'End') next = tabs.length - 1;
+          if (next !== null) {
+            event.preventDefault();
+            activate(next, true);
+          }
+        });
+      });
+
+      // Only now (JS confirmed running) do we hide the non-default panels.
+      panels.forEach((panel, i) => {
+        if (panel) panel.hidden = i !== 0;
+      });
+    });
+  }
+
+  initQtyStepper();
+  initTabs();
 </script>
 
 <style>
@@ -269,35 +485,186 @@ const jsonLd = {
   }
 
   .product-price {
-    font-family: var(--font-mono);
     font-size: var(--text-xl);
     color: var(--color-ai);
   }
 
-  .product-materials {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
+  /* ---- Quantity stepper ------------------------------------------------ */
+  .qty-stepper {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    align-self: flex-start;
   }
 
-  .product-materials dt {
+  .qty-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: var(--border-hairline);
+    border-radius: var(--radius);
+    background: var(--color-kinari);
+    color: var(--color-sumi);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    cursor: pointer;
+    transition:
+      background-color var(--duration-ui-fast) var(--ease-mie),
+      border-color var(--duration-ui-fast) var(--ease-mie),
+      color var(--duration-ui-fast) var(--ease-mie),
+      transform var(--duration-ui-fast) var(--ease-mie);
+  }
+
+  .qty-btn:hover {
+    background: var(--color-washi);
+    border-color: var(--color-ai);
+    color: var(--color-ai);
+  }
+
+  .qty-btn:active {
+    transform: translateY(1px) scale(0.96);
+  }
+
+  .qty-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .qty-input {
+    width: 3.5rem;
+    height: 2.25rem;
+    text-align: center;
+    border: var(--border-hairline);
+    border-radius: var(--radius);
+    background: var(--color-kinari);
+    color: var(--color-sumi);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  .product-atc {
+    align-self: flex-start;
+    margin-top: var(--space-1);
+  }
+
+  /* ---- Feature icon row (手仕事 / 配送 / 安全決済) ------------------------ */
+  .feature-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+    gap: var(--space-4);
+    list-style: none;
+    padding: 0;
+    margin-top: var(--space-2);
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .feature-icon {
+    flex-shrink: 0;
+    stroke: var(--color-ai);
+    stroke-width: 1.5;
+  }
+
+  .feature-title {
+    display: block;
+    font-family: var(--font-body);
+    font-weight: 600;
     font-size: var(--text-sm);
+    color: var(--color-sumi);
+  }
+
+  .feature-body {
+    display: block;
+    font-size: var(--text-xs);
     color: var(--color-sumi-usu);
   }
 
-  .product-materials dd {
-    margin: 0;
+  /* ---- APG tabs ---------------------------------------------------------
+     No-JS fallback: every panel renders visible/stacked (progressive
+     enhancement, see the inline script above). */
+  .apg-tabs {
+    margin-top: var(--space-4);
   }
 
-  .product-description {
+  .apg-tablist {
+    display: flex;
+    gap: var(--space-2);
+    border-bottom: var(--border-hairline);
+  }
+
+  .apg-tab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: var(--space-2) var(--space-1);
+    margin-bottom: -1px;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-sumi-usu);
+    cursor: pointer;
+    transition:
+      color var(--duration-ui-fast) var(--ease-mie),
+      border-color var(--duration-ui-fast) var(--ease-mie);
+  }
+
+  .apg-tab:hover {
+    color: var(--color-ai);
+  }
+
+  .apg-tab[aria-selected='true'] {
+    color: var(--color-sumi);
+    border-color: var(--color-ai);
+  }
+
+  .apg-panel {
+    padding-block: var(--space-5);
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
     max-width: 60ch;
   }
 
-  .product-atc {
-    align-self: flex-start;
-    margin-top: var(--space-2);
+  .apg-panel a {
+    color: var(--color-ai);
+  }
+
+  .apg-panel a:hover {
+    color: var(--color-shu);
+  }
+
+  .detail-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .detail-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .detail-row dt {
+    font-size: var(--text-sm);
+    color: var(--color-sumi-usu);
+  }
+
+  .detail-row dd {
+    margin: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .qty-btn,
+    .apg-tab {
+      transition: none;
+    }
   }
 </style>

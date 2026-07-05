@@ -25,6 +25,36 @@ const t = useT(locale);
 
 const lineKeys = ['lp.concept.line1', 'lp.concept.line2', 'lp.concept.line3'] as const;
 
+// AD v2 §3: 4 line-icon features, each sourced from an existing lp2 i18n
+// pair (no new keys added — "keep them" per the brief). Icons are hand-drawn
+// inline SVGs (stroke=currentColor, viewBox 24, fill none) — NOT emoji/
+// filled clip-art (DESIGN.md §3 anti-slop gate).
+const features = [
+  { titleKey: 'lp2.concept_feat1_t', bodyKey: 'lp2.concept_feat1_b', icon: 'seal' },
+  { titleKey: 'lp2.concept_feat2_t', bodyKey: 'lp2.concept_feat2_b', icon: 'fan' },
+  { titleKey: 'lp2.concept_feat3_t', bodyKey: 'lp2.concept_feat3_b', icon: 'boat' },
+  { titleKey: 'lp2.concept_feat4_t', bodyKey: 'lp2.concept_feat4_b', icon: 'knotLock' },
+] as const;
+
+// Inline SVG inner-markup, keyed by feature.icon — hand-drawn line glyphs
+// (①落款/判子 seal, ②扇 fan, ③帆掛け舟 sailboat, ④組紐錠前 corded lock),
+// rendered via set:html below onto a shared <svg> shell (stroke=currentColor,
+// stroke-width 1.5, viewBox 24, fill=none — set once on the shell, not
+// repeated per icon). Content is fully static/authored here, never
+// user-supplied, so set:html carries no injection risk.
+const iconMarkup: Record<(typeof features)[number]['icon'], string> = {
+  // 落款/判子 — a carved seal face with three engraved script rows.
+  seal: '<rect x="5" y="5" width="14" height="14" rx="1.5"/><path d="M9 9.5h6M9 12.5h6M9 15.5h3.5"/>',
+  // 扇 — five ribs converging on a rivet, capped by the fan's top arc.
+  fan: '<path d="M5 10a9 9 0 0 1 14 0"/><path d="M12 20V4M12 20 6.5 10M12 20 9 8.5M12 20 15 8.5M12 20 17.5 10"/><circle cx="12" cy="20" r="1"/>',
+  // 帆掛け舟 — hull curve, mast, single sail.
+  boat: '<path d="M3 17.5c3 2.5 15 2.5 18 0"/><path d="M12 17V4"/><path d="M12 5 18 15H12"/>',
+  // 組紐錠前 — a shackle + body, with an abstract braided-cord knot in
+  // place of a modern keyhole dot-and-slot.
+  knotLock:
+    '<path d="M8 10V7.5a4 4 0 0 1 8 0V10"/><rect x="5.5" y="10" width="13" height="9" rx="1.5"/><path d="M10 14.2c0-1 .9-1.6 2-1.6s2 .6 2 1.6-.9 1.6-2 1.6-2 .6-2 1.6.9 1.6 2 1.6 2-.6 2-1.6"/>',
+};
+
 // Fixed captions — identical across all locales (real provenance, not
 // translated copy; DESIGN.md §6 honesty gate). Dimensions are the actual
 // source-file aspect ratios (assetgen/SOURCES.md), set explicitly so CLS=0.
@@ -76,7 +106,12 @@ const panels = [
   </div>
 
   <div class="concept-inner">
-    <p class="kicker">{t('lp.concept.kicker')}</p>
+    <div class="concept-kasumi" aria-hidden="true"></div>
+
+    {/* AD v2 §3: enlarged Cormorant heading, roman (no italic — AI-tell).
+       Copy source is unchanged (lp.concept.kicker) — only the visual
+       register is promoted from small eyebrow-label to a real <h2>. */}
+    <h2 class="concept-heading">{t('lp.concept.kicker')}</h2>
 
     <div class="concept-lines">
       {
@@ -84,6 +119,28 @@ const panels = [
           <p data-concept-line class="concept-line">
             {t(key)}
           </p>
+        ))
+      }
+    </div>
+
+    <div class="concept-features">
+      {
+        features.map((feature) => (
+          <div class="concept-feature">
+            <svg
+              class="concept-feature-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              set:html={iconMarkup[feature.icon]}
+            />
+            <p class="concept-feature-title">{t(feature.titleKey)}</p>
+            <p class="concept-feature-body">{t(feature.bodyKey)}</p>
+          </div>
         ))
       }
     </div>
@@ -170,17 +227,47 @@ const panels = [
   }
 
   .concept-inner {
+    position: relative;
     max-width: var(--container-max);
     margin-inline: auto;
     padding-inline: var(--space-5);
     text-align: center;
   }
 
-  .kicker {
+  /* Kasumi (霞) texture, extremely subdued — a signature wa-motif wash
+     behind the copy block, never a competing pattern (DESIGN.md §3/§8: the
+     asset path is data-driven, never hardcoded inline). */
+  .concept-kasumi {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: url('/textures/kasumi.svg');
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: cover;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  /* AD v2 §3: this section's "heading" is lp.concept.kicker's own copy,
+     promoted from the small eyebrow-label register to a real Cormorant
+     display heading — no italic (AI-tell), size intentionally exceeds
+     --text-2xl. */
+  .concept-heading {
+    position: relative;
+    z-index: 1;
     margin-top: var(--space-9);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-style: normal;
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: var(--leading-heading);
+    color: var(--color-sumi);
   }
 
   .concept-lines {
+    position: relative;
+    z-index: 1;
     margin-top: var(--space-9);
     display: grid;
     gap: var(--space-6);
@@ -206,5 +293,46 @@ const panels = [
     .concept-line {
       font-size: var(--text-base);
     }
+  }
+
+  /* ── 4-feature icon row (AD v2 §3) — 2×2 mobile / 4-col desktop. ──── */
+  .concept-features {
+    position: relative;
+    z-index: 1;
+    margin-top: var(--space-11);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-8) var(--space-5);
+    max-width: 40rem;
+    margin-inline: auto;
+    text-align: left;
+  }
+
+  @media (min-width: 768px) {
+    .concept-features {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      max-width: none;
+      gap: var(--space-6);
+    }
+  }
+
+  .concept-feature-icon {
+    width: 2rem;
+    height: 2rem;
+    color: var(--color-ai);
+  }
+
+  .concept-feature-title {
+    margin-top: var(--space-3);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: var(--text-base);
+    color: var(--color-sumi);
+  }
+
+  .concept-feature-body {
+    margin-top: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--color-sumi-usu);
   }
 </style>

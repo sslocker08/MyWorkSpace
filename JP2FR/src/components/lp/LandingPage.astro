@@ -2,8 +2,15 @@
 // critique: P4 H4 E4 S4 R4 V4
 //
 // LP orchestrator — one continuous emaki scroll: intro overlay, hero,
-// concept, founders rail, products, sns, each seam a KasumiDivider
-// (alternating flip) instead of a straight border (DESIGN.md §0).
+// concept (light), then a continuous dark "夜の座敷" band (founders →
+// categories → sns) per docs/ART-DIRECTION-LP-V2.md §4-7 / DESIGN.md §0
+// macro-structure. All three dark sections + the two dividers *between*
+// them share one .zone-dark wrapper (bg --surface-dark) so that band reads
+// as unbroken night; only the Concept→Founders divider is the real
+// light→dark cut ("夜の帳" — the night curtain drawing closed), which is why
+// it keeps the default (untinted, bright washi-color) kasumi while the two
+// dividers fully inside the dark band are dimmed near-invisible instead
+// (see .divider-veil below).
 import { getCollection } from 'astro:content';
 import type { Locale } from '../../lib/i18n';
 import KasumiDivider from '../KasumiDivider.astro';
@@ -20,7 +27,7 @@ export interface Props {
 
 const { locale } = Astro.props;
 
-// Founders rail: published only, first 6 by `order`. Verified against
+// Founders carousel: published only, first 6 by `order`. Verified against
 // content/founders/*.json — `order` is a single unique 1-15 rank across
 // all 15 founders (not per-region), so a plain ascending sort is a safe,
 // deterministic choice for "first 6" here.
@@ -28,27 +35,26 @@ const publishedFounders = await getCollection('founders', ({ data }) => data.pub
 const sortedFounders = publishedFounders.map((entry) => entry.data).sort((a, b) => a.order - b.order);
 const railFounders = sortedFounders.slice(0, 6);
 
-// Name lookup for ProductCard's founderName prop, covering every
-// published founder (not just the 6 shown in the rail — a featured
-// product can belong to any of the 15).
-const founderNameBySlug: Record<string, string> = Object.fromEntries(
-  publishedFounders.map((entry) => [entry.data.slug, entry.data.name[locale]]),
-);
-
-// Featured products: published + not sold out ("in stock", read literally
-// rather than as the stock.kind==='stocked' enum value — a one-of-a-kind
-// "unique" piece that's still available is exactly the kind of thing a
-// homepage should be allowed to feature). Verified against
-// content/products/*.json that `order` is only unique *within* a single
-// founder's own catalog (many entries share order:1 across founders), so
-// it cannot serve as a global rank on its own; slug is added as a
-// deterministic tiebreaker so this selection doesn't depend on
-// filesystem/glob iteration order.
-const availableProducts = await getCollection('products', ({ data }) => data.published && !data.stock.soldOut);
-const featuredProducts = availableProducts
-  .map((entry) => entry.data)
-  .sort((a, b) => a.order - b.order || a.slug.localeCompare(b.slug))
-  .slice(0, 4);
+// Category cards: one representative product per category — first
+// published product, ranked by `order`, slug as a deterministic tiebreaker.
+// Verified against content/products/*.json that `order` is only unique
+// *within* a single founder's own catalog (many products across different
+// founders share order:1 within the same category), so slug is required as
+// a tiebreaker for a selection that must not depend on filesystem/glob
+// iteration order.
+const CATEGORIES = ['ceramique', 'textile', 'illustration', 'objets', 'mode'] as const;
+const publishedProducts = await getCollection('products', ({ data }) => data.published);
+const categoryCards = CATEGORIES.map((category) => {
+  const representative = publishedProducts
+    .map((entry) => entry.data)
+    .filter((product) => product.category === category)
+    .sort((a, b) => a.order - b.order || a.slug.localeCompare(b.slug))[0];
+  return {
+    category,
+    image: representative?.images[0] ?? '',
+    name: representative?.name[locale] ?? '',
+  };
+});
 ---
 
 <IntroOverlay locale={locale} />
@@ -56,16 +62,27 @@ const featuredProducts = availableProducts
 <Hero locale={locale} />
 <KasumiDivider />
 
-<ConceptSection locale={locale} />
-<KasumiDivider flip />
+<div id="concept">
+  <ConceptSection locale={locale} />
+</div>
 
-<FoundersSection locale={locale} founders={railFounders} />
-<KasumiDivider />
+<div class="zone-dark">
+  <KasumiDivider flip />
 
-<ProductsSection locale={locale} products={featuredProducts} founderNames={founderNameBySlug} />
-<KasumiDivider flip />
+  <FoundersSection locale={locale} founders={railFounders} />
 
-<SnsSection locale={locale} />
+  <div class="divider-veil">
+    <KasumiDivider />
+  </div>
+
+  <ProductsSection locale={locale} categories={categoryCards} />
+
+  <div class="divider-veil">
+    <KasumiDivider flip />
+  </div>
+
+  <SnsSection locale={locale} />
+</div>
 
 <script>
   // LCP-safe: the motion layer is pure enhancement (every hook it drives is
@@ -77,3 +94,22 @@ const featuredProducts = availableProducts
     window.addEventListener('load', () => import('../../motion/init'), { once: true });
   }
 </script>
+
+<style>
+  /* Continuous "夜の座敷" band (DESIGN.md §1 --surface-dark / --on-dark). */
+  .zone-dark {
+    background: var(--surface-dark);
+    color: var(--on-dark);
+  }
+
+  /* Between-dark-section seams only. KasumiDivider bakes its mist at full
+     (bright, washi-color) opacity for the light->dark "curtain" moment
+     above — reused unmodified here since it's not this worker's file to add
+     a dark-variant prop to — but that same brightness would read as a
+     jarring light band once *both* sides are already dark. AD §4-7: "暗ゾー
+     ンは...opacity ~0.06 on dark". Dimming the child <img> via :global()
+     from this wrapper avoids duplicating/forking the SVG. */
+  .divider-veil :global(img) {
+    opacity: 0.06;
+  }
+</style>

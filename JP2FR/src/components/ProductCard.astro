@@ -21,7 +21,7 @@ const isUnique = product.stock.kind === 'unique';
 const coverImage = product.images[0];
 ---
 
-<a href={href} class="product-card" class:list={{ 'is-sold-out': isSoldOut }}>
+<a href={href} class="product-card" class:list={{ 'is-sold-out': isSoldOut }} data-category={product.category}>
   <span class="product-media">
     {coverImage && (
       <img src={coverImage} width="480" height="360" alt="" loading="lazy" decoding="async" />
@@ -32,7 +32,7 @@ const coverImage = product.images[0];
   <span class="product-copy">
     <span class="product-name">{product.name[locale]}</span>
     <span class="product-founder">{t('products.by', { name: founderName })}</span>
-    <span class="product-price">{price}</span>
+    <span class="product-price price">{price}</span>
   </span>
 </a>
 
@@ -124,7 +124,6 @@ const coverImage = product.images[0];
   .product-price {
     display: block;
     margin-top: var(--space-2);
-    font-family: var(--font-mono);
     font-size: var(--text-base);
     color: var(--color-ai);
   }

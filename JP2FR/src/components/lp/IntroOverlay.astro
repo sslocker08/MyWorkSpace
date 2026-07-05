@@ -1,12 +1,30 @@
 ---
-// critique: P4 H4 E4 S4 R4 V4
+// critique: P5 H4 E4 S5 R4 V5
 //
 // Full-screen intro overlay — the emaki's "curtain rise" before the scroll
 // begins. Server-rendered with [hidden] so no-JS visitors (and the very
-// first paint before the motion layer runs) never see a stuck modal; a
-// later motion agent checks sessionStorage and removes [hidden] to play
-// the reveal, or leaves it hidden on repeat visits. This file ships no
-// JS of its own — only the static DOM + CSS the motion layer will drive.
+// first paint before the motion layer runs) never see a stuck modal;
+// src/motion/intro.ts checks sessionStorage and removes [hidden] to play
+// the reveal, or leaves it hidden on repeat visits. This file ships no JS
+// of its own — only the static DOM + CSS the motion layer drives.
+//
+// v2 (ART-DIRECTION-LP-V2.md §1, "夜の版元"): 定式幕 (moegi/kaki/sumi tri-
+// color curtain band) is REMOVED — replaced by kon full-screen + the real
+// ōkubi-e print bleeding in from the left + a shu sun disc. See the motion
+// hook inventory at the bottom of this comment for what src/motion/intro.ts
+// still expects vs. what's new for a later motion pass (W7).
+//
+// Motion hooks (unchanged, intro.ts queries these):
+//   [data-intro]       — overlay root ([hidden] toggle, .remove() on finish)
+//   [data-intro-skip]  — skip button (click + focus target)
+//   .intro-message     — SplitText'd by chars, y/opacity reveal tween
+// Motion hooks REMOVED (intro.ts guards for absence, no-op safely):
+//   .intro-curtain-band — 定式幕 band no longer exists in the v2 markup;
+//     `if (band) tl.to(...)` in intro.ts simply skips that tween segment.
+// Motion hooks ADDED for W7 (not yet read by any .ts file — reserved so a
+// later motion pass can choreograph the new art without touching markup):
+//   [data-intro-art]   — the ōkubi-e image wrapper (left panel)
+//   [data-intro-title] — the "JP2FR" wordmark (currently static/visible)
 import { useT } from '../../lib/i18n';
 import type { Locale } from '../../lib/i18n';
 
@@ -28,16 +46,35 @@ const t = useT(locale);
 >
   <div class="intro-grain" aria-hidden="true"></div>
 
-  <p id="intro-message" class="intro-message">{t('lp.intro.message')}</p>
+  {/* Left: the real ōkubi-e (large-head portrait) print, bled into the kon
+     ground on both its right and bottom edges via a double mask-image
+     gradient (AD v2 §1) — never a hard rectangular cut. */}
+  <div data-intro-art class="intro-art" aria-hidden="true">
+    <img src="/img/intro/actor.webp" width="1069" height="1600" alt="" decoding="async" />
+  </div>
+
+  {/* Right: shu sun disc with a 版ズレ-style 1px kin offset ring — the same
+     registration-drift language as Hero's .hero-frame / ConceptSection's
+     .emaki-frame, just gold-on-shu instead of shu-on-kinari. */}
+  <div class="intro-sun" aria-hidden="true"></div>
+
+  <div class="intro-copy">
+    <span class="intro-rule" aria-hidden="true"></span>
+    <div class="intro-copy-text">
+      <p data-intro-title id="intro-title" class="intro-title">JP2FR</p>
+      <p id="intro-message" class="intro-message">{t('lp.intro.message')}</p>
+    </div>
+  </div>
+
+  <div class="intro-scroll" aria-hidden="true">
+    <span class="intro-scroll-line"></span>
+    <span class="intro-scroll-label">{t('lp.hero.scroll')}</span>
+  </div>
 
   {/* Real, functional, focusable control per the brief — not decorative. */}
   <button type="button" data-intro-skip class="intro-skip">
     {t('lp.intro.skip')}
   </button>
-
-  {/* 定式幕 (joshiki-maku) tri-color band — the one place moegi/kaki
-     appear on the whole site (DESIGN.md §1: intro-only). */}
-  <div class="intro-curtain-band" aria-hidden="true"></div>
 </div>
 
 <style>
@@ -45,23 +82,20 @@ const t = useT(locale);
     position: fixed;
     inset: 0;
     z-index: var(--z-overlay);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-8);
-    padding: var(--space-8);
-    background: var(--color-sumi);
-    color: var(--color-kinari);
-    text-align: center;
+    display: grid;
+    grid-template-columns: 40% 1fr;
+    grid-template-rows: 100%;
+    background: var(--color-kon);
+    color: var(--on-dark);
     overflow: hidden;
   }
 
-  /* Washi grain, brighter than the ambient page overlay since it sits on
-     a fully dark ground (DESIGN.md §3: 3–5% band, soft-light). */
+  /* Washi grain, brighter than the ambient page overlay since it sits on a
+     fully dark ground (DESIGN.md §3: 3–5% band, soft-light). */
   .intro-grain {
     position: absolute;
     inset: 0;
+    z-index: 1;
     background-image: url('/textures/washi-grain.svg');
     background-repeat: repeat;
     mix-blend-mode: soft-light;
@@ -69,23 +103,138 @@ const t = useT(locale);
     pointer-events: none;
   }
 
-  .intro-message {
+  /* ── Left: ōkubi-e, feathered into the dark on right + bottom edges ── */
+  .intro-art {
     position: relative;
-    max-width: 44rem;
-    font-family: var(--font-display);
-    font-size: var(--text-2xl);
-    line-height: var(--leading-heading);
+    grid-column: 1;
+    grid-row: 1;
+    height: 100%;
+    width: 100%;
   }
 
-  /* Only default/hover/focus-visible/active meaningfully apply to a
-     dismiss control like this (no loading/error/success state exists for
-     "skip an intro"; disabled is never reachable) — DESIGN.md §5's 8-state
-     rule is honored for the states this control can actually enter. */
-  .intro-skip {
+  .intro-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 20%;
+    /* Double gradient + intersect: fades out toward the right edge AND the
+       bottom edge simultaneously, so no straight cut line is ever visible
+       (AD v2 §1 — non-negotiable). */
+    mask-image:
+      linear-gradient(to right, black 55%, transparent 96%),
+      linear-gradient(to top, black 70%, transparent 100%);
+    mask-composite: intersect;
+    -webkit-mask-image:
+      linear-gradient(to right, black 55%, transparent 96%),
+      linear-gradient(to top, black 70%, transparent 100%);
+    -webkit-mask-composite: source-in;
+  }
+
+  /* ── Shu sun disc, top-right, with a gold registration-drift ring ── */
+  .intro-sun {
+    position: absolute;
+    z-index: 2;
+    top: var(--space-9);
+    right: var(--space-9);
+    width: clamp(120px, 18vw, 260px);
+    height: clamp(120px, 18vw, 260px);
+    border-radius: 50%;
+    background: var(--color-shu);
+  }
+
+  .intro-sun::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid var(--color-kin);
+    translate: 2px 2px;
+  }
+
+  /* ── Center-right: text block ─────────────────────────────────────── */
+  .intro-copy {
     position: relative;
+    z-index: 2;
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--space-7);
+    padding-inline: var(--space-9) var(--space-8);
+  }
+
+  /* 金の割線 — the one place kin appears as a rule, per DESIGN.md's
+     fill/罫-only rule for kin. */
+  .intro-rule {
+    flex: none;
+    align-self: center;
+    width: 1px;
+    height: 40%;
+    background: var(--color-kin);
+  }
+
+  .intro-copy-text {
+    max-width: 34rem;
+  }
+
+  .intro-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-style: normal;
+    font-size: clamp(4.5rem, 11vw, 9.5rem);
+    line-height: 0.95;
+    letter-spacing: 0.02em;
+    color: var(--on-dark);
+  }
+
+  .intro-message {
+    position: relative;
+    margin-top: var(--space-6);
+    max-width: 32rem;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--on-dark-dim);
+  }
+
+  /* ── Bottom-center: scroll hint ────────────────────────────────────── */
+  .intro-scroll {
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    bottom: var(--space-8);
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .intro-scroll-line {
+    width: 1px;
+    height: var(--space-8);
+    background: color-mix(in oklch, var(--on-dark) 40%, transparent);
+  }
+
+  .intro-scroll-label {
+    font-size: var(--text-xs);
+    letter-spacing: 0.14em;
+    color: var(--on-dark-dim);
+  }
+
+  /* Only default/hover/focus-visible/active meaningfully apply to a dismiss
+     control like this (no loading/error/success state exists for "skip an
+     intro"; disabled is never reachable) — DESIGN.md §5's 8-state rule is
+     honored for the states this control can actually enter. */
+  .intro-skip {
+    position: absolute;
+    z-index: 2;
+    right: var(--space-8);
+    bottom: var(--space-8);
     background: transparent;
-    border: 1px solid color-mix(in oklch, var(--color-kinari) 45%, transparent);
-    color: var(--color-kinari);
+    border: 1px solid color-mix(in oklch, var(--on-dark) 45%, transparent);
+    color: var(--on-dark);
     border-radius: var(--radius);
     padding: var(--space-3) var(--space-6);
     font-family: var(--font-body);
@@ -98,8 +247,8 @@ const t = useT(locale);
   }
 
   .intro-skip:hover {
-    border-color: var(--color-asagi);
-    color: var(--color-asagi);
+    border-color: var(--color-kin);
+    color: var(--color-kin);
   }
 
   .intro-skip:focus-visible {
@@ -111,19 +260,70 @@ const t = useT(locale);
     transform: scale(0.96);
   }
 
-  .intro-curtain-band {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: var(--space-6);
-    border-top: 1px solid color-mix(in oklch, var(--color-kinari) 25%, transparent);
-    background: repeating-linear-gradient(
-      90deg,
-      var(--color-sumi) 0 8.333%,
-      var(--color-kaki) 8.333% 16.666%,
-      var(--color-moegi) 16.666% 25%
-    );
+  /* ── Mobile: actor 45vh top, text below, all within 100svh, no scroll ── */
+  @media (max-width: 767px) {
+    .intro-overlay {
+      grid-template-columns: 1fr;
+      grid-template-rows: 45vh 1fr;
+      height: 100svh;
+    }
+
+    .intro-art {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .intro-art img {
+      object-position: 50% 15%;
+      mask-image:
+        linear-gradient(to right, black 70%, transparent 100%),
+        linear-gradient(to top, black 55%, transparent 100%);
+      -webkit-mask-image:
+        linear-gradient(to right, black 70%, transparent 100%),
+        linear-gradient(to top, black 55%, transparent 100%);
+    }
+
+    .intro-sun {
+      top: var(--space-5);
+      right: var(--space-5);
+      width: clamp(80px, 22vw, 140px);
+      height: clamp(80px, 22vw, 140px);
+    }
+
+    .intro-copy {
+      grid-column: 1;
+      grid-row: 2;
+      align-items: flex-start;
+      justify-content: center;
+      padding: var(--space-6) var(--space-6) var(--space-9);
+      gap: var(--space-4);
+    }
+
+    .intro-rule {
+      height: var(--space-9);
+      align-self: flex-start;
+      margin-top: var(--space-2);
+    }
+
+    .intro-title {
+      font-size: 4.5rem;
+      line-height: 0.9;
+    }
+
+    .intro-message {
+      margin-top: var(--space-4);
+      font-size: var(--text-xs);
+    }
+
+    .intro-scroll {
+      bottom: var(--space-6);
+    }
+
+    .intro-skip {
+      right: var(--space-5);
+      bottom: var(--space-5);
+      padding: var(--space-2) var(--space-4);
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

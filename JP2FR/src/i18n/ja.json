@@ -17,7 +17,7 @@
       "skip": "スキップ"
     },
     "hero": {
-      "title": "日本を代表する職人たち",
+      "title": "日本の芸を、あなたの元へ。",
       "subtitle": "心と伝統で創られた日用品",
       "scroll": "探索する"
     },
@@ -90,7 +90,12 @@
     "cgv": "利用規約",
     "tokushoho": "特定商取引法に基づく表示",
     "cookies": "クッキーポリシー",
-    "rights": "無断転載を禁じます。"
+    "rights": "無断転載を禁じます。",
+    "boutique": "ショップ",
+    "aide": "サポート",
+    "a_propos": "私たちについて",
+    "our_story": "私たちの物語",
+    "payment_methods": "お支払い方法"
   },
   "cookie": {
     "title": "クッキーを使用しています",
@@ -128,7 +133,13 @@
     "tabs_description": "説明",
     "tabs_details": "詳細",
     "tabs_shipping": "配送と返品",
-    "quantity": "数量"
+    "quantity": "数量",
+    "label_founder": "作り手",
+    "label_category": "カテゴリー",
+    "label_stock": "在庫状況",
+    "stock_stocked": "在庫あり",
+    "shipping_delivery": "日本からフランス本土へ発送します。お届けまでの目安：[PLACEHOLDER: 3〜5営業日]。",
+    "shipping_returns": "利用規約に定める通り、商品到着後14日間の契約撤回権があります。"
   },
   "lp2": {
     "hero_cta": "商品を見る",

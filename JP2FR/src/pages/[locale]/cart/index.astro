@@ -129,7 +129,7 @@ const copy = confirmCopy[locale];
       <aside class="cart-summary">
         <div class="cart-summary-row">
           <span>{t('cart.subtotal')}</span>
-          <strong data-cart-subtotal>{zeroPrice}</strong>
+          <strong class="price" data-cart-subtotal>{zeroPrice}</strong>
         </div>
         <p class="cart-note">{t('cart.shipping_note')}</p>
         <p class="cart-note">{t('cart.tax_note')}</p>
@@ -153,6 +153,13 @@ const copy = confirmCopy[locale];
         <button type="button" class="btn btn--primary cart-checkout" data-checkout disabled>
           {t('cart.checkout')}
         </button>
+
+        <ul class="payment-chips" aria-hidden="true">
+          <li class="payment-chip">Stripe</li>
+          <li class="payment-chip">Visa</li>
+          <li class="payment-chip">Mastercard</li>
+          <li class="payment-chip">Apple Pay</li>
+        </ul>
       </aside>
     </div>
   </div>
@@ -488,10 +495,63 @@ const copy = confirmCopy[locale];
     background: var(--color-washi);
   }
 
+  /* Checkout CTA — restyled to a dark ink solid (comp「PAYER AVEC STRIPE」)
+     rather than the site's default 藍-ベタ .btn--primary: this is the single
+     highest-commitment action on the page, so it earns a heavier, more
+     final-feeling treatment (uppercase + tracking) than an ordinary primary
+     button. Both sumi (default) and ai (hover) are already-validated dark
+     solids elsewhere in the codebase (badge-sold-out / .btn--primary), so no
+     new fg/bg pair needs measuring here (DESIGN.md §1). is-loading/is-error/
+     is-success keep their own explicit colors from global.css and are
+     unaffected by this override. */
   [data-cart-root] .cart-checkout {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
+    background: var(--color-sumi);
+    border-color: var(--color-sumi);
+    color: var(--color-kinari);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  [data-cart-root] .cart-checkout:hover {
+    background: var(--color-ai);
+    border-color: var(--color-ai);
+  }
+
+  [data-cart-root] .cart-checkout:active {
+    background: var(--color-sumi);
+  }
+
+  /* Payment trust chips — bordered text only, no logo rasters (DESIGN.md §6
+     honesty gate: no faux brand marks). aria-hidden: purely decorative
+     reassurance copy, not a semantically meaningful list for AT users. */
+  [data-cart-root] .payment-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  [data-cart-root] .payment-chip {
+    border: 1px solid oklch(0.24 0.012 270 / 0.25);
+    border-radius: var(--radius);
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--text-xs);
+    color: var(--color-sumi-usu);
+  }
+
+  /* Tabular figures on every money value emitted by CartPage.ts (unit
+     price / line total) — those rows are built client-side with fixed
+     classNames (see that file's header "Emitted row markup" contract),
+     so this selector applies the same DESIGN.md §2 rule the `.price`
+     utility gives server-rendered prices, without touching that island. */
+  [data-cart-root] .cart-row__unit-price,
+  [data-cart-root] .cart-row__line-total {
+    font-variant-numeric: tabular-nums lining-nums;
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -1,74 +1,172 @@
 ---
 // critique: P4 H4 E4 S4 R4 V4
 //
-// Featured products grid: 4 published, in-stock items. Reuses the shared
-// .btn utility (global.css) for the CTA so the 8-state contract (§5) is
-// inherited rather than re-implemented.
-import type { CollectionEntry } from 'astro:content';
+// Categories grid — dark-zone rewrite of the old 4-featured-product grid
+// per docs/ART-DIRECTION-LP-V2.md §4-7. Kept as ProductsSection.astro (file
+// name is this worker's exclusive-ownership contract) even though it now
+// renders the 5 catalog categories rather than individual products; the
+// per-category representative-product lookup lives in LandingPage.astro
+// (this file only renders whatever {category, image, name} array it's
+// given — no content-collection reads here).
 import { useT } from '../../lib/i18n';
 import type { Locale } from '../../lib/i18n';
 import { localePath } from '../../lib/routes';
-import ProductCard from '../ProductCard.astro';
+
+export interface CategoryCard {
+  category: string;
+  image: string;
+  name: string;
+}
 
 export interface Props {
   locale: Locale;
-  products: CollectionEntry<'products'>['data'][];
-  founderNames: Record<string, string>;
+  categories: CategoryCard[];
 }
 
-const { locale, products, founderNames } = Astro.props;
+const { locale, categories } = Astro.props;
 const t = useT(locale);
-const ctaHref = localePath(locale, '/products/');
+const productsHref = localePath(locale, '/products/');
 ---
 
-<section data-products class="products">
-  <div class="products-head">
-    <p class="kicker">{t('lp.products.kicker')}</p>
-    <h2>{t('lp.products.title')}</h2>
+<section data-categories class="categories">
+  <div class="categories-head">
+    <p class="kicker-dark">{t('lp2.categories_kicker')}</p>
+    <h2 class="categories-title">{t('lp2.categories_title')}</h2>
   </div>
 
-  <div class="products-grid">
+  <div class="categories-grid">
     {
-      products.map((product) => (
-        <div data-stagger-item>
-          <ProductCard product={product} founderName={founderNames[product.founder] ?? ''} locale={locale} />
-        </div>
+      categories.map((entry) => (
+        <a href={`${productsHref}?cat=${entry.category}`} class="category-card" data-stagger-item>
+          <span class="category-media">
+            {entry.image && (
+              <img src={entry.image} width="480" height="360" alt={entry.name} loading="lazy" decoding="async" />
+            )}
+          </span>
+          <span class="category-band">{t(`categories.${entry.category}`)}</span>
+        </a>
       ))
     }
-  </div>
-
-  <div class="products-cta-row">
-    <a href={ctaHref} class="btn btn--secondary">
-      {t('lp.products.cta')}
-    </a>
   </div>
 </section>
 
 <style>
-  .products {
+  .categories {
     padding-block: var(--space-12);
   }
 
-  .products-head,
-  .products-grid,
-  .products-cta-row {
+  .categories-head,
+  .categories-grid {
     max-width: var(--container-max);
     margin-inline: auto;
     padding-inline: var(--space-5);
   }
 
-  .products-head {
+  .categories-head {
     margin-bottom: var(--space-8);
   }
 
-  .products-grid {
+  /* Dark-zone kicker — see FoundersSection.astro's identical block for why
+     this ~12-line rule is duplicated here rather than lifted into the
+     shared global.css (both files are this worker's own; global.css isn't,
+     mid-parallel-build). */
+  .kicker-dark {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-kin);
+  }
+
+  .kicker-dark::before {
+    content: '';
+    display: inline-block;
+    width: var(--space-4);
+    height: 1px;
+    background: var(--color-kin);
+  }
+
+  .categories-title {
+    margin-top: var(--space-4);
+    font-size: clamp(2rem, 4.5vw, var(--text-2xl));
+    color: var(--on-dark);
+  }
+
+  .categories-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
     gap: var(--space-6);
   }
 
-  .products-cta-row {
-    margin-top: var(--space-8);
-    text-align: center;
+  .category-card {
+    display: block;
+    overflow: hidden;
+    background: var(--surface-dark-raised);
+    border: 1px solid color-mix(in oklch, var(--color-kinari) 12%, transparent);
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: inherit;
+    transition: transform var(--duration-ui) var(--ease-mie);
+  }
+
+  .category-card:hover,
+  .category-card:focus-visible {
+    transform: translateY(-2px);
+  }
+
+  .category-card:focus-visible {
+    outline: 2px solid var(--color-shu);
+    outline-offset: 3px;
+  }
+
+  .category-card:active {
+    transform: translateY(0);
+  }
+
+  .category-media {
+    display: block;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--surface-dark);
+  }
+
+  .category-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Slightly desaturated on dark per AD §4-7, so the representative
+       product photo doesn't compete in saturation with the surrounding
+       night palette. */
+    filter: saturate(0.85);
+  }
+
+  .category-band {
+    display: block;
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface-dark-raised);
+    color: var(--on-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: var(--text-sm);
+    border-top: 1px solid transparent;
+    transition:
+      background-color var(--duration-ui) var(--ease-mie),
+      border-color var(--duration-ui) var(--ease-mie);
+  }
+
+  .category-card:hover .category-band,
+  .category-card:focus-visible .category-band {
+    background: var(--surface-dark-high);
+    border-top-color: var(--color-kin);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .category-card,
+    .category-band {
+      transition: none;
+    }
   }
 </style>

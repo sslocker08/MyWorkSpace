@@ -1,9 +1,9 @@
 ---
-// critique: P4 H4 E4 S4 R4 V3
+// critique: P4 H4 E4 S4 R3 V4
 import { getCollection } from 'astro:content';
 import Base from '../../../layouts/Base.astro';
 import FounderCard from '../../../components/FounderCard.astro';
-import { useT, locales, type Locale } from '../../../lib/i18n';
+import { useT, loadCatalog, locales, type Locale } from '../../../lib/i18n';
 import { localePath } from '../../../lib/routes';
 
 export function getStaticPaths() {
@@ -19,6 +19,52 @@ const founders = allFounders
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order);
 
+const CRAFTS = ['ceramique', 'textile', 'illustration', 'objets', 'mode'] as const;
+
+// Server-side ICU-lite extraction for the client filter island (see
+// src/islands/FilterChips.ts header): normalizes every locale's
+// filters.results string down to a `{one, other}` pair where '#' is always
+// the count placeholder. fr/en carry a real "{count, plural, one{}
+// other{}}" block; ja's "{count}件" has no plural distinction at all, so it
+// collapses to the same normalized string for both clauses (Intl.PluralRules
+// for 'ja' always selects 'other' anyway, so the two texts are identical in
+// order to remain correct either way).
+function pluralTemplates(raw: string): { one: string; other: string } {
+  const head = /\{count,\s*plural,\s*/.exec(raw);
+  if (!head) {
+    const normalized = raw.replace(/\{count\}/g, '#');
+    return { one: normalized, other: normalized };
+  }
+  const clauses: Record<string, string> = {};
+  let i = head.index + head[0].length;
+  while (i < raw.length) {
+    while (i < raw.length && /\s/.test(raw[i] ?? '')) i++;
+    if (raw[i] === '}') break;
+    const selectorMatch = /^(\w+)/.exec(raw.slice(i));
+    if (!selectorMatch) break;
+    const selector = selectorMatch[0];
+    i += selector.length;
+    while (i < raw.length && /\s/.test(raw[i] ?? '')) i++;
+    if (raw[i] !== '{') break;
+    i++;
+    const start = i;
+    let depth = 1;
+    while (i < raw.length && depth > 0) {
+      if (raw[i] === '{') depth++;
+      else if (raw[i] === '}') depth--;
+      if (depth > 0) i++;
+    }
+    clauses[selector] = raw.slice(start, i);
+    i++;
+  }
+  return { one: clauses.one ?? clauses.other ?? '', other: clauses.other ?? clauses.one ?? '' };
+}
+
+const catalog = loadCatalog(locale) as unknown as { filters: { results: string } };
+const resultsTemplates = pluralTemplates(catalog.filters.results);
+const initialCountText = t('filters.results', { count: founders.length });
+const emptyMessage = t('filters.results', { count: 0 });
+
 const breadcrumbs = [
   { label: t('nav.home'), href: localePath(locale, '/') },
   { label: t('founders.title') },
@@ -32,10 +78,46 @@ const breadcrumbs = [
     <p class="lead">{t('lp.founders.title')}</p>
   </header>
 
-  <div class="founder-grid">
-    {founders.map((founder) => <FounderCard founder={founder} locale={locale} />)}
+  <div class="filter-section" data-filter-root data-filter-attr="craft">
+    <div class="filter-chips" data-filter-chips>
+      <button type="button" class="chip" data-filter-chip data-filter-value="all" aria-pressed="true">
+        {t('categories.all')}
+      </button>
+      {
+        CRAFTS.map((craft) => (
+          <button type="button" class="chip" data-filter-chip data-filter-value={craft} aria-pressed="false">
+            {t(`categories.${craft}`)}
+          </button>
+        ))
+      }
+    </div>
+
+    <p
+      class="filter-count"
+      data-filter-count
+      aria-live="polite"
+      data-template-one={resultsTemplates.one}
+      data-template-other={resultsTemplates.other}
+    >
+      {initialCountText}
+    </p>
+
+    <div class="founder-grid" data-filter-grid>
+      {founders.map((founder) => <FounderCard founder={founder} locale={locale} duotone />)}
+    </div>
+
+    <div class="filter-empty" data-filter-empty hidden>
+      <p>{emptyMessage}</p>
+      <button type="button" class="btn btn--secondary" data-filter-clear>
+        {t('filters.clear')}
+      </button>
+    </div>
   </div>
 </Base>
+
+<script>
+  import '../../../islands/FilterChips';
+</script>
 
 <style>
   .page-header {
@@ -56,12 +138,93 @@ const breadcrumbs = [
     color: var(--color-sumi-usu);
   }
 
-  .founder-grid {
+  .filter-section {
     max-width: var(--container-max);
     margin-inline: auto;
     padding: 0 var(--space-5) var(--space-11);
+  }
+
+  /* Chip row — pill buttons, 版画の版ズレ無し (this is a control, not a
+     hover-signature surface — §3 reserves misregistration for founder cards
+     and the signature heading). 8-state coverage: default / hover /
+     :focus-visible / :active / disabled below; chips have no async
+     loading/error/success phase (instant client-side filter), so those 3
+     states are intentionally not implemented here — a deliberate scope call
+     rather than an oversight. */
+  .filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: var(--radius);
+    border: 1px solid oklch(0.24 0.012 270 / 0.25);
+    background: var(--color-washi);
+    color: var(--color-sumi);
+    padding: var(--space-2) var(--space-4);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    transition:
+      background-color var(--duration-ui-fast) var(--ease-mie),
+      border-color var(--duration-ui-fast) var(--ease-mie),
+      color var(--duration-ui-fast) var(--ease-mie),
+      transform var(--duration-ui-fast) var(--ease-mie);
+  }
+
+  .chip:hover {
+    border-color: var(--color-ai);
+    color: var(--color-ai);
+  }
+
+  .chip:active {
+    transform: translateY(1px) scale(0.98);
+  }
+
+  .chip:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .chip.is-active {
+    background: var(--color-ai);
+    border-color: var(--color-ai);
+    color: var(--color-kinari);
+  }
+
+  .filter-count {
+    font-size: var(--text-sm);
+    color: var(--color-sumi-usu);
+    margin-bottom: var(--space-6);
+  }
+
+  .founder-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
     gap: var(--space-6);
+  }
+
+  .filter-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-4);
+    padding: var(--space-11) var(--space-5);
+    border: var(--border-hairline);
+    border-radius: var(--radius);
+    background: var(--color-washi);
+    box-shadow: var(--shadow-paper);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chip {
+      transition: none;
+    }
   }
 </style>

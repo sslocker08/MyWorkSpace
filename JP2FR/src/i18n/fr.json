@@ -17,7 +17,7 @@
       "skip": "Passer l'introduction"
     },
     "hero": {
-      "title": "Les maîtres artisans du Japon",
+      "title": "L'art du Japon, chez vous.",
       "subtitle": "Objets du quotidien, faits avec cœur et tradition",
       "scroll": "Parcourir"
     },
@@ -90,7 +90,12 @@
     "cgv": "Conditions générales de vente",
     "tokushoho": "Loi spéciale (Japon)",
     "cookies": "Politique relative aux cookies",
-    "rights": "Tous droits réservés."
+    "rights": "Tous droits réservés.",
+    "boutique": "Boutique",
+    "aide": "Aide",
+    "a_propos": "À propos",
+    "our_story": "Notre histoire",
+    "payment_methods": "Moyens de paiement"
   },
   "cookie": {
     "title": "Nous utilisons des cookies",
@@ -128,7 +133,13 @@
     "tabs_description": "Description",
     "tabs_details": "Détails",
     "tabs_shipping": "Livraison & Retours",
-    "quantity": "Quantité"
+    "quantity": "Quantité",
+    "label_founder": "Artisan",
+    "label_category": "Catégorie",
+    "label_stock": "Disponibilité",
+    "stock_stocked": "En stock",
+    "shipping_delivery": "Expédié depuis le Japon vers la France métropolitaine. Délai estimé : [PLACEHOLDER: 3–5 jours ouvrés].",
+    "shipping_returns": "Droit de rétractation de 14 jours à compter de la réception, conformément à nos conditions générales de vente."
   },
   "lp2": {
     "hero_cta": "Découvrir les produits",

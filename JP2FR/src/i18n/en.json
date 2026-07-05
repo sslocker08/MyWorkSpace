@@ -17,7 +17,7 @@
       "skip": "Skip intro"
     },
     "hero": {
-      "title": "Japan's master artisans",
+      "title": "The art of Japan, at home.",
       "subtitle": "Daily objects, made with heart and tradition",
       "scroll": "Explore"
     },
@@ -90,7 +90,12 @@
     "cgv": "Terms and conditions",
     "tokushoho": "Special law (Japan)",
     "cookies": "Cookie policy",
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "boutique": "Shop",
+    "aide": "Help",
+    "a_propos": "About",
+    "our_story": "Our story",
+    "payment_methods": "Payment methods"
   },
   "cookie": {
     "title": "We use cookies",
@@ -128,7 +133,13 @@
     "tabs_description": "Description",
     "tabs_details": "Details",
     "tabs_shipping": "Shipping & Returns",
-    "quantity": "Quantity"
+    "quantity": "Quantity",
+    "label_founder": "Founder",
+    "label_category": "Category",
+    "label_stock": "Availability",
+    "stock_stocked": "In stock",
+    "shipping_delivery": "Shipped from Japan to metropolitan France. Estimated delivery: [PLACEHOLDER: 3–5 business days].",
+    "shipping_returns": "You have a 14-day right of withdrawal from receipt, per our terms and conditions."
   },
   "lp2": {
     "hero_cta": "Discover the products",

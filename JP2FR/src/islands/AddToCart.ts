@@ -14,13 +14,19 @@
 //   data-label-in-cart      label to show when a unique item is clicked again
 //                            while already in the cart (falls back to
 //                            data-label-added, then the default text)
+//   data-qty-input          optional id of a sibling `<input type=number>`
+//                            (the product-detail quantity stepper) whose
+//                            value (clamped 1-9, defaults to 1) is added on
+//                            top of whatever is already in the cart --
+//                            never applies to unique items, which always
+//                            add exactly 1 regardless of this attribute.
 //
 // State machine per button: default -> loading (>=300ms, disabled) ->
 // success (label swapped to data-label-added / data-label-in-cart, 1.5s) or
 // error (label reverts, 1.5s) -> back to default. Sold-out buttons are
 // disabled up front and never bound to a click handler.
 
-import { addToCart, cartItems } from '../lib/cart';
+import { addToCart, cartItems, setQty } from '../lib/cart';
 
 const SELECTOR = '[data-add-to-cart]';
 const BOUND_ATTR = 'data-atc-bound';
@@ -69,8 +75,18 @@ function bind(btn: HTMLButtonElement): void {
       try {
         if (alreadyInCart) {
           nextLabel = inCartLabel;
-        } else {
+        } else if (unique) {
           addToCart(slug, { unique });
+          nextLabel = addedLabel;
+        } else {
+          const qtyInputId = btn.getAttribute('data-qty-input');
+          const qtyInput = qtyInputId ? document.getElementById(qtyInputId) : null;
+          const requestedQty =
+            qtyInput instanceof HTMLInputElement
+              ? Math.max(1, Math.min(9, Number.parseInt(qtyInput.value, 10) || 1))
+              : 1;
+          const existingQty = cartItems.get()[slug] ?? 0;
+          setQty(slug, existingQty + requestedQty);
           nextLabel = addedLabel;
         }
       } catch (err) {

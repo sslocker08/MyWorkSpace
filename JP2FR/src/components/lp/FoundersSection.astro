@@ -1,18 +1,24 @@
 ---
 // critique: P4 H4 E4 S4 R4 V4
 //
-// Founders rail: a horizontal row of the first 6 published founders
-// (sorted by their unique 1-15 `order` rank). Ships as a plain
-// overflow-x:auto + scroll-snap rail — works with zero JS, contained to
-// its own row (DESIGN.md §5 "no horizontal scroll" is a page-level rule;
-// a deliberately contained rail is the documented exception). The motion
-// layer later upgrades this to a pinned scrub on desktop by reading the
-// same [data-rail]/[data-rail-track] hooks.
+// Founders carousel — dark-zone (夜の座敷) rewrite of the old rail per
+// docs/ART-DIRECTION-LP-V2.md §4-7. Ships an accessible baseline first:
+// [data-carousel-track] is a plain flex + scroll-snap-x + overflow-x:auto
+// row, so mouse/trackpad/touch/native keyboard scroll all work with zero
+// JS. src/islands/Carousel.ts (new) is pure progressive enhancement on top
+// (arrow-button scroll-by-one-card + disabled-at-ends state).
+//
+// The old pinned horizontal-scrub upgrade in motion/foundersRail.ts (and
+// the mobile stagger in motion/stagger.ts) targeted
+// [data-founders-rail]/[data-rail]/[data-rail-track]/.rail-item — none of
+// those hooks exist in this markup anymore (replaced by the [data-carousel]
+// contract below), so those two motion functions are now no-ops (their
+// querySelector/toArray guards return early / find nothing) until W7
+// repoints them at the new hooks. Not this worker's file to edit.
 import type { CollectionEntry } from 'astro:content';
 import { useT } from '../../lib/i18n';
 import type { Locale } from '../../lib/i18n';
 import { localePath } from '../../lib/routes';
-import FounderCard from '../FounderCard.astro';
 
 export interface Props {
   locale: Locale;
@@ -22,43 +28,136 @@ export interface Props {
 const { locale, founders } = Astro.props;
 const t = useT(locale);
 const ctaHref = localePath(locale, '/founders/');
+const headingId = 'founders-carousel-heading';
+
+// portrait-duo.webp is the 藍デュオトーン variant used for every grid/rail/
+// carousel portrait (DESIGN.md §3 v2 "15ポートレートの統一"); founder.portrait
+// always points at the plain portrait.webp, so swap the filename rather than
+// requiring a second content field per founder.
+function duoPortrait(portrait: string): string {
+  return portrait.replace(/portrait\.webp$/, 'portrait-duo.webp');
+}
+
+// No dedicated a11y.* catalog keys exist for carousel prev/next yet (checked
+// src/i18n/*.json) and these two strings are only used here, so they're
+// hardcoded per-locale rather than growing the shared catalog for a single
+// component's two labels (per this worker's brief: "aria-labels from a11y
+// keys or hardcode aria-label={locale-appropriate}").
+const arrowLabels: Record<Locale, { prev: string; next: string }> = {
+  fr: { prev: 'Artisan précédent', next: 'Artisan suivant' },
+  en: { prev: 'Previous founder', next: 'Next founder' },
+  ja: { prev: '前の職人', next: '次の職人' },
+};
+const labels = arrowLabels[locale];
 ---
 
-<section data-founders-rail class="founders-rail">
-  <div class="founders-rail-head">
-    <p class="kicker">{t('lp.founders.kicker')}</p>
-    <h2>{t('lp.founders.title')}</h2>
+<section data-founders-section class="founders">
+  <div class="founders-head">
+    <p class="kicker-dark">{t('lp.founders.kicker')}</p>
+    <h2 id={headingId} class="founders-title">{t('lp2.founders_meet')}</h2>
   </div>
 
-  <div data-rail class="rail">
-    <div data-rail-track class="rail-track">
+  {/* APG carousel pattern: region + aria-labelledby on the section heading,
+      each slide a group with a roledescription + position label. */}
+  <div data-carousel class="carousel" role="region" aria-roledescription="carousel" aria-labelledby={headingId}>
+    <div data-carousel-track class="carousel-track" tabindex="0">
       {
-        founders.map((founder) => (
-          <div class="rail-item">
-            <FounderCard founder={founder} locale={locale} />
-          </div>
-        ))
+        founders.map((founder, index) => {
+          const href = localePath(locale, `/founders/${founder.slug}/`);
+          return (
+            <div
+              class="carousel-slide"
+              role="group"
+              aria-roledescription="slide"
+              aria-label={`${index + 1} / ${founders.length}`}
+            >
+              <a href={href} class="founder-tile">
+                <span class="founder-portrait">
+                  <img src={duoPortrait(founder.portrait)} width="480" height="480" alt="" loading="lazy" decoding="async" />
+                </span>
+                <span class="founder-tile-copy">
+                  <span class="founder-tile-name">{founder.name[locale]}</span>
+                  <span class="founder-tile-meta">
+                    {founder.title[locale]} — {founder.region[locale]}
+                  </span>
+                </span>
+              </a>
+            </div>
+          );
+        })
       }
-      <a href={ctaHref} class="rail-item rail-cta">
-        <span>{t('lp.founders.cta')}</span>
-      </a>
     </div>
+
+    <div class="carousel-controls">
+      <button type="button" data-carousel-prev class="carousel-arrow" aria-label={labels.prev}>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 6l-6 6 6 6" />
+        </svg>
+      </button>
+      <button type="button" data-carousel-next class="carousel-arrow" aria-label={labels.next}>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M10 6l6 6-6 6" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="founders-cta-row">
+    <a href={ctaHref} class="btn-outline-dark">{t('lp.founders.cta')}</a>
   </div>
 </section>
 
+<script>
+  import '../../islands/Carousel';
+</script>
+
 <style>
-  .founders-rail {
+  .founders {
     padding-block: var(--space-12);
   }
 
-  .founders-rail-head {
+  .founders-head {
     max-width: var(--container-max);
     margin-inline: auto;
     padding-inline: var(--space-5);
     margin-bottom: var(--space-8);
   }
 
-  .rail {
+  /* Dark-zone kicker: 金 is only allowed at "large type / rule line" scale
+     (DESIGN.md §1 "金・朱を小さな本文/マイクロラベルに使わない") — text-lg,
+     never body size. Duplicated (not shared via global.css) in both this
+     file and ProductsSection.astro on purpose: both are this worker's own
+     files and global.css is a cross-worker shared file mid-parallel-build,
+     so a small (~12-line) intentional duplication here avoids a merge
+     conflict there for a rule that only these two dark-zone kickers use. */
+  .kicker-dark {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-kin);
+  }
+
+  .kicker-dark::before {
+    content: '';
+    display: inline-block;
+    width: var(--space-4);
+    height: 1px;
+    background: var(--color-kin);
+  }
+
+  .founders-title {
+    margin-top: var(--space-4);
+    font-size: clamp(2rem, 4.5vw, var(--text-2xl));
+    color: var(--on-dark);
+  }
+
+  .carousel-track {
+    display: flex;
+    gap: var(--space-5);
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     padding-inline: var(--space-5);
@@ -67,51 +166,207 @@ const ctaHref = localePath(locale, '/founders/');
        (global.css), so this never widens the viewport (DESIGN.md §5). */
   }
 
-  .rail-track {
-    display: flex;
-    gap: var(--space-5);
-    width: max-content;
-  }
-
-  .rail-item {
+  .carousel-slide {
     flex: 0 0 clamp(14rem, 40vw, 18rem);
     scroll-snap-align: start;
   }
 
-  .rail-cta {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    background: var(--color-washi);
-    border: var(--border-hairline);
+  .founder-tile {
+    display: block;
+    height: 100%;
+    background: var(--surface-dark-raised);
+    border: 1px solid color-mix(in oklch, var(--color-kinari) 12%, transparent);
     border-radius: var(--radius);
-    color: var(--color-ai);
     text-decoration: none;
-    font-family: var(--font-display);
-    font-size: var(--text-lg);
+    color: inherit;
     padding: var(--space-4);
-    transition:
-      transform var(--duration-ui) var(--ease-mie),
-      color var(--duration-ui) var(--ease-mie);
+    transition: background-color var(--duration-ui) var(--ease-mie);
   }
 
-  .rail-cta:hover {
-    color: var(--color-asagi);
-    transform: translateY(-2px);
+  .founder-tile:hover,
+  .founder-tile:focus-visible {
+    background: var(--surface-dark-high);
   }
 
-  .rail-cta:focus-visible {
+  .founder-tile:focus-visible {
     outline: 2px solid var(--color-shu);
     outline-offset: 3px;
   }
 
-  .rail-cta:active {
-    transform: translateY(0);
+  .founder-tile:active {
+    transform: translateY(1px);
+  }
+
+  .founder-portrait {
+    position: relative;
+    display: block;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: var(--radius);
+  }
+
+  .founder-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* 版ズレ (misregistration), dark-zone pair per DESIGN.md §3 v2: "暗ゾーン=
+     生成り・金のオフセット" — a thin 1-2px offset line (not a color-wash
+     block; see FounderCard.astro's own comment for why a block-fill isn't
+     used here either). Restrained to this hover per §3 ("乱用禁止... カード
+     hover と署名見出しのみ"). */
+  .founder-portrait::before,
+  .founder-portrait::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid transparent;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity var(--duration-ui) var(--ease-mie),
+      transform var(--duration-ui) var(--ease-mie);
+  }
+
+  .founder-portrait::before {
+    border-color: var(--color-kinari);
+    transform: translate(-1px, -1px);
+  }
+
+  .founder-portrait::after {
+    border-color: var(--color-kin);
+    transform: translate(1px, 1px);
+  }
+
+  .founder-tile:hover .founder-portrait::before,
+  .founder-tile:focus-visible .founder-portrait::before {
+    opacity: 0.7;
+    transform: translate(-2px, -2px);
+  }
+
+  .founder-tile:hover .founder-portrait::after,
+  .founder-tile:focus-visible .founder-portrait::after {
+    opacity: 0.7;
+    transform: translate(2px, 2px);
+  }
+
+  .founder-tile-copy {
+    display: block;
+    margin-top: var(--space-4);
+  }
+
+  .founder-tile-name {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    color: var(--on-dark);
+  }
+
+  .founder-tile-meta {
+    display: block;
+    margin-top: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--on-dark-dim);
+  }
+
+  .carousel-controls {
+    margin-top: var(--space-6);
+    display: flex;
+    justify-content: center;
+    gap: var(--space-4);
+  }
+
+  /* Arrow buttons: 44px circle, kinari 1px border (DESIGN.md AD §4-7).
+     default / hover / focus-visible / active / disabled are the 5
+     meaningfully-real states for a synchronous scroll control — loading/
+     error/success from DESIGN.md §5's 8-state list don't apply (there's no
+     async operation to represent), the same kind of documented exception
+     global.css's .btn comment already makes for registration-drift. */
+  .carousel-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--color-kinari);
+    background: transparent;
+    color: var(--color-kinari);
+    cursor: pointer;
+    transition:
+      background-color var(--duration-ui) var(--ease-mie),
+      opacity var(--duration-ui) var(--ease-mie),
+      transform var(--duration-ui-fast) var(--ease-mie);
+  }
+
+  .carousel-arrow:hover {
+    background: color-mix(in oklch, var(--color-kinari) 12%, transparent);
+  }
+
+  .carousel-arrow:focus-visible {
+    outline: 2px solid var(--color-shu);
+    outline-offset: 3px;
+  }
+
+  .carousel-arrow:active {
+    transform: scale(0.94);
+  }
+
+  .carousel-arrow:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .founders-cta-row {
+    margin-top: var(--space-8);
+    padding-inline: var(--space-5);
+    text-align: center;
+  }
+
+  /* Kinari outline button — dark-zone secondary CTA (AD §4-7 "kinari outline
+     button"). Plain nav link, so only the 4 states a link genuinely has
+     (default/hover/focus-visible/active) are implemented — same precedent
+     as the site's other CTA links (e.g. this file's previous .rail-cta). */
+  .btn-outline-dark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-kinari);
+    border-radius: var(--radius);
+    padding: var(--space-3) var(--space-6);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: var(--on-dark);
+    text-decoration: none;
+    background: transparent;
+    transition:
+      background-color var(--duration-ui) var(--ease-mie),
+      color var(--duration-ui) var(--ease-mie),
+      transform var(--duration-ui-fast) var(--ease-mie);
+  }
+
+  .btn-outline-dark:hover {
+    background: var(--color-kinari);
+    color: var(--color-kon);
+  }
+
+  .btn-outline-dark:focus-visible {
+    outline: 2px solid var(--color-shu);
+    outline-offset: 3px;
+  }
+
+  .btn-outline-dark:active {
+    transform: translateY(1px);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .rail-cta {
+    .founder-tile,
+    .founder-portrait::before,
+    .founder-portrait::after,
+    .carousel-arrow,
+    .btn-outline-dark {
       transition: none;
     }
   }
