@@ -1,0 +1,68 @@
+---
+// critique: P4 H4 E4 S4 R4 V4
+//
+// LP orchestrator — one continuous emaki scroll: intro overlay, hero,
+// concept, founders rail, products, sns, each seam a KasumiDivider
+// (alternating flip) instead of a straight border (DESIGN.md §0).
+import { getCollection } from 'astro:content';
+import type { Locale } from '../../lib/i18n';
+import KasumiDivider from '../KasumiDivider.astro';
+import IntroOverlay from './IntroOverlay.astro';
+import Hero from './Hero.astro';
+import ConceptSection from './ConceptSection.astro';
+import FoundersSection from './FoundersSection.astro';
+import ProductsSection from './ProductsSection.astro';
+import SnsSection from './SnsSection.astro';
+
+export interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+
+// Founders rail: published only, first 6 by `order`. Verified against
+// content/founders/*.json — `order` is a single unique 1-15 rank across
+// all 15 founders (not per-region), so a plain ascending sort is a safe,
+// deterministic choice for "first 6" here.
+const publishedFounders = await getCollection('founders', ({ data }) => data.published);
+const sortedFounders = publishedFounders.map((entry) => entry.data).sort((a, b) => a.order - b.order);
+const railFounders = sortedFounders.slice(0, 6);
+
+// Name lookup for ProductCard's founderName prop, covering every
+// published founder (not just the 6 shown in the rail — a featured
+// product can belong to any of the 15).
+const founderNameBySlug: Record<string, string> = Object.fromEntries(
+  publishedFounders.map((entry) => [entry.data.slug, entry.data.name[locale]]),
+);
+
+// Featured products: published + not sold out ("in stock", read literally
+// rather than as the stock.kind==='stocked' enum value — a one-of-a-kind
+// "unique" piece that's still available is exactly the kind of thing a
+// homepage should be allowed to feature). Verified against
+// content/products/*.json that `order` is only unique *within* a single
+// founder's own catalog (many entries share order:1 across founders), so
+// it cannot serve as a global rank on its own; slug is added as a
+// deterministic tiebreaker so this selection doesn't depend on
+// filesystem/glob iteration order.
+const availableProducts = await getCollection('products', ({ data }) => data.published && !data.stock.soldOut);
+const featuredProducts = availableProducts
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order || a.slug.localeCompare(b.slug))
+  .slice(0, 4);
+---
+
+<IntroOverlay locale={locale} />
+
+<Hero locale={locale} />
+<KasumiDivider />
+
+<ConceptSection locale={locale} />
+<KasumiDivider flip />
+
+<FoundersSection locale={locale} founders={railFounders} />
+<KasumiDivider />
+
+<ProductsSection locale={locale} products={featuredProducts} founderNames={founderNameBySlug} />
+<KasumiDivider flip />
+
+<SnsSection locale={locale} />

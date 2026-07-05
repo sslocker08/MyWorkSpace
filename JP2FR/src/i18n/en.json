@@ -45,16 +45,19 @@
   "founders": {
     "title": "Our founders",
     "breadcrumb": "Founders",
-    "products_by": "Works by",
+    "products_by": "Works by {name}",
     "back": "Back to founders"
   },
   "products": {
     "title": "Products",
     "breadcrumb": "Products",
-    "by": "by",
+    "by": "by {name}",
     "materials": "Materials",
     "soldOut": "Sold out",
-    "unique": "One-of-a-kind"
+    "unique": "One-of-a-kind",
+    "addToCart": "Add to cart",
+    "added": "Added to cart",
+    "inCart": "Already in cart"
   },
   "cart": {
     "title": "Your cart",

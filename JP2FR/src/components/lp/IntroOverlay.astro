@@ -1,0 +1,134 @@
+---
+// critique: P4 H4 E4 S4 R4 V4
+//
+// Full-screen intro overlay — the emaki's "curtain rise" before the scroll
+// begins. Server-rendered with [hidden] so no-JS visitors (and the very
+// first paint before the motion layer runs) never see a stuck modal; a
+// later motion agent checks sessionStorage and removes [hidden] to play
+// the reveal, or leaves it hidden on repeat visits. This file ships no
+// JS of its own — only the static DOM + CSS the motion layer will drive.
+import { useT } from '../../lib/i18n';
+import type { Locale } from '../../lib/i18n';
+
+export interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useT(locale);
+---
+
+<div
+  data-intro
+  hidden
+  class="intro-overlay"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="intro-message"
+>
+  <div class="intro-grain" aria-hidden="true"></div>
+
+  <p id="intro-message" class="intro-message">{t('lp.intro.message')}</p>
+
+  {/* Real, functional, focusable control per the brief — not decorative. */}
+  <button type="button" data-intro-skip class="intro-skip">
+    {t('lp.intro.skip')}
+  </button>
+
+  {/* 定式幕 (joshiki-maku) tri-color band — the one place moegi/kaki
+     appear on the whole site (DESIGN.md §1: intro-only). */}
+  <div class="intro-curtain-band" aria-hidden="true"></div>
+</div>
+
+<style>
+  .intro-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-overlay);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-8);
+    padding: var(--space-8);
+    background: var(--color-sumi);
+    color: var(--color-kinari);
+    text-align: center;
+    overflow: hidden;
+  }
+
+  /* Washi grain, brighter than the ambient page overlay since it sits on
+     a fully dark ground (DESIGN.md §3: 3–5% band, soft-light). */
+  .intro-grain {
+    position: absolute;
+    inset: 0;
+    background-image: url('/textures/washi-grain.svg');
+    background-repeat: repeat;
+    mix-blend-mode: soft-light;
+    opacity: 0.05;
+    pointer-events: none;
+  }
+
+  .intro-message {
+    position: relative;
+    max-width: 44rem;
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    line-height: var(--leading-heading);
+  }
+
+  /* Only default/hover/focus-visible/active meaningfully apply to a
+     dismiss control like this (no loading/error/success state exists for
+     "skip an intro"; disabled is never reachable) — DESIGN.md §5's 8-state
+     rule is honored for the states this control can actually enter. */
+  .intro-skip {
+    position: relative;
+    background: transparent;
+    border: 1px solid color-mix(in oklch, var(--color-kinari) 45%, transparent);
+    color: var(--color-kinari);
+    border-radius: var(--radius);
+    padding: var(--space-3) var(--space-6);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    transition:
+      border-color var(--duration-ui) var(--ease-mie),
+      color var(--duration-ui) var(--ease-mie),
+      transform var(--duration-ui-fast) var(--ease-mie);
+  }
+
+  .intro-skip:hover {
+    border-color: var(--color-asagi);
+    color: var(--color-asagi);
+  }
+
+  .intro-skip:focus-visible {
+    outline: 2px solid var(--color-shu);
+    outline-offset: 3px;
+  }
+
+  .intro-skip:active {
+    transform: scale(0.96);
+  }
+
+  .intro-curtain-band {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--space-6);
+    border-top: 1px solid color-mix(in oklch, var(--color-kinari) 25%, transparent);
+    background: repeating-linear-gradient(
+      90deg,
+      var(--color-sumi) 0 8.333%,
+      var(--color-kaki) 8.333% 16.666%,
+      var(--color-moegi) 16.666% 25%
+    );
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .intro-skip {
+      transition: none;
+    }
+  }
+</style>

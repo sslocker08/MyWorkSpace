@@ -1,0 +1,234 @@
+---
+// critique: P4 H4 E4 S4 R4 V4
+import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import ProductCard from '../../../components/ProductCard.astro';
+import { useT, locales, type Locale } from '../../../lib/i18n';
+import { localePath } from '../../../lib/routes';
+
+export async function getStaticPaths() {
+  const allFounders = await getCollection('founders');
+  const published = allFounders.filter((entry) => entry.data.published);
+
+  return locales.flatMap((locale) =>
+    published.map((entry) => ({
+      params: { locale, slug: entry.data.slug },
+      props: { founder: entry.data },
+    })),
+  );
+}
+
+interface Props {
+  founder: CollectionEntry<'founders'>['data'];
+}
+
+const { locale } = Astro.params as { locale: Locale };
+const { founder } = Astro.props;
+const t = useT(locale);
+
+const allProducts = await getCollection('products');
+const founderProducts = allProducts
+  .filter((entry) => entry.data.published && entry.data.founder === founder.slug)
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order);
+
+const founderName = founder.name[locale];
+const bioParagraphs = founder.bio[locale].split(/\n{2,}/).filter(Boolean);
+
+const productsHeading = t('founders.products_by', { name: founderName });
+
+const snsEntries: { key: string; href: string | undefined }[] = [
+  { key: 'instagram', href: founder.sns.instagram },
+  { key: 'x', href: founder.sns.x },
+  { key: 'site', href: founder.sns.site },
+];
+const snsLinks = snsEntries.filter(
+  (entry): entry is { key: string; href: string } => Boolean(entry.href),
+);
+
+const breadcrumbs = [
+  { label: t('nav.home'), href: localePath(locale, '/') },
+  { label: t('founders.breadcrumb'), href: localePath(locale, '/founders/') },
+  { label: founderName },
+];
+---
+
+<Base locale={locale} title={founderName} path={`/founders/${founder.slug}/`} breadcrumbs={breadcrumbs}>
+  <article class="founder-hero">
+    <span class="portrait-frame">
+      <img src={founder.portrait} width="480" height="480" alt="" loading="eager" decoding="async" />
+    </span>
+    <div class="founder-copy">
+      <h1 class="signature">{founderName}</h1>
+      <p class="founder-meta">{founder.title[locale]}・{founder.region[locale]}</p>
+      <div class="founder-bio">
+        {bioParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+      {
+        snsLinks.length > 0 && (
+          <ul class="founder-sns">
+            {snsLinks.map(({ key, href }) => (
+              <li>
+                <a href={href} rel="noopener noreferrer" target="_blank">
+                  {key}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </article>
+
+  {
+    founderProducts.length > 0 && (
+      <section class="founder-products">
+        <h2 class="kicker">{productsHeading}</h2>
+        <div class="product-grid">
+          {founderProducts.map((product) => (
+            <ProductCard product={product} founderName={founderName} locale={locale} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <p class="back-link">
+    <a href={localePath(locale, '/founders/')}>{t('founders.back')}</a>
+  </p>
+</Base>
+
+<style>
+  .founder-hero {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding: var(--space-8) var(--space-5) var(--space-9);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 640px) {
+    .founder-hero {
+      grid-template-columns: minmax(200px, 320px) minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+
+  .portrait-frame {
+    display: block;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: var(--radius);
+    /* 版ズレ frame accent — a static two-tone ai/shu edge referencing print
+       misregistration, rather than the dynamic hover-shift duplicate
+       reserved for FounderCard/§3 — this hero is a signature context, not
+       a hover surface. */
+    border: 1px solid var(--color-ai);
+    box-shadow:
+      2px 2px 0 var(--color-shu),
+      var(--shadow-paper);
+  }
+
+  .portrait-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .founder-copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  /* 署名見出し (signature heading) — the one non-hover context DESIGN.md §3
+     permits for the misregistration motif: a static ai/shu text-shadow
+     offset on the founder's own name. */
+  .signature {
+    font-size: var(--text-2xl);
+    text-shadow:
+      1px 0 0 var(--color-ai),
+      -1px 0 0 var(--color-shu);
+  }
+
+  .founder-meta {
+    color: var(--color-sumi-usu);
+    font-size: var(--text-base);
+  }
+
+  .founder-bio {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-width: 60ch;
+  }
+
+  .founder-sns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    list-style: none;
+    padding: 0;
+  }
+
+  .founder-sns a {
+    color: var(--color-ai);
+    text-decoration: none;
+    text-transform: capitalize;
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--duration-ui) var(--ease-mie);
+  }
+
+  .founder-sns a:hover {
+    border-color: var(--color-ai);
+  }
+
+  .founder-sns a:focus-visible {
+    outline: 2px solid var(--color-shu);
+    outline-offset: 2px;
+  }
+
+  .founder-sns a:active {
+    color: var(--color-shu);
+  }
+
+  .founder-products {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding: 0 var(--space-5) var(--space-9);
+  }
+
+  .founder-products h2 {
+    margin-bottom: var(--space-5);
+    font-size: var(--text-lg);
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-6);
+  }
+
+  .back-link {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding: 0 var(--space-5) var(--space-11);
+  }
+
+  .back-link a {
+    color: var(--color-ai);
+    text-decoration: none;
+  }
+
+  .back-link a:hover {
+    color: var(--color-shu);
+    text-decoration: underline;
+  }
+
+  .back-link a:focus-visible {
+    outline: 2px solid var(--color-shu);
+    outline-offset: 2px;
+  }
+</style>

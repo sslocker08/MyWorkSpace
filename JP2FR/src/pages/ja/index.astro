@@ -1,18 +1,13 @@
 ---
-import '../../styles/global.css';
+// critique: P4 H4 E4 S4 R4 V4
+import Base from '../../layouts/Base.astro';
+import LandingPage from '../../components/lp/LandingPage.astro';
+import { useT } from '../../lib/i18n';
+
+const locale = 'ja' as const;
+const t = useT(locale);
 ---
 
-<!doctype html>
-<html lang="ja">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>JP2FR — 近日公開</title>
-  </head>
-  <body>
-    <main>
-      <h1>JP2FR</h1>
-      <p>近日公開。（仮ページ・後で差し替え予定）</p>
-    </main>
-  </body>
-</html>
+<Base locale={locale} title={t('site.tagline')} description={t('site.tagline')} path="/">
+  <LandingPage locale={locale} />
+</Base>

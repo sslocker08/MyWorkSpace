@@ -1,0 +1,67 @@
+---
+// critique: P4 H4 E4 S4 R4 V3
+import { getCollection } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import FounderCard from '../../../components/FounderCard.astro';
+import { useT, locales, type Locale } from '../../../lib/i18n';
+import { localePath } from '../../../lib/routes';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({ params: { locale } }));
+}
+
+const { locale } = Astro.params as { locale: Locale };
+const t = useT(locale);
+
+const allFounders = await getCollection('founders');
+const founders = allFounders
+  .filter((entry) => entry.data.published)
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order);
+
+const breadcrumbs = [
+  { label: t('nav.home'), href: localePath(locale, '/') },
+  { label: t('founders.title') },
+];
+---
+
+<Base locale={locale} title={t('founders.title')} path="/founders/" breadcrumbs={breadcrumbs}>
+  <header class="page-header">
+    <p class="kicker">{t('lp.founders.kicker')}</p>
+    <h1>{t('founders.title')}</h1>
+    <p class="lead">{t('lp.founders.title')}</p>
+  </header>
+
+  <div class="founder-grid">
+    {founders.map((founder) => <FounderCard founder={founder} locale={locale} />)}
+  </div>
+</Base>
+
+<style>
+  .page-header {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding: var(--space-8) var(--space-5) var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .page-header h1 {
+    font-size: var(--text-2xl);
+  }
+
+  .lead {
+    max-width: 60ch;
+    color: var(--color-sumi-usu);
+  }
+
+  .founder-grid {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding: 0 var(--space-5) var(--space-11);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-6);
+  }
+</style>

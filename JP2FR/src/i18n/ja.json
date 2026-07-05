@@ -45,16 +45,19 @@
   "founders": {
     "title": "職人一覧",
     "breadcrumb": "職人",
-    "products_by": "の作品",
+    "products_by": "{name}の作品",
     "back": "職人一覧へ戻る"
   },
   "products": {
     "title": "商品",
     "breadcrumb": "商品",
-    "by": "作：",
+    "by": "{name} 作",
     "materials": "素材",
     "soldOut": "売り切れ",
-    "unique": "一点物"
+    "unique": "一点物",
+    "addToCart": "カートに追加",
+    "added": "カートに追加しました",
+    "inCart": "カートに入っています"
   },
   "cart": {
     "title": "カート",

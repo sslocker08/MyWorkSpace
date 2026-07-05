@@ -1,0 +1,118 @@
+---
+// critique: P4 H4 E4 S4 R4 V4
+//
+// Founders rail: a horizontal row of the first 6 published founders
+// (sorted by their unique 1-15 `order` rank). Ships as a plain
+// overflow-x:auto + scroll-snap rail — works with zero JS, contained to
+// its own row (DESIGN.md §5 "no horizontal scroll" is a page-level rule;
+// a deliberately contained rail is the documented exception). The motion
+// layer later upgrades this to a pinned scrub on desktop by reading the
+// same [data-rail]/[data-rail-track] hooks.
+import type { CollectionEntry } from 'astro:content';
+import { useT } from '../../lib/i18n';
+import type { Locale } from '../../lib/i18n';
+import { localePath } from '../../lib/routes';
+import FounderCard from '../FounderCard.astro';
+
+export interface Props {
+  locale: Locale;
+  founders: CollectionEntry<'founders'>['data'][];
+}
+
+const { locale, founders } = Astro.props;
+const t = useT(locale);
+const ctaHref = localePath(locale, '/founders/');
+---
+
+<section data-founders-rail class="founders-rail">
+  <div class="founders-rail-head">
+    <p class="kicker">{t('lp.founders.kicker')}</p>
+    <h2>{t('lp.founders.title')}</h2>
+  </div>
+
+  <div data-rail class="rail">
+    <div data-rail-track class="rail-track">
+      {
+        founders.map((founder) => (
+          <div class="rail-item">
+            <FounderCard founder={founder} locale={locale} />
+          </div>
+        ))
+      }
+      <a href={ctaHref} class="rail-item rail-cta">
+        <span>{t('lp.founders.cta')}</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .founders-rail {
+    padding-block: var(--space-12);
+  }
+
+  .founders-rail-head {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--space-5);
+    margin-bottom: var(--space-8);
+  }
+
+  .rail {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-inline: var(--space-5);
+    padding-bottom: var(--space-4);
+    /* Contained horizontal scroll only — root stays overflow-x:clip
+       (global.css), so this never widens the viewport (DESIGN.md §5). */
+  }
+
+  .rail-track {
+    display: flex;
+    gap: var(--space-5);
+    width: max-content;
+  }
+
+  .rail-item {
+    flex: 0 0 clamp(14rem, 40vw, 18rem);
+    scroll-snap-align: start;
+  }
+
+  .rail-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: var(--color-washi);
+    border: var(--border-hairline);
+    border-radius: var(--radius);
+    color: var(--color-ai);
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    padding: var(--space-4);
+    transition:
+      transform var(--duration-ui) var(--ease-mie),
+      color var(--duration-ui) var(--ease-mie);
+  }
+
+  .rail-cta:hover {
+    color: var(--color-asagi);
+    transform: translateY(-2px);
+  }
+
+  .rail-cta:focus-visible {
+    outline: 2px solid var(--color-shu);
+    outline-offset: 3px;
+  }
+
+  .rail-cta:active {
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rail-cta {
+      transition: none;
+    }
+  }
+</style>

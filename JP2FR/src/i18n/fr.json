@@ -45,16 +45,19 @@
   "founders": {
     "title": "Nos artisans",
     "breadcrumb": "Artisans",
-    "products_by": "Créations de",
+    "products_by": "Créations de {name}",
     "back": "Retour aux artisans"
   },
   "products": {
     "title": "Produits",
     "breadcrumb": "Produits",
-    "by": "par",
+    "by": "par {name}",
     "materials": "Matériaux",
     "soldOut": "Rupture de stock",
-    "unique": "Pièce unique"
+    "unique": "Pièce unique",
+    "addToCart": "Ajouter au panier",
+    "added": "Ajouté au panier",
+    "inCart": "Déjà dans le panier"
   },
   "cart": {
     "title": "Votre panier",

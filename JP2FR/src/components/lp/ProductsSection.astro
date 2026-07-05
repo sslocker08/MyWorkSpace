@@ -1,0 +1,74 @@
+---
+// critique: P4 H4 E4 S4 R4 V4
+//
+// Featured products grid: 4 published, in-stock items. Reuses the shared
+// .btn utility (global.css) for the CTA so the 8-state contract (§5) is
+// inherited rather than re-implemented.
+import type { CollectionEntry } from 'astro:content';
+import { useT } from '../../lib/i18n';
+import type { Locale } from '../../lib/i18n';
+import { localePath } from '../../lib/routes';
+import ProductCard from '../ProductCard.astro';
+
+export interface Props {
+  locale: Locale;
+  products: CollectionEntry<'products'>['data'][];
+  founderNames: Record<string, string>;
+}
+
+const { locale, products, founderNames } = Astro.props;
+const t = useT(locale);
+const ctaHref = localePath(locale, '/products/');
+---
+
+<section data-products class="products">
+  <div class="products-head">
+    <p class="kicker">{t('lp.products.kicker')}</p>
+    <h2>{t('lp.products.title')}</h2>
+  </div>
+
+  <div class="products-grid">
+    {
+      products.map((product) => (
+        <div data-stagger-item>
+          <ProductCard product={product} founderName={founderNames[product.founder] ?? ''} locale={locale} />
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="products-cta-row">
+    <a href={ctaHref} class="btn btn--secondary">
+      {t('lp.products.cta')}
+    </a>
+  </div>
+</section>
+
+<style>
+  .products {
+    padding-block: var(--space-12);
+  }
+
+  .products-head,
+  .products-grid,
+  .products-cta-row {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--space-5);
+  }
+
+  .products-head {
+    margin-bottom: var(--space-8);
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+    gap: var(--space-6);
+  }
+
+  .products-cta-row {
+    margin-top: var(--space-8);
+    text-align: center;
+  }
+</style>

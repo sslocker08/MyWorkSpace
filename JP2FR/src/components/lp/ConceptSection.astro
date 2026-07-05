@@ -1,0 +1,122 @@
+---
+// critique: P4 H4 E4 S4 R4 V4
+//
+// Concept section: philosophy kicker + a wave-sequence canvas placeholder
+// (the motion layer paints scroll-scrubbed frames here) + the three
+// concept lines, fully visible statically (no opacity:0 — reveals are
+// below-fold and JS-driven only, per DESIGN.md §4).
+import { useT } from '../../lib/i18n';
+import type { Locale } from '../../lib/i18n';
+import { sectionAssets } from '../../lib/assets';
+
+export interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useT(locale);
+
+const lineKeys = ['lp.concept.line1', 'lp.concept.line2', 'lp.concept.line3'] as const;
+---
+
+<section data-concept class="concept">
+  <div class="concept-inner">
+    <p class="kicker">{t('lp.concept.kicker')}</p>
+
+    {/*
+      Progressive canvas contract: the canvas starts fully transparent, so
+      the seigaiha fallback image beneath shows straight through with no
+      JS/class toggle required. Once the motion layer acquires a 2D
+      context and paints the wave sequence, its opaque frames naturally
+      cover the fallback — a stacking-only progressive-enhancement, not a
+      state machine this file needs to own.
+    */}
+    <div data-wave-seq-wrap class="wave-seq-wrap">
+      <img
+        src={sectionAssets.seigaiha}
+        alt=""
+        width="1600"
+        height="900"
+        class="wave-seq-fallback"
+        loading="lazy"
+        decoding="async"
+      />
+      <canvas data-wave-seq width="1600" height="900" class="wave-seq-canvas" aria-hidden="true"></canvas>
+    </div>
+
+    <div class="concept-lines">
+      {
+        lineKeys.map((key) => (
+          <p data-concept-line class="concept-line">
+            {t(key)}
+          </p>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .concept {
+    padding-block: var(--space-12);
+  }
+
+  .concept-inner {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--space-5);
+    text-align: center;
+  }
+
+  .wave-seq-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 50rem;
+    margin: var(--space-9) auto;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--color-washi);
+  }
+
+  .wave-seq-fallback,
+  .wave-seq-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .wave-seq-fallback {
+    object-fit: cover;
+    opacity: 0.55;
+  }
+
+  .concept-lines {
+    margin-top: var(--space-9);
+    display: grid;
+    gap: var(--space-6);
+    max-width: 40rem;
+    margin-inline: auto;
+    text-align: left;
+  }
+
+  .concept-line {
+    /* No line-height override here on purpose: these are body sentences,
+       not headings, so they must keep inheriting global.css's
+       :lang(ja) 1.9 / default 1.65 leading rather than the tighter
+       --leading-heading (a component-scoped override would win the
+       specificity fight against that global rule and re-tighten JA
+       text that wraps to 2+ lines). */
+    font-size: var(--text-lg);
+    color: var(--color-sumi);
+    padding-left: var(--space-5);
+    border-left: var(--border-hairline);
+  }
+
+  @media (max-width: 480px) {
+    .concept-line {
+      font-size: var(--text-base);
+    }
+  }
+</style>
