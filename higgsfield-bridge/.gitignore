@@ -1,0 +1,12 @@
+# 実行時に自動生成される状態（コミット対象外）
+ledger/
+anchors/
+mock_state/
+downloads/
+
+# Python
+__pycache__/
+*.pyc
+
+# ローカル秘密情報（万一 .env 等を置いた場合の保険）
+.env
