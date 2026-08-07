@@ -1,0 +1,244 @@
+---
+// critique: P5 H5 E4 S5 R4 V5
+//
+// LP anchor — v2 "夜の版元" full-bleed night bridge (ART-DIRECTION-LP-V2.md
+// §2), replacing the previous asymmetric framed-panel composition. The
+// dark-graded Hiroshige "Morning View of Nihonbashi" (The Met 36922, CC0 —
+// assetgen/SOURCES.md derive-v2-assets entry; same source print as
+// ConceptSection's sectionPrints.bridge panel) fills the whole viewport,
+// scrimmed for a bottom-left text block. Real provenance is stated in the
+// caption chip — no fake art, no fake credits (DESIGN.md §6).
+// LCP: the h1 renders immediately (never opacity:0); the bg image is
+// fetchpriority=high with explicit dimensions (CLS 0).
+// Motion hooks preserved (src/motion/hero.ts binds unchanged):
+//   [data-hero] / [data-hero-bg] / [data-parallax] (0.25, on the bg media) /
+//   [data-scroll-cue] / .hero-title / .hero-subtitle / .hero-tategaki
+//   (per-char stacked-span technique, unchanged).
+import { useT } from '../../lib/i18n';
+import type { Locale } from '../../lib/i18n';
+import { localePath } from '../../lib/routes';
+import { heroAssets, heroBridge } from '../../lib/assets';
+
+export interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useT(locale);
+---
+
+<section data-hero class="hero">
+  {/* Full-bleed dark bridge, scrimmed. data-hero-bg is not read by any
+     motion module today — reserved per the AD brief for a later (W7)
+     background treatment (e.g. a slow reveal/zoom) without touching markup. */}
+  <div data-hero-bg class="hero-bg">
+    {
+      heroAssets.videoWebm ? (
+        <video
+          class="hero-media"
+          autoplay
+          muted
+          loop
+          playsinline
+          poster={heroAssets.poster}
+          width="1600"
+          height="1080"
+          data-parallax="0.25"
+        >
+          <source src={heroAssets.videoWebm} type="video/webm" />
+          {heroAssets.videoMp4 && <source src={heroAssets.videoMp4} type="video/mp4" />}
+        </video>
+      ) : (
+        <img
+          class="hero-media"
+          src={heroBridge.src1200}
+          srcset={`${heroBridge.src1200} 1200w, ${heroBridge.src2000} 2000w`}
+          sizes="100vw"
+          width="1200"
+          height="817"
+          alt="歌川広重《東海道五十三次 日本橋》— Morning View of Nihonbashi, dark grade"
+          fetchpriority="high"
+          decoding="async"
+          data-parallax="0.25"
+        />
+      )
+    }
+    <div class="hero-scrim" aria-hidden="true"></div>
+  </div>
+
+  {/* 縦書き brand strip — per-char stacked blocks instead of writing-mode:
+      vertical-rl, so rendering never depends on the environment having a
+      CJK font with vertical metrics (headless/Linux fallback fonts overlap
+      glyphs in vertical-rl). Dark-zone recolor: transparent ground, on-dark
+      text/rule (AD v2 §2). */}
+  <span class="hero-tategaki" aria-hidden="true">
+    {'日本の手仕事'.split('').map((ch) => <span class="tategaki-char">{ch}</span>)}
+  </span>
+
+  <div class="hero-copy">
+    <h1 class="hero-title">{t('lp.hero.title')}</h1>
+    <p class="hero-subtitle">{t('lp.hero.subtitle')}</p>
+    <a class="btn btn--shu hero-cta" href={localePath(locale, '/products/')}>
+      {t('lp2.hero_cta')}
+    </a>
+
+    <div data-scroll-cue class="scroll-cue">
+      <span class="scroll-cue-line" aria-hidden="true"></span>
+      <span class="scroll-cue-label">{t('lp.hero.scroll')}</span>
+    </div>
+  </div>
+
+  <p class="hero-caption">広重《東海道五十三次 日本橋》· The Met Open Access (CC0)</p>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    overflow: hidden;
+    background: var(--color-kon);
+  }
+
+  /* ── Full-bleed background media + scrim ────────────────────────── */
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-base);
+  }
+
+  .hero-media {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 40%;
+    display: block;
+    /* parallax headroom so edges never show while translating */
+    scale: 1.08;
+  }
+
+  .hero-scrim {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(120% 100% at 0% 100%, oklch(0.17 0.03 264 / 0.55), transparent 55%),
+      linear-gradient(to top, oklch(0.17 0.03 264 / 0.82), oklch(0.17 0.03 264 / 0.25) 45%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ── Bottom-left: text block (LCP h1 always full-opacity) ─────────── */
+  .hero-copy {
+    position: absolute;
+    z-index: var(--z-raised);
+    left: 0;
+    bottom: 0;
+    max-width: 34rem;
+    padding: var(--space-8);
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(2.8rem, 5.5vw, 4.8rem);
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    color: var(--on-dark);
+  }
+
+  .hero-subtitle {
+    margin-top: var(--space-5);
+    max-width: 26rem;
+    font-size: var(--text-lg);
+    line-height: 1.65;
+    color: var(--on-dark-dim);
+  }
+
+  .hero-cta {
+    margin-top: var(--space-7);
+  }
+
+  /* .btn--shu lives in global.css (shared with product add-to-cart). */
+
+  .scroll-cue {
+    margin-top: var(--space-8);
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-3);
+  }
+
+  .scroll-cue-line {
+    width: 1px;
+    height: var(--space-9);
+    background: color-mix(in oklch, var(--on-dark) 45%, transparent);
+  }
+
+  .scroll-cue-label {
+    font-size: var(--text-xs);
+    letter-spacing: 0.14em;
+    color: var(--on-dark-dim);
+  }
+
+  /* ── Right edge: vertical-writing brand strip, dark-zone recolor ──── */
+  .hero-tategaki {
+    position: absolute;
+    z-index: var(--z-raised);
+    top: 50%;
+    right: var(--space-8);
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.55em;
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    line-height: 1;
+    color: var(--on-dark);
+    background: transparent;
+    padding: var(--space-6) var(--space-3);
+    border-inline: 1px solid color-mix(in oklch, var(--on-dark) 22%, transparent);
+  }
+
+  .tategaki-char {
+    display: block;
+  }
+
+  /* ── Source caption chip, dark-zone recolor ────────────────────────── */
+  .hero-caption {
+    position: absolute;
+    z-index: var(--z-raised);
+    right: var(--space-5);
+    bottom: var(--space-5);
+    margin: 0;
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    color: var(--on-dark-dim);
+    background: color-mix(in oklch, var(--surface-dark) 85%, transparent);
+    border-left: 2px solid var(--color-shu);
+  }
+
+  /* ── Mobile ─────────────────────────────────────────────────────── */
+  @media (max-width: 899px) {
+    .hero-tategaki {
+      display: none;
+    }
+
+    .hero-copy {
+      padding: var(--space-6) var(--space-5) var(--space-9);
+      max-width: none;
+    }
+
+    .hero-title {
+      font-size: clamp(2.1rem, 8.5vw, 2.9rem);
+    }
+
+    .scroll-cue {
+      display: none;
+    }
+
+    .hero-caption {
+      left: var(--space-5);
+      right: auto;
+    }
+  }
+</style>

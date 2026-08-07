@@ -1,0 +1,137 @@
+---
+// critique: P4 H4 E4 S4 R4 V3
+//
+// French LCEN Art. 6-III legal-notice page. All facts a real company/legal
+// team must supply (SIREN, registered address, host contact, etc.) are
+// unknown at build time and are marked [PLACEHOLDER: ...] per DESIGN.md §6
+// honesty gate rather than invented. Content lives inline (not in the
+// shared i18n catalogs) — see brief: legal pages are structured skeletons
+// authored per-page, not new catalog keys.
+import Base from '../../../layouts/Base.astro';
+import { locales, useT, type Locale } from '../../../lib/i18n';
+import { breadcrumbTrail } from '../../../lib/routes';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({ params: { locale } }));
+}
+
+const locale = Astro.params.locale as Locale;
+const t = useT(locale);
+
+interface Section {
+  heading: string;
+  body: string;
+}
+interface LegalContent {
+  title: string;
+  sections: Section[];
+}
+
+const content: Record<Locale, LegalContent> = {
+  fr: {
+    title: 'Mentions légales',
+    sections: [
+      {
+        heading: 'Éditeur du site',
+        body: "<span class=\"ph\">[PLACEHOLDER: raison sociale]</span> — <span class=\"ph\">[PLACEHOLDER: forme juridique, capital social]</span> — <span class=\"ph\">[PLACEHOLDER: adresse du siège social]</span> — <span class=\"ph\">[PLACEHOLDER: numéro SIREN/SIRET]</span> — <span class=\"ph\">[PLACEHOLDER: e-mail de contact]</span>.",
+      },
+      {
+        heading: 'Directeur de la publication',
+        body: '<span class="ph">[PLACEHOLDER: nom du directeur de la publication]</span>.',
+      },
+      {
+        heading: 'Hébergeur',
+        body: 'Cloudflare, Inc. — <span class="ph">[PLACEHOLDER: adresse complète de l\'hébergeur]</span> — <span class="ph">[PLACEHOLDER: contact de l\'hébergeur]</span>.',
+      },
+      {
+        heading: 'Propriété intellectuelle',
+        body: "L'ensemble des contenus du site (textes, images, illustrations, logos) est protégé par le droit d'auteur. Toute reproduction sans autorisation préalable est interdite. <span class=\"ph\">[PLACEHOLDER: mention spécifique aux œuvres des artisans partenaires à confirmer]</span>.",
+      },
+    ],
+  },
+  en: {
+    title: 'Legal notice',
+    sections: [
+      {
+        heading: 'Site publisher',
+        body: '<span class="ph">[PLACEHOLDER: company name]</span> — <span class="ph">[PLACEHOLDER: legal form, share capital]</span> — <span class="ph">[PLACEHOLDER: registered address]</span> — <span class="ph">[PLACEHOLDER: SIREN/SIRET number]</span> — <span class="ph">[PLACEHOLDER: contact e-mail]</span>.',
+      },
+      {
+        heading: 'Publication director',
+        body: '<span class="ph">[PLACEHOLDER: name of the publication director]</span>.',
+      },
+      {
+        heading: 'Host',
+        body: 'Cloudflare, Inc. — <span class="ph">[PLACEHOLDER: full hosting-provider address]</span> — <span class="ph">[PLACEHOLDER: host contact]</span>.',
+      },
+      {
+        heading: 'Intellectual property',
+        body: 'All site content (text, images, illustrations, logos) is protected by copyright. Reproduction without prior authorization is prohibited. <span class="ph">[PLACEHOLDER: specific mention for partner artisans\' works, to be confirmed]</span>.',
+      },
+    ],
+  },
+  ja: {
+    title: '法的表示（フランス法に基づく表記）',
+    sections: [
+      {
+        heading: '運営会社（編集発行者）',
+        body: '<span class="ph">[PLACEHOLDER: 会社名]</span> — <span class="ph">[PLACEHOLDER: 法人形態・資本金]</span> — <span class="ph">[PLACEHOLDER: 本社所在地]</span> — <span class="ph">[PLACEHOLDER: SIREN/SIRET番号]</span> — <span class="ph">[PLACEHOLDER: 連絡先メールアドレス]</span>。',
+      },
+      {
+        heading: '発行責任者',
+        body: '<span class="ph">[PLACEHOLDER: 発行責任者名]</span>。',
+      },
+      {
+        heading: 'ホスティング事業者',
+        body: 'Cloudflare, Inc. — <span class="ph">[PLACEHOLDER: 事業者住所]</span> — <span class="ph">[PLACEHOLDER: 連絡先]</span>。',
+      },
+      {
+        heading: '知的財産権',
+        body: '本サイトの全コンテンツ（文章・画像・イラスト・ロゴ）は著作権により保護されています。事前の許可のない複製は禁止されています。<span class="ph">[PLACEHOLDER: 提携職人の作品に関する個別表記は確認中]</span>。',
+      },
+    ],
+  },
+};
+
+const page = content[locale];
+const breadcrumbs = breadcrumbTrail(locale, t, [{ label: t('footer.mentions'), path: '/legal/mentions-legales/' }]);
+---
+
+<Base locale={locale} title={page.title} path="/legal/mentions-legales/" breadcrumbs={breadcrumbs}>
+  <article class="legal-article container">
+    <h1>{page.title}</h1>
+    {
+      page.sections.map((section) => (
+        <section class="legal-section">
+          <h2>{section.heading}</h2>
+          <p set:html={section.body} />
+        </section>
+      ))
+    }
+  </article>
+</Base>
+
+<style>
+  .legal-article {
+    max-width: 42rem;
+    padding-block: var(--space-10) var(--space-12);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .legal-section h2 {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-3);
+  }
+
+  .legal-section p {
+    color: var(--color-sumi);
+    font-size: var(--text-sm);
+  }
+
+  .legal-section :global(.ph) {
+    color: var(--color-shu);
+    border-bottom: 1px dashed var(--color-shu);
+  }
+</style>

@@ -1,0 +1,31 @@
+{
+  "slug": "komori-illustration",
+  "order": 6,
+  "published": true,
+  "name": {
+    "fr": "Komori",
+    "en": "Komori",
+    "ja": "小森"
+  },
+  "title": {
+    "fr": "Illustratrice",
+    "en": "Illustrator",
+    "ja": "イラストレーター"
+  },
+  "bio": {
+    "fr": "Depuis Tokyo, Komori crée des illustrations inspirées par la nature japonaise et la vie quotidienne. Son travail, empreint d'une délicatesse narrative, apparaît sur papiers, textiles et objets du quotidien.",
+    "en": "From Tokyo, Komori creates illustrations inspired by Japanese nature and everyday life. Her work, infused with narrative delicacy, appears on papers, textiles, and daily objects.",
+    "ja": "東京を拠点とする小森は、日本の自然と日常にインスピレーションを受けたイラストを創作しています。物語性と優しさを備えた作品は、紙や布、生活用品に彩りを添えます。"
+  },
+  "region": {
+    "fr": "Tokyo",
+    "en": "Tokyo",
+    "ja": "東京"
+  },
+  "portrait": "/img/founders/komori-illustration/portrait.webp",
+  "sns": {
+    "instagram": "https://instagram.com/komori.illust",
+    "x": "https://x.com/komoriillust"
+  },
+  "craft": "illustration"
+}

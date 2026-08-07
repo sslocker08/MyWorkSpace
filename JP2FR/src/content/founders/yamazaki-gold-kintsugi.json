@@ -1,0 +1,31 @@
+{
+  "slug": "yamazaki-gold-kintsugi",
+  "order": 4,
+  "published": true,
+  "name": {
+    "fr": "Yamazaki Gold",
+    "en": "Yamazaki Gold",
+    "ja": "山崎金継ぎ"
+  },
+  "title": {
+    "fr": "Maître de kintsugi",
+    "en": "Kintsugi master",
+    "ja": "金継ぎ職人"
+  },
+  "bio": {
+    "fr": "À Kanazawa, berceau de la couture d'or, Yamazaki Gold restaure les céramiques cassées avec du fil d'or et de la résine naturelle. Cette pratique zen transforme la rupture en beauté, célébrant l'histoire de chaque objet.",
+    "en": "In Kanazawa, the heart of gold crafting, Yamazaki Gold repairs broken ceramics with gold thread and natural resin. This zen practice transforms breakage into beauty, celebrating each object's history.",
+    "ja": "金沢の伝統を受け継ぐ山崎金継ぎは、割れた陶芸品を金の糸と漆で継ぎます。破けたものを美しく蘇らせるこの技は、ものの歴史と命を尊びます。"
+  },
+  "region": {
+    "fr": "Kanazawa",
+    "en": "Kanazawa",
+    "ja": "金沢"
+  },
+  "portrait": "/img/founders/yamazaki-gold-kintsugi/portrait.webp",
+  "sns": {
+    "instagram": "https://instagram.com/yamazaki.gold",
+    "x": ""
+  },
+  "craft": "ceramique"
+}

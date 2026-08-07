@@ -1,0 +1,31 @@
+{
+  "slug": "hiroto-rag-weaving",
+  "order": 12,
+  "published": true,
+  "name": {
+    "fr": "Sakikori Hiroto",
+    "en": "Sakikori Hiroto",
+    "ja": "裂き織り洋人"
+  },
+  "title": {
+    "fr": "Tisserand",
+    "en": "Weaver",
+    "ja": "織職人"
+  },
+  "bio": {
+    "fr": "À Okinawa, Sakikori Hiroto tisse des tissus vibrantes à partir de chutes de tissu et de filés naturels. Son travail honore la tradition du uchinaagutsu tout en créant des motifs nouveaux et colorés qui reflètent l'énergie de l'île.",
+    "en": "In Okinawa, Sakikori Hiroto weaves vibrant fabrics from textile scraps and natural yarns. His work honors the uchinaagutsu tradition while creating bold, colorful patterns that reflect the island's energy.",
+    "ja": "沖縄で、洋人は古布と自然由来の糸を織り合わせ、鮮やかな織物を生み出します。琉球の伝統を尊びながらも、島の活力を映した新しい色彩の文様を創造しています。"
+  },
+  "region": {
+    "fr": "Okinawa",
+    "en": "Okinawa",
+    "ja": "沖縄"
+  },
+  "portrait": "/img/founders/hiroto-rag-weaving/portrait.webp",
+  "sns": {
+    "instagram": "https://instagram.com/sakikori.hiroto",
+    "x": ""
+  },
+  "craft": "textile"
+}

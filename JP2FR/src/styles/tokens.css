@@ -1,0 +1,120 @@
+/*
+ * Design tokens — single source of truth (no per-page duplication).
+ * Contract: /DESIGN.md §1–5 (木版画×和紙 material world). Values verbatim
+ * from DESIGN.md; do not hardcode hex/oklch elsewhere — import this file
+ * and reference these custom properties only.
+ */
+
+:root {
+  /* ---------------------------------------------------------------------
+   * §1 Palette — OKLCH only, no inline hex.
+   * ------------------------------------------------------------------- */
+  /* 紙（地） */
+  --color-kinari: oklch(0.955 0.012 95); /* 生成り: 基調の紙地 */
+  --color-washi: oklch(0.93 0.015 90); /* 和紙: カード面 */
+  /* インク */
+  --color-sumi: oklch(0.24 0.012 270); /* 墨: 本文・見出し・暗幕 */
+  --color-sumi-usu: oklch(0.45 0.01 270); /* 薄墨: 補助テキスト */
+  --color-ai: oklch(0.4 0.095 255); /* 藍: 主役。波・リンク・主要CTA */
+  --color-asagi: oklch(0.63 0.075 230); /* 浅葱: 藍の淡色・hover・波の中間調 */
+  --color-shu: oklch(0.55 0.185 32); /* 朱: 落款・強調・バッジ・カーソル。面積は全画面の5%未満 */
+  /* 定式幕（イントロ専用・本編では使わない） */
+  --color-moegi: oklch(0.46 0.09 150);
+  --color-kaki: oklch(0.6 0.14 48);
+
+  /* v2 ダーク層「夜の版元」— 実測WCAG比を併記（DESIGN.md §1）
+   * kinari on kon = 16.8:1 / kinari on kon-raised = 15.6:1 /
+   * kinari-dim on kon = 10.3:1 / kin on kon = 9.5:1（大型表示・fill限定）/
+   * asagi on kon = 5.6:1 / kinari on shu = 4.66:1（CTA文字・AA） */
+  --color-kon: oklch(0.17 0.03 264); /* 紺墨: 暗ゾーンの地 */
+  --color-kon-raised: oklch(0.21 0.03 264); /* 暗ゾーンのカード面 */
+  --color-kon-high: oklch(0.26 0.035 264); /* 暗ゾーン最上面（hover等） */
+  --color-kin: oklch(0.78 0.1 85); /* 金: 大型見出し・罫線・fillのみ。本文禁止 */
+  --color-kinari-dim: oklch(0.8 0.015 95); /* 暗ゾーンの補助テキスト */
+
+  /* 意味論（semantic aliases — components reference these, not raw ink) */
+  --color-bg: var(--color-kinari);
+  --color-text: var(--color-sumi);
+  --color-accent: var(--color-ai);
+  --color-danger: var(--color-shu);
+  --surface-dark: var(--color-kon);
+  --surface-dark-raised: var(--color-kon-raised);
+  --surface-dark-high: var(--color-kon-high);
+  --on-dark: var(--color-kinari);
+  --on-dark-dim: var(--color-kinari-dim);
+
+  /* ---------------------------------------------------------------------
+   * §2 Typography — self-contained system stacks (no external font CDN).
+   * ------------------------------------------------------------------- */
+  /* Cormorant only ships Latin glyphs, so ja headings fall through past it
+     straight to the Mincho/serif system fallbacks below — that fallthrough
+     is intentional (DESIGN.md §2: display serif for Latin, JP mincho for ja). */
+  --font-display: 'Cormorant Garamond', 'Hiragino Mincho ProN', 'Yu Mincho', 'Georgia', serif;
+  /* 'Noto Sans Fallback' (fonts.css) is a metric-matched local Arial swap-in
+     that engages before Noto Sans JP/system fallbacks load, keeping CLS low. */
+  --font-body: 'Noto Sans', 'Noto Sans JP', 'Noto Sans Fallback', 'Hiragino Sans', 'Yu Gothic', sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+  --text-2xl: 2.5rem;
+  --text-hero: clamp(2.5rem, 6vw, 4.5rem);
+
+  --leading-body-ja: 1.9;
+  --leading-body-en: 1.65;
+  --leading-heading: 1.2;
+
+  /* ---------------------------------------------------------------------
+   * §3 Texture / depth
+   * ------------------------------------------------------------------- */
+  --shadow-paper:
+    0 1px 2px oklch(0.24 0.012 270 / 0.06),
+    0 4px 8px oklch(0.24 0.012 270 / 0.06),
+    0 12px 24px oklch(0.24 0.012 270 / 0.05);
+  --radius: 2px;
+  --border-hairline: 1px solid oklch(0.24 0.012 270 / 0.2);
+
+  /* ---------------------------------------------------------------------
+   * §4 Motion — 見得(mie): tame then snap.
+   * ------------------------------------------------------------------- */
+  --ease-mie: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-ui-fast: 150ms;
+  --duration-ui: 250ms;
+  --duration-ui-slow: 400ms;
+  --duration-scene: 550ms;
+
+  /* ---------------------------------------------------------------------
+   * Spacing scale — 4px base.
+   * ------------------------------------------------------------------- */
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem; /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem; /* 24px */
+  --space-7: 2rem; /* 32px */
+  --space-8: 2.5rem; /* 40px */
+  --space-9: 3rem; /* 48px */
+  --space-10: 4rem; /* 64px */
+  --space-11: 5rem; /* 80px */
+  --space-12: 6rem; /* 96px */
+
+  /* ---------------------------------------------------------------------
+   * Layout
+   * ------------------------------------------------------------------- */
+  --container-max: 72rem;
+
+  /* ---------------------------------------------------------------------
+   * Z-index scale
+   * ------------------------------------------------------------------- */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 100;
+  --z-overlay: 500;
+  --z-grain: 900;
+  --z-modal: 1000;
+  --z-toast: 1100;
+}

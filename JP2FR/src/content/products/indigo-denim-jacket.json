@@ -1,0 +1,38 @@
+{
+  "slug": "indigo-denim-jacket",
+  "founder": "ai-no-tsuki-apparel",
+  "order": 1,
+  "published": true,
+  "name": {
+    "fr": "Veste Denim Indigo",
+    "en": "Indigo Denim Jacket",
+    "ja": "藍デニムジャケット"
+  },
+  "description": {
+    "fr": "Veste en denim tissé et teinté à l'indigo, coupe intemporelle. Chaque port vieillit la veste naturellement, révélant des motifs d'usure uniques et une patine bleue plus claire.",
+    "en": "Jacket in woven and indigo-dyed denim, timeless cut. Each wear ages the jacket naturally, revealing unique wear patterns and lighter blue patina.",
+    "ja": "織られ、藍で染められたデニムの上着。時代を超えた切りトレ。着込むほどに、独特の色落ちと浅い藍色の味わいが生まれます。"
+  },
+  "materials": {
+    "fr": "Denim 100% coton, teinture indigo naturelle",
+    "en": "100% cotton denim, natural indigo dye",
+    "ja": "綿100%デニム・天然藍染"
+  },
+  "price": {
+    "amount": 15800,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/indigo-denim-jacket/01.svg",
+    "/img/products/indigo-denim-jacket/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  },
+  "category": "mode"
+}

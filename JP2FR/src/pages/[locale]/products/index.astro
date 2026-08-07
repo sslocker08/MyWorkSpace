@@ -1,0 +1,237 @@
+---
+// critique: P4 H4 E4 S4 R3 V4
+import { getCollection } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import ProductCard from '../../../components/ProductCard.astro';
+import { useT, loadCatalog, locales, type Locale } from '../../../lib/i18n';
+import { localePath } from '../../../lib/routes';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({ params: { locale } }));
+}
+
+const { locale } = Astro.params as { locale: Locale };
+const t = useT(locale);
+
+const [allProducts, allFounders] = await Promise.all([getCollection('products'), getCollection('founders')]);
+
+const founderOrder = new Map(allFounders.map((entry) => [entry.data.slug, entry.data]));
+
+const products = allProducts
+  .filter((entry) => entry.data.published)
+  .map((entry) => entry.data)
+  .sort((a, b) => {
+    const founderA = founderOrder.get(a.founder)?.order ?? 0;
+    const founderB = founderOrder.get(b.founder)?.order ?? 0;
+    if (founderA !== founderB) return founderA - founderB;
+    return a.order - b.order;
+  });
+
+const CATEGORIES = ['ceramique', 'textile', 'illustration', 'objets', 'mode'] as const;
+
+// See founders/index.astro for the rationale (kept in sync — both index
+// pages need the same ICU-lite normalization for src/islands/FilterChips.ts;
+// not extracted into a shared lib helper to stay inside this task's file
+// grant — see the worker brief).
+function pluralTemplates(raw: string): { one: string; other: string } {
+  const head = /\{count,\s*plural,\s*/.exec(raw);
+  if (!head) {
+    const normalized = raw.replace(/\{count\}/g, '#');
+    return { one: normalized, other: normalized };
+  }
+  const clauses: Record<string, string> = {};
+  let i = head.index + head[0].length;
+  while (i < raw.length) {
+    while (i < raw.length && /\s/.test(raw[i] ?? '')) i++;
+    if (raw[i] === '}') break;
+    const selectorMatch = /^(\w+)/.exec(raw.slice(i));
+    if (!selectorMatch) break;
+    const selector = selectorMatch[0];
+    i += selector.length;
+    while (i < raw.length && /\s/.test(raw[i] ?? '')) i++;
+    if (raw[i] !== '{') break;
+    i++;
+    const start = i;
+    let depth = 1;
+    while (i < raw.length && depth > 0) {
+      if (raw[i] === '{') depth++;
+      else if (raw[i] === '}') depth--;
+      if (depth > 0) i++;
+    }
+    clauses[selector] = raw.slice(start, i);
+    i++;
+  }
+  return { one: clauses.one ?? clauses.other ?? '', other: clauses.other ?? clauses.one ?? '' };
+}
+
+const catalog = loadCatalog(locale) as unknown as { filters: { results: string } };
+const resultsTemplates = pluralTemplates(catalog.filters.results);
+const initialCountText = t('filters.results', { count: products.length });
+const emptyMessage = t('filters.results', { count: 0 });
+
+const breadcrumbs = [
+  { label: t('nav.home'), href: localePath(locale, '/') },
+  { label: t('products.breadcrumb') },
+];
+---
+
+<Base locale={locale} title={t('products.title')} path="/products/" breadcrumbs={breadcrumbs}>
+  <header class="page-header">
+    <p class="kicker">{t('lp.products.kicker')}</p>
+    <h1>{t('products.title')}</h1>
+    <p class="lead">{t('lp.products.title')}</p>
+  </header>
+
+  <div class="filter-section" data-filter-root data-filter-attr="category">
+    <div class="filter-chips" data-filter-chips>
+      <button type="button" class="chip" data-filter-chip data-filter-value="all" aria-pressed="true">
+        {t('categories.all')}
+      </button>
+      {
+        CATEGORIES.map((category) => (
+          <button type="button" class="chip" data-filter-chip data-filter-value={category} aria-pressed="false">
+            {t(`categories.${category}`)}
+          </button>
+        ))
+      }
+    </div>
+
+    <p
+      class="filter-count"
+      data-filter-count
+      aria-live="polite"
+      data-template-one={resultsTemplates.one}
+      data-template-other={resultsTemplates.other}
+    >
+      {initialCountText}
+    </p>
+
+    <div class="product-grid" data-filter-grid>
+      {
+        products.map((product) => (
+          <ProductCard
+            product={product}
+            founderName={founderOrder.get(product.founder)?.name[locale] ?? ''}
+            locale={locale}
+          />
+        ))
+      }
+    </div>
+
+    <div class="filter-empty" data-filter-empty hidden>
+      <p>{emptyMessage}</p>
+      <button type="button" class="btn btn--secondary" data-filter-clear>
+        {t('filters.clear')}
+      </button>
+    </div>
+  </div>
+</Base>
+
+<script>
+  import '../../../islands/FilterChips';
+</script>
+
+<style>
+  .page-header {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding: var(--space-8) var(--space-5) var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .page-header h1 {
+    font-size: var(--text-2xl);
+  }
+
+  .lead {
+    max-width: 60ch;
+    color: var(--color-sumi-usu);
+  }
+
+  .filter-section {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding: 0 var(--space-5) var(--space-11);
+  }
+
+  /* Chip row — see founders/index.astro for the 8-state scope note (chips
+     have no async phase, so loading/error/success are deliberately absent). */
+  .filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: var(--radius);
+    border: 1px solid oklch(0.24 0.012 270 / 0.25);
+    background: var(--color-washi);
+    color: var(--color-sumi);
+    padding: var(--space-2) var(--space-4);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    transition:
+      background-color var(--duration-ui-fast) var(--ease-mie),
+      border-color var(--duration-ui-fast) var(--ease-mie),
+      color var(--duration-ui-fast) var(--ease-mie),
+      transform var(--duration-ui-fast) var(--ease-mie);
+  }
+
+  .chip:hover {
+    border-color: var(--color-ai);
+    color: var(--color-ai);
+  }
+
+  .chip:active {
+    transform: translateY(1px) scale(0.98);
+  }
+
+  .chip:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .chip.is-active {
+    background: var(--color-ai);
+    border-color: var(--color-ai);
+    color: var(--color-kinari);
+  }
+
+  .filter-count {
+    font-size: var(--text-sm);
+    color: var(--color-sumi-usu);
+    margin-bottom: var(--space-6);
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-6);
+  }
+
+  .filter-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-4);
+    padding: var(--space-11) var(--space-5);
+    border: var(--border-hairline);
+    border-radius: var(--radius);
+    background: var(--color-washi);
+    box-shadow: var(--shadow-paper);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chip {
+      transition: none;
+    }
+  }
+</style>

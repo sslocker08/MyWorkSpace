@@ -1,0 +1,38 @@
+{
+  "slug": "woven-cushion",
+  "founder": "hiroto-rag-weaving",
+  "order": 2,
+  "published": true,
+  "name": {
+    "fr": "Coussin Tissé Couleur",
+    "en": "Colorful Woven Cushion",
+    "ja": "色彩織りクッション"
+  },
+  "description": {
+    "fr": "Coussin carré tissé à partir de filés teintés naturellement, motif géométrique. Rembourré de kapok bio-source, il allie confort et responsabilité environnementale.",
+    "en": "Square cushion woven from naturally-dyed yarns, geometric pattern. Stuffed with biogenic kapok, it combines comfort with environmental care.",
+    "ja": "天然に染めた糸で織った正方形のクッション。幾何学模様で、オーガニックのカポックで詰められています。"
+  },
+  "materials": {
+    "fr": "Coton teinture naturelle, rembourrage kapok",
+    "en": "Natural-dyed cotton, kapok fill",
+    "ja": "天然染綿・カポック詰"
+  },
+  "price": {
+    "amount": 6900,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/woven-cushion/01.svg",
+    "/img/products/woven-cushion/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  },
+  "category": "textile"
+}

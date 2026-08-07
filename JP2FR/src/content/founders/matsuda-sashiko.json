@@ -1,0 +1,31 @@
+{
+  "slug": "matsuda-sashiko",
+  "order": 7,
+  "published": true,
+  "name": {
+    "fr": "Sashiko Matsuda",
+    "en": "Sashiko Matsuda",
+    "ja": "松田刺し子"
+  },
+  "title": {
+    "fr": "Maître de sashiko",
+    "en": "Sashiko master",
+    "ja": "刺し子職人"
+  },
+  "bio": {
+    "fr": "En Aomori, région du nord du Japon, Sashiko Matsuda perpétue la tradition des piqûres géométriques qui renforcent et ornent les tissus. Chaque point, minutieusement noué à la main, crée des motifs intemporels.",
+    "en": "In Aomori, northern Japan, Sashiko Matsuda continues the tradition of geometric stitching that reinforces and beautifies fabric. Each stitch, carefully hand-tied, creates timeless patterns.",
+    "ja": "青森の北国で、松田刺し子は幾何学的な刺し子の伝統を守り続けています。手で丹念に刺された一針一針が、永遠の文様を描き出します。"
+  },
+  "region": {
+    "fr": "Aomori",
+    "en": "Aomori",
+    "ja": "青森"
+  },
+  "portrait": "/img/founders/matsuda-sashiko/portrait.webp",
+  "sns": {
+    "instagram": "https://instagram.com/matsuda.sashiko",
+    "x": ""
+  },
+  "craft": "textile"
+}

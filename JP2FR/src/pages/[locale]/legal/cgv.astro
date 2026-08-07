@@ -1,0 +1,185 @@
+---
+// critique: P4 H4 E4 S4 R4 V3
+//
+// Conditions générales de vente. The delivery/customs and 14-day
+// withdrawal-return-cost paragraphs deliberately cite
+// docs/LEGAL-OPEN-QUESTIONS.md #2 (DDP/DDU + return-shipping cost, both
+// genuinely undecided) rather than asserting a policy that doesn't exist
+// yet in src/pages/api/checkout.ts (which currently ships FR-only, no
+// automatic_tax).
+import Base from '../../../layouts/Base.astro';
+import { locales, useT, type Locale } from '../../../lib/i18n';
+import { breadcrumbTrail } from '../../../lib/routes';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({ params: { locale } }));
+}
+
+const locale = Astro.params.locale as Locale;
+const t = useT(locale);
+
+interface Section {
+  heading: string;
+  body: string;
+}
+interface LegalContent {
+  title: string;
+  sections: Section[];
+}
+
+const content: Record<Locale, LegalContent> = {
+  fr: {
+    title: 'Conditions générales de vente',
+    sections: [
+      {
+        heading: "Champ d'application",
+        body: 'Les présentes conditions générales de vente régissent toute commande passée sur le site JP2FR par un consommateur résidant en France métropolitaine.',
+      },
+      {
+        heading: 'Prix',
+        body: 'Les prix sont indiqués en euros (EUR), toutes taxes comprises (TTC). <span class="ph">[PLACEHOLDER: régime de TVA/IOSS applicable à confirmer — voir docs/LEGAL-OPEN-QUESTIONS.md]</span>.',
+      },
+      {
+        heading: 'Commande',
+        body: "La commande s'effectue en ligne : sélection des produits, ajout au panier, écran de vérification finale (quantités, prix, adresse de livraison), puis paiement sécurisé via Stripe.",
+      },
+      {
+        heading: 'Paiement',
+        body: 'Le paiement est traité par notre prestataire Stripe. JP2FR ne collecte ni ne conserve aucune donnée de carte bancaire.',
+      },
+      {
+        heading: 'Livraison',
+        body: 'Les produits sont expédiés depuis le Japon vers la France métropolitaine uniquement. Délai de livraison estimé : <span class="ph">[PLACEHOLDER: X–Y jours ouvrés]</span>. Frais de douane et taxe à l\'import : <span class="ph">[PLACEHOLDER: régime DDP (droits acquittés par le vendeur) ou DDU (à la charge de l\'acheteur) — décision en attente]</span>.',
+      },
+      {
+        heading: 'Droit de rétractation (14 jours)',
+        body: "Conformément au Code de la consommation, vous disposez d'un délai de 14 jours à compter de la réception du produit pour exercer votre droit de rétractation, sans avoir à justifier de motif ni à payer de pénalité. Exceptions éventuelles : <span class=\"ph\">[PLACEHOLDER: produits personnalisés ou descellés pour raisons d'hygiène, à confirmer selon le catalogue]</span>. Modalités d'exercice : <span class=\"ph\">[PLACEHOLDER: formulaire de rétractation et procédure de retour]</span>. Frais de retour vers le Japon à la charge de : <span class=\"ph\">[PLACEHOLDER: à déterminer]</span>.",
+      },
+      {
+        heading: 'Garanties légales',
+        body: 'Tout produit bénéficie de la garantie légale de conformité et de la garantie contre les vices cachés, conformément au droit français.',
+      },
+      {
+        heading: 'Litiges et médiation',
+        body: 'En cas de litige non résolu à l\'amiable, vous pouvez recourir gratuitement à un médiateur de la consommation : <span class="ph">[PLACEHOLDER: coordonnées du médiateur]</span>.',
+      },
+    ],
+  },
+  en: {
+    title: 'Terms and conditions of sale',
+    sections: [
+      {
+        heading: 'Scope',
+        body: 'These terms and conditions govern any order placed on the JP2FR site by a consumer residing in metropolitan France.',
+      },
+      {
+        heading: 'Prices',
+        body: 'Prices are shown in euros (EUR), all taxes included. <span class="ph">[PLACEHOLDER: applicable VAT/IOSS regime to be confirmed — see docs/LEGAL-OPEN-QUESTIONS.md]</span>.',
+      },
+      {
+        heading: 'Order process',
+        body: 'Orders are placed online: select products, add to cart, a final review screen (quantities, price, delivery address), then secure payment via Stripe.',
+      },
+      {
+        heading: 'Payment',
+        body: 'Payment is processed by our provider, Stripe. JP2FR never collects or stores any card data.',
+      },
+      {
+        heading: 'Delivery',
+        body: 'Products ship from Japan to metropolitan France only. Estimated delivery: <span class="ph">[PLACEHOLDER: X–Y business days]</span>. Customs duties and import tax: <span class="ph">[PLACEHOLDER: DDP (seller-paid) or DDU (buyer-paid) arrangement — decision pending]</span>.',
+      },
+      {
+        heading: '14-day right of withdrawal',
+        body: "Under French consumer law, you have 14 days from receipt of the product to exercise your right of withdrawal, without giving a reason or paying a penalty. Possible exceptions: <span class=\"ph\">[PLACEHOLDER: personalized or hygiene-sealed items, to be confirmed per catalog]</span>. How to exercise it: <span class=\"ph\">[PLACEHOLDER: withdrawal form and return procedure]</span>. Return shipping cost to Japan borne by: <span class=\"ph\">[PLACEHOLDER: to be determined]</span>.",
+      },
+      {
+        heading: 'Legal warranties',
+        body: 'Every product carries the statutory warranty of conformity and the warranty against hidden defects under French law.',
+      },
+      {
+        heading: 'Disputes and mediation',
+        body: 'If a dispute cannot be resolved amicably, you may refer it free of charge to a consumer mediator: <span class="ph">[PLACEHOLDER: mediator contact details]</span>.',
+      },
+    ],
+  },
+  ja: {
+    title: '利用規約（販売条件）',
+    sections: [
+      {
+        heading: '適用範囲',
+        body: '本規約は、フランス本土に居住する消費者がJP2FRサイトで行うすべての注文に適用されます。',
+      },
+      {
+        heading: '価格',
+        body: '価格はユーロ（EUR）建て・税込表示です。<span class="ph">[PLACEHOLDER: 適用されるVAT/IOSS制度は確認中 — docs/LEGAL-OPEN-QUESTIONS.md参照]</span>。',
+      },
+      {
+        heading: 'ご注文の流れ',
+        body: 'オンラインでの注文：商品選択 → カート追加 → 最終確認画面（数量・価格・配送先住所）→ Stripeによる安全な決済。',
+      },
+      {
+        heading: 'お支払い',
+        body: '決済は決済代行会社Stripeが処理します。JP2FRがクレジットカード情報を収集・保存することはありません。',
+      },
+      {
+        heading: '配送',
+        body: '商品は日本からフランス本土へのみ発送されます。お届けまでの目安：<span class="ph">[PLACEHOLDER: 〇〜〇営業日]</span>。関税・輸入消費税：<span class="ph">[PLACEHOLDER: DDP（売主負担）またはDDU（買主負担）方針は決定待ち]</span>。',
+      },
+      {
+        heading: '14日間の契約撤回権',
+        body: 'フランス消費法典に基づき、商品到着後14日以内であれば、理由を問わず違約金なしに契約を撤回できます。例外：<span class="ph">[PLACEHOLDER: 個人向けカスタム品や衛生上開封済みの商品など、商品カタログに応じて確認中]</span>。手続き：<span class="ph">[PLACEHOLDER: 撤回フォームおよび返送手順]</span>。日本への返送料の負担者：<span class="ph">[PLACEHOLDER: 未定]</span>。',
+      },
+      {
+        heading: '法定保証',
+        body: 'すべての商品にフランス法上の適合保証および隠れた瑕疵に対する保証が適用されます。',
+      },
+      {
+        heading: '紛争解決・調停',
+        body: '当事者間で解決しない紛争については、無料の消費者調停人をご利用いただけます：<span class="ph">[PLACEHOLDER: 調停人の連絡先]</span>。',
+      },
+    ],
+  },
+};
+
+const page = content[locale];
+const breadcrumbs = breadcrumbTrail(locale, t, [{ label: t('footer.cgv'), path: '/legal/cgv/' }]);
+---
+
+<Base locale={locale} title={page.title} path="/legal/cgv/" breadcrumbs={breadcrumbs}>
+  <article class="legal-article container">
+    <h1>{page.title}</h1>
+    {
+      page.sections.map((section) => (
+        <section class="legal-section">
+          <h2>{section.heading}</h2>
+          <p set:html={section.body} />
+        </section>
+      ))
+    }
+  </article>
+</Base>
+
+<style>
+  .legal-article {
+    max-width: 42rem;
+    padding-block: var(--space-10) var(--space-12);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .legal-section h2 {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-3);
+  }
+
+  .legal-section p {
+    color: var(--color-sumi);
+    font-size: var(--text-sm);
+  }
+
+  .legal-section :global(.ph) {
+    color: var(--color-shu);
+    border-bottom: 1px dashed var(--color-shu);
+  }
+</style>

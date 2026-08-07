@@ -1,0 +1,38 @@
+{
+  "slug": "serving-tray-wood",
+  "founder": "studio-kizuki-wood",
+  "order": 2,
+  "published": true,
+  "name": {
+    "fr": "Plateau de Service",
+    "en": "Serving Tray",
+    "ja": "お盆"
+  },
+  "description": {
+    "fr": "Plateau en bois de cèdre avec rebords légèrement relevés. Parfait pour servir le thé, le riz ou les petites collations, il unit la fonction et la beauté.",
+    "en": "Cedar wood tray with gently raised edges. Perfect for serving tea, rice, or small snacks, uniting function and beauty.",
+    "ja": "杉材のお盆で、縁が優雅に立ち上がっています。茶や米、軽い食事を運ぶのに最適です。"
+  },
+  "materials": {
+    "fr": "Bois de cèdre, finition huilée",
+    "en": "Cedar wood, oiled finish",
+    "ja": "杉材・油仕上げ"
+  },
+  "price": {
+    "amount": 6800,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/serving-tray-wood/01.svg",
+    "/img/products/serving-tray-wood/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  },
+  "category": "objets"
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="900" viewBox="0 0 1200 900" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="900" fill="#F3EFE4"/>
+  <rect x="22" y="22" width="1156" height="856" fill="none" stroke="#2E2E35" stroke-width="1" opacity="0.25"/>
+  <rect x="32" y="32" width="1136" height="836" fill="none" stroke="#33518F" stroke-width="3"/>
+  
+  <clipPath id="plate-matcha-bowl-kyoto-2">
+    <rect x="40.0" y="40.0" width="974.0" height="820.0"/>
+  </clipPath>
+  <pattern id="pat-plate-matcha-bowl-kyoto-2" x="40.0" y="40.0" width="518.4" height="299.3" patternUnits="userSpaceOnUse" patternTransform="rotate(272 527.0 450.0)">
+    <g transform="scale(2.4)"><polygon points="72.0,0.0 36.0,62.4 -36.0,62.4 -72.0,0.0 -36.0,-62.4 36.0,-62.4" fill="none" stroke="#33518F" stroke-width="1.5" opacity="0.5"/><polygon points="180.0,62.4 144.0,124.7 72.0,124.7 36.0,62.4 72.0,0.0 144.0,0.0" fill="none" stroke="#33518F" stroke-width="1.5" opacity="0.5"/><polygon points="288.0,0.0 252.0,62.4 180.0,62.4 144.0,0.0 180.0,-62.4 252.0,-62.4" fill="none" stroke="#33518F" stroke-width="1.5" opacity="0.5"/><polygon points="72.0,124.7 36.0,187.1 -36.0,187.1 -72.0,124.7 -36.0,62.4 36.0,62.4" fill="none" stroke="#33518F" stroke-width="1.5" opacity="0.5"/><polygon points="288.0,124.7 252.0,187.1 180.0,187.1 144.0,124.7 180.0,62.4 252.0,62.4" fill="none" stroke="#33518F" stroke-width="1.5" opacity="0.5"/></g>
+  </pattern>
+  <g clip-path="url(#plate-matcha-bowl-kyoto-2)">
+    <rect x="40.0" y="40.0" width="974.0" height="820.0" fill="#F3EFE4"/>
+    <rect x="40.0" y="40.0" width="974.0" height="820.0" fill="url(#pat-plate-matcha-bowl-kyoto-2)"/>
+  </g>
+  <line x1="1024.0" y1="40.0" x2="1024.0" y2="860.0" stroke="#2E2E35" stroke-width="1" opacity="0.2"/>
+  <text x="1100.0" y="76.0" font-family="'Hiragino Mincho ProN','Yu Mincho','Noto Serif JP',serif" font-size="56.0" text-anchor="middle" fill="#2E2E35"><tspan x="1100.0" dy="0">京</tspan><tspan x="1100.0" dy="64.4">都</tspan><tspan x="1100.0" dy="64.4">抹</tspan><tspan x="1100.0" dy="64.4">茶</tspan><tspan x="1100.0" dy="64.4">碗</tspan></text>
+  <g transform="translate(58.0, 786.0)">
+    <rect width="56" height="56" fill="#C2451E"/>
+    <text x="28" y="38.64" font-family="serif" font-size="32.48" text-anchor="middle" fill="#F3EFE4">京</text>
+  </g>
+</svg>

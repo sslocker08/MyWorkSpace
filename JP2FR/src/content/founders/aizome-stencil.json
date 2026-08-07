@@ -1,0 +1,31 @@
+{
+  "slug": "aizome-stencil",
+  "order": 10,
+  "published": true,
+  "name": {
+    "fr": "Aizome Studio",
+    "en": "Aizome Studio",
+    "ja": "藍染工房"
+  },
+  "title": {
+    "fr": "Maître de teinture au pochoir",
+    "en": "Stencil dye master",
+    "ja": "型染め職人"
+  },
+  "bio": {
+    "fr": "Dans la région sacrée d'Ise, Aizome Studio crée des motifs de type avec précision ancestrale. Les pochoirs de papier washi découpés à la main guidant l'indigo sur le coton, révélant des dessins nets et délicats.",
+    "en": "In sacred Ise region, Aizome Studio creates stencil patterns with ancestral precision. Hand-cut washi stencils guide indigo onto cotton, revealing crisp and delicate designs.",
+    "ja": "伊勢の聖地で、藍染工房は精密な型を駆使して布に文様を映します。手で切った和紙の型が、藍を導き、鮮やかで優雅な絵柄が生まれます。"
+  },
+  "region": {
+    "fr": "Ise",
+    "en": "Ise",
+    "ja": "伊勢"
+  },
+  "portrait": "/img/founders/aizome-stencil/portrait.webp",
+  "sns": {
+    "instagram": "https://instagram.com/aizome.studio",
+    "x": ""
+  },
+  "craft": "textile"
+}

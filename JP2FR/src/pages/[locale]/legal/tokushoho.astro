@@ -1,0 +1,148 @@
+---
+// critique: P4 H4 E4 S4 R4 V3
+//
+// 特定商取引法に基づく表記 (Japanese Act on Specified Commercial
+// Transactions notice). This is legally a Japanese-law disclosure, not a
+// French/EU one — so per the brief, ja shows the full notice, while fr/en
+// show a short explanatory intro plus the *same* Japanese-language notice
+// (not translated), marked lang="ja" for correctness. Every real business
+// fact (company name, address, delivery lead time...) is unknown here and
+// marked [PLACEHOLDER: ...] rather than invented (DESIGN.md §6).
+import Base from '../../../layouts/Base.astro';
+import { locales, useT, type Locale } from '../../../lib/i18n';
+import { breadcrumbTrail } from '../../../lib/routes';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({ params: { locale } }));
+}
+
+const locale = Astro.params.locale as Locale;
+const t = useT(locale);
+
+interface Section {
+  heading: string;
+  body: string;
+}
+
+// The one notice, always in Japanese — reused verbatim on every locale.
+const jaSections: Section[] = [
+  {
+    heading: '販売業者',
+    body: '<span class="ph">[PLACEHOLDER: 会社名]</span>',
+  },
+  {
+    heading: '運営統括責任者',
+    body: '<span class="ph">[PLACEHOLDER: 運営統括責任者氏名]</span>',
+  },
+  {
+    heading: '所在地',
+    body: '<span class="ph">[PLACEHOLDER: 住所]</span>',
+  },
+  {
+    heading: 'お問い合わせ',
+    body: '<span class="ph">[PLACEHOLDER: 電話番号]</span> / <span class="ph">[PLACEHOLDER: メールアドレス]</span>',
+  },
+  {
+    heading: '販売価格',
+    body: '各商品ページに記載（消費税込み）。',
+  },
+  {
+    heading: '商品代金以外に必要な料金',
+    body: '送料（配送先により異なり、注文確定画面で表示）。関税・輸入消費税：<span class="ph">[PLACEHOLDER: DDP/DDU方針は決定待ち]</span>。',
+  },
+  {
+    heading: 'お支払い方法',
+    body: 'クレジットカード決済（Stripe経由）。',
+  },
+  {
+    heading: 'お支払い時期',
+    body: 'ご注文確定時に決済されます。',
+  },
+  {
+    heading: '商品の引渡時期',
+    body: '<span class="ph">[PLACEHOLDER: 発送〜お届けまでの目安日数]</span>',
+  },
+  {
+    heading: '返品・キャンセルについて',
+    body: '商品の性質上、お客様都合による返品は原則としてお受けしておりません。ただし、EU圏内にお住まいの消費者の皆様には、フランス消費法典に基づき、商品到着後14日間の契約撤回権が別途認められます。詳細は「利用規約（販売条件）」をご覧ください。',
+  },
+];
+
+interface LegalContent {
+  title: string;
+  intro?: string;
+}
+
+const content: Record<Locale, LegalContent> = {
+  fr: {
+    title: 'Mention légale japonaise (Loi sur les transactions commerciales spécifiées)',
+    intro:
+      "La loi japonaise impose aux commerçants japonais un encart d'information (特定商取引法に基づく表記) distinct de nos mentions légales françaises. Cet encart est fourni ci-dessous en japonais, tel qu'exigé par le droit japonais ; nos conditions générales de vente (droit français/UE, y compris le délai de rétractation de 14 jours) restent l'information de référence pour les consommateurs français.",
+  },
+  en: {
+    title: 'Japanese legal notice (Act on Specified Commercial Transactions)',
+    intro:
+      'Japanese law requires Japan-based merchants to display a distinct disclosure (特定商取引法に基づく表記), separate from our French legal notice. It is provided below in Japanese, as required under Japanese law; our terms and conditions of sale (French/EU law, including the 14-day right of withdrawal) remain the reference information for French consumers.',
+  },
+  ja: {
+    title: '特定商取引法に基づく表記',
+  },
+};
+
+const page = content[locale];
+const breadcrumbs = breadcrumbTrail(locale, t, [{ label: t('footer.tokushoho'), path: '/legal/tokushoho/' }]);
+---
+
+<Base locale={locale} title={page.title} path="/legal/tokushoho/" breadcrumbs={breadcrumbs}>
+  <article class="legal-article container">
+    <h1>{page.title}</h1>
+    {page.intro && <p class="legal-intro">{page.intro}</p>}
+    <div lang="ja">
+      {
+        jaSections.map((section) => (
+          <section class="legal-section">
+            <h2>{section.heading}</h2>
+            <p set:html={section.body} />
+          </section>
+        ))
+      }
+    </div>
+  </article>
+</Base>
+
+<style>
+  .legal-article {
+    max-width: 42rem;
+    padding-block: var(--space-10) var(--space-12);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .legal-intro {
+    color: var(--color-sumi-usu);
+    font-size: var(--text-sm);
+  }
+
+  .legal-article div[lang='ja'] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    line-height: var(--leading-body-ja);
+  }
+
+  .legal-section h2 {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-3);
+  }
+
+  .legal-section p {
+    color: var(--color-sumi);
+    font-size: var(--text-sm);
+  }
+
+  .legal-section :global(.ph) {
+    color: var(--color-shu);
+    border-bottom: 1px dashed var(--color-shu);
+  }
+</style>

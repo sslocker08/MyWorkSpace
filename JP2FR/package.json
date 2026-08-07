@@ -1,0 +1,32 @@
+{
+  "name": "jp2fr",
+  "private": true,
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "validate": "node scripts/validate-content.mjs",
+    "test": "node --test tests/unit/*.test.mjs",
+    "test:e2e": "node tests/e2e/smoke.mjs"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^12",
+    "@fontsource/cormorant-garamond": "^5.2.11",
+    "@fontsource/noto-sans": "^5.2.10",
+    "@fontsource/noto-sans-jp": "^5.2.9",
+    "@nanostores/persistent": "^0.10",
+    "astro": "^5",
+    "gsap": "^3",
+    "lenis": "^1",
+    "nanostores": "^0.11",
+    "stripe": "^17"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9",
+    "playwright": "^1.61.1",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,139 @@
+---
+// critique: P5 H4 E4 S4 R5 V4
+import '../styles/global.css';
+import '../styles/fonts.css';
+// Preload target: body-font latin-400 woff2 only (DESIGN.md §2 — "preload
+// is body woff2 1 only"). `?url` gives the vite-hashed emitted asset URL
+// (e.g. /_astro/noto-sans-latin-400-normal.<hash>.woff2) so the preload
+// href always matches what fonts.css actually references.
+import notoSans400Url from '@fontsource/noto-sans/files/noto-sans-latin-400-normal.woff2?url';
+import { useT } from '../lib/i18n';
+import type { Locale } from '../lib/i18n';
+import { localePath, hreflangLinks } from '../lib/routes';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import CookieConsent from '../components/CookieConsent.astro';
+
+export interface Props {
+  locale: Locale;
+  title: string;
+  description?: string;
+  path: string;
+  breadcrumbs?: { label: string; href?: string }[];
+  /** LP passes 'dark' — header overlays the night hero (Header.astro). */
+  headerVariant?: 'light' | 'dark';
+}
+
+const { locale, title, description, path, breadcrumbs, headerVariant = 'light' } = Astro.props;
+
+const t = useT(locale);
+const siteName = t('site.name');
+const pageTitle = title ? `${title} — ${siteName}` : siteName;
+const metaDescription = description ?? t('site.description');
+
+const alternates = hreflangLinks(path);
+const canonicalHref = new URL(localePath(locale, path), Astro.site).toString();
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={metaDescription} />
+
+    <link rel="preload" as="font" type="font/woff2" href={notoSans400Url} crossorigin />
+
+    <link rel="canonical" href={canonicalHref} />
+    {
+      alternates.map((alt) => (
+        <link rel="alternate" hreflang={alt.locale} href={new URL(alt.href, Astro.site).toString()} />
+      ))
+    }
+
+    {/* theme-color cannot consume CSS custom properties — literal copied from tokens.css --color-sumi */}
+    <meta name="theme-color" content="oklch(0.24 0.012 270)" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:url" content={canonicalHref} />
+    <meta property="og:locale" content={locale} />
+  </head>
+  <body>
+    <a href="#main" class="skip-link">{t('a11y.skip_to_content')}</a>
+
+    <Header locale={locale} path={path} variant={headerVariant} />
+
+    {breadcrumbs && breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} locale={locale} />}
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <Footer locale={locale} />
+    <CookieConsent locale={locale} />
+
+    <div class="grain-overlay" aria-hidden="true"></div>
+
+    <script>
+      import '../islands/CartBadge';
+    </script>
+  </body>
+</html>
+
+<style>
+  /* Positioned once (top/left are static, not animated — §4 bans animating
+     top/left); the reveal itself is a transform-only translate. */
+  .skip-link {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-4);
+    z-index: var(--z-modal);
+    background: var(--color-ai);
+    color: var(--color-kinari);
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    text-decoration: none;
+    transform: translateY(-150%);
+    transition: transform var(--duration-ui) var(--ease-mie);
+  }
+
+  .skip-link:focus-visible {
+    transform: translateY(0);
+    outline: 2px solid var(--color-shu);
+    outline-offset: 2px;
+  }
+
+  /* Decorative washi-grain overlay — §3. Opacity kept within the 3–5% band;
+     mix-blend-mode: soft-light so it never obscures LCP/hero content. */
+  .grain-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-grain);
+    pointer-events: none;
+    background-image: url('/textures/washi-grain.svg');
+    background-repeat: repeat;
+    mix-blend-mode: soft-light;
+    opacity: 0.04;
+  }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    line-height: var(--leading-heading);
+  }
+</style>

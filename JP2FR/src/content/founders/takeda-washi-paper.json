@@ -1,0 +1,31 @@
+{
+  "slug": "takeda-washi-paper",
+  "order": 5,
+  "published": true,
+  "name": {
+    "fr": "Takeda Washi",
+    "en": "Takeda Washi",
+    "ja": "武田和紙"
+  },
+  "title": {
+    "fr": "Papetier washi",
+    "en": "Washi papermaker",
+    "ja": "和紙職人"
+  },
+  "bio": {
+    "fr": "Depuis le village de Kurotane, Takeda Washi fabrique du papier washi en utilisant des fibres de kozo et des techniques centenaires. Chaque feuille respire, révélant la structure délicate des fibres entrecroisées.",
+    "en": "From Kurotane village, Takeda Washi handmakes washi paper using kozo fiber and century-old techniques. Each sheet breathes, revealing the delicate structure of interwoven fibers.",
+    "ja": "黒種地の村から、武田和紙は楮の繊維を使い、百年の技法で紙を漉きます。ひとつひとつの紙が呼吸し、繊維が織り成す優美な構造が浮かび上がります。"
+  },
+  "region": {
+    "fr": "Kurotane",
+    "en": "Kurotane",
+    "ja": "黒種地"
+  },
+  "portrait": "/img/founders/takeda-washi-paper/portrait.webp",
+  "sns": {
+    "instagram": "https://instagram.com/takeda.washi",
+    "x": ""
+  },
+  "craft": "objets"
+}

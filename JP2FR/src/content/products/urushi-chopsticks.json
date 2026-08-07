@@ -1,0 +1,38 @@
+{
+  "slug": "urushi-chopsticks",
+  "founder": "iida-urushi-lacquer",
+  "order": 3,
+  "published": true,
+  "name": {
+    "fr": "Baguettes Laque Urushi",
+    "en": "Urushi Lacquer Chopsticks",
+    "ja": "漆塗り箸"
+  },
+  "description": {
+    "fr": "Paire de baguettes en bois laqué avec détail doré à la pointe. La laque les rend résistantes et chaque repas devient un moment de beauté.",
+    "en": "Pair of lacquered wooden chopsticks with gold-leaf detail at the tip. The lacquer makes them durable and every meal becomes a moment of beauty.",
+    "ja": "先端に金箔装飾を持つ漆塗りの箸。漆の耐久性と美しさが、食事のひとときを高めます。"
+  },
+  "materials": {
+    "fr": "Bois dur, laque urushi, or végétal",
+    "en": "Hardwood, urushi lacquer, gold leaf",
+    "ja": "硬木・漆・金箔"
+  },
+  "price": {
+    "amount": 4500,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/urushi-chopsticks/01.svg",
+    "/img/products/urushi-chopsticks/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  },
+  "category": "objets"
+}

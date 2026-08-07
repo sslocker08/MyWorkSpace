@@ -1,0 +1,160 @@
+{
+  "site": {
+    "name": "JP2FR",
+    "tagline": "日本の工芸品、工房からあなたのお家へ"
+  },
+  "nav": {
+    "home": "ホーム",
+    "founders": "職人",
+    "products": "商品",
+    "cart": "カート",
+    "menu": "メニュー",
+    "close": "閉じる"
+  },
+  "lp": {
+    "intro": {
+      "message": "ものを創る手と出会う。日本から世界へ。",
+      "skip": "スキップ"
+    },
+    "hero": {
+      "title": "日本の芸を、あなたの元へ。",
+      "subtitle": "心と伝統で創られた日用品",
+      "scroll": "探索する"
+    },
+    "concept": {
+      "kicker": "わたしたちの想い",
+      "line1": "ひとつひとつのものには物語があります。職人の思い、素材、そして何代にもわたる技。",
+      "line2": "日本の創り手とあなたを直接つなぎ、仲介者を排除します。",
+      "line3": "妥協のない品質。永遠の美しさ。ともに負う責任。"
+    },
+    "founders": {
+      "kicker": "職人",
+      "title": "15の工房、15の地域、15の伝統",
+      "cta": "職人を知る"
+    },
+    "products": {
+      "kicker": "厳選作品",
+      "title": "ひとつひとつの想いが詰まった作品",
+      "cta": "すべての商品を見る"
+    },
+    "sns": {
+      "title": "わたしたちのストーリーをフォロー",
+      "follow": "フォローする"
+    }
+  },
+  "founders": {
+    "title": "職人一覧",
+    "breadcrumb": "職人",
+    "products_by": "{name}の作品",
+    "back": "職人一覧へ戻る"
+  },
+  "products": {
+    "title": "商品",
+    "breadcrumb": "商品",
+    "by": "{name} 作",
+    "materials": "素材",
+    "soldOut": "売り切れ",
+    "unique": "一点物",
+    "addToCart": "カートに追加",
+    "added": "カートに追加しました",
+    "inCart": "カートに入っています"
+  },
+  "cart": {
+    "title": "カート",
+    "empty": "カートに商品がありません",
+    "empty_cta": "ショッピングを続ける",
+    "count": "{count}点",
+    "quantity": "数量",
+    "remove": "削除",
+    "subtotal": "小計",
+    "shipping_note": "送料は次のページで計算されます",
+    "tax_note": "表示価格に税金が含まれています",
+    "confirm_title": "ご注文内容を確認",
+    "confirm_delivery": "配送先住所",
+    "confirm_cancel": "キャンセルして戻る",
+    "checkout": "購入に進む",
+    "processing": "処理中…",
+    "error": "エラーが発生しました。もう一度お試しください。"
+  },
+  "checkout": {
+    "success_title": "ご注文ありがとうございます",
+    "success_body": "ご注文は現在処理中です。確認メールをお送りしました。間もなく配送情報をお受け取りください。",
+    "cancel_title": "支払いがキャンセルされました",
+    "cancel_body": "お支払いがキャンセルされました。ショッピングを続けるか、ご不明な点についてはお問い合わせください。",
+    "back_home": "ホームへ戻る"
+  },
+  "footer": {
+    "legal": "法的表示",
+    "mentions": "法的表示",
+    "privacy": "プライバシーポリシー",
+    "cgv": "利用規約",
+    "tokushoho": "特定商取引法に基づく表示",
+    "cookies": "クッキーポリシー",
+    "rights": "無断転載を禁じます。",
+    "boutique": "ショップ",
+    "aide": "サポート",
+    "a_propos": "私たちについて",
+    "our_story": "私たちの物語",
+    "payment_methods": "お支払い方法"
+  },
+  "cookie": {
+    "title": "クッキーを使用しています",
+    "body": "閲覧体験の向上、サイト利用の分析、コンテンツのカスタマイズのためクッキーを使用しています。すべてのクッキーを受け入れるか、お好みで設定できます。",
+    "accept": "すべて受け入れる",
+    "reject": "拒否",
+    "settings": "設定",
+    "essential": "必須クッキー",
+    "analytics": "分析クッキー"
+  },
+  "a11y": {
+    "skip_to_content": "メインコンテンツへスキップ",
+    "open_menu": "メニューを開く",
+    "close_menu": "メニューを閉じる",
+    "breadcrumb": "パンくずリスト"
+  },
+  "notfound": {
+    "title": "ページが見つかりません",
+    "body": "申し訳ございません。お探しのページが見つかりません。URLをご確認いただくか、ホームへお戻りください。",
+    "back": "ホームへ戻る"
+  },
+  "categories": {
+    "all": "すべて",
+    "ceramique": "陶芸",
+    "textile": "テキスタイル",
+    "illustration": "イラスト",
+    "objets": "工芸品",
+    "mode": "ファッション"
+  },
+  "filters": {
+    "results": "{count}件",
+    "clear": "絞り込みを解除"
+  },
+  "product": {
+    "tabs_description": "説明",
+    "tabs_details": "詳細",
+    "tabs_shipping": "配送と返品",
+    "quantity": "数量",
+    "label_founder": "作り手",
+    "label_category": "カテゴリー",
+    "label_stock": "在庫状況",
+    "stock_stocked": "在庫あり",
+    "shipping_delivery": "日本からフランス本土へ発送します。お届けまでの目安：[PLACEHOLDER: 3〜5営業日]。",
+    "shipping_returns": "利用規約に定める通り、商品到着後14日間の契約撤回権があります。"
+  },
+  "lp2": {
+    "hero_cta": "商品を見る",
+    "categories_kicker": "創作の数々",
+    "categories_title": "創作に出会う",
+    "founders_meet": "作り手に会う",
+    "sns_title": "フォローする",
+    "sns_sub": "日本からのインスピレーションと舞台裏。",
+    "concept_feat1_t": "本物",
+    "concept_feat1_b": "日本の手仕事",
+    "concept_feat2_t": "厳選",
+    "concept_feat2_b": "目利きによる選定",
+    "concept_feat3_t": "フランスへお届け",
+    "concept_feat3_b": "迅速・確実",
+    "concept_feat4_t": "安全な決済",
+    "concept_feat4_b": "Stripe・3Dセキュア"
+  }
+}

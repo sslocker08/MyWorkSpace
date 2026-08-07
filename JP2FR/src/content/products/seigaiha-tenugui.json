@@ -1,0 +1,38 @@
+{
+  "slug": "seigaiha-tenugui",
+  "founder": "atelier-tanaka-ceramic",
+  "order": 1,
+  "published": true,
+  "name": {
+    "fr": "Serviette Seigaiha",
+    "en": "Seigaiha Hand Towel",
+    "ja": "清海波手ぬぐい"
+  },
+  "description": {
+    "fr": "Une serviette de coton blanc motif de vagues concentriques, inspirée de la géométrie classique japonaise. Parfaite pour essuyer ou décorer, elle absorbe l'eau avec douceur.",
+    "en": "A white cotton hand towel with concentric wave pattern, inspired by classical Japanese geometry. Perfect for drying or displaying, it absorbs water gently.",
+    "ja": "白い綿の手ぬぐいに、清海波の文様が描かれています。日本の幾何学美学を映し、水を柔らかく吸収します。"
+  },
+  "materials": {
+    "fr": "Coton 100%, teinture indigo",
+    "en": "100% cotton, indigo dye",
+    "ja": "綿100%・藍染"
+  },
+  "price": {
+    "amount": 3500,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/seigaiha-tenugui/01.svg",
+    "/img/products/seigaiha-tenugui/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  },
+  "category": "ceramique"
+}

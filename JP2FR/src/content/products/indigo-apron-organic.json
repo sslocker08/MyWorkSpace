@@ -1,0 +1,38 @@
+{
+  "slug": "indigo-apron-organic",
+  "founder": "ai-no-tsuki-apparel",
+  "order": 2,
+  "published": true,
+  "name": {
+    "fr": "Tablier Indigo Bio",
+    "en": "Organic Indigo Apron",
+    "ja": "オーガニック藍エプロン"
+  },
+  "description": {
+    "fr": "Tablier en coton biologique teinté à l'indigo, simple et élégant. Poches profondes et bretelles réglables pour plus de confort. Chaque lavage renforce sa couleur indigo naturelle.",
+    "en": "Apron in organic cotton, indigo-dyed, simple and elegant. Deep pockets and adjustable straps for comfort. Each wash deepens its natural indigo color.",
+    "ja": "オーガニック綿を藍で染めたシンプルなエプロン。深いポケットと調整可能な肩紐。洗うたびに、自然な藍色が深まります。"
+  },
+  "materials": {
+    "fr": "Coton biologique, teinture indigo naturelle",
+    "en": "Organic cotton, natural indigo dye",
+    "ja": "オーガニック綿・天然藍染"
+  },
+  "price": {
+    "amount": 5950,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/indigo-apron-organic/01.svg",
+    "/img/products/indigo-apron-organic/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  },
+  "category": "mode"
+}

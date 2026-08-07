@@ -1,0 +1,185 @@
+---
+// critique: P4 H4 E4 S4 R4 V3
+//
+// GDPR privacy notice. Data flows described here match what the codebase
+// actually does today: Stripe Checkout collects order data (src/pages/api/
+// checkout.ts), the cart lives in localStorage (src/lib/cart.ts), and the
+// cookie banner (src/components/CookieConsent.astro) is the only consent
+// surface. The JP<->EU transfer note and retention periods are genuinely
+// undecided (docs/LEGAL-OPEN-QUESTIONS.md #1) — placeholders, not guesses.
+import Base from '../../../layouts/Base.astro';
+import { locales, useT, type Locale } from '../../../lib/i18n';
+import { breadcrumbTrail } from '../../../lib/routes';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({ params: { locale } }));
+}
+
+const locale = Astro.params.locale as Locale;
+const t = useT(locale);
+
+interface Section {
+  heading: string;
+  body: string;
+}
+interface LegalContent {
+  title: string;
+  intro: string;
+  sections: Section[];
+}
+
+const content: Record<Locale, LegalContent> = {
+  fr: {
+    title: 'Politique de confidentialité',
+    intro:
+      "Cette politique décrit, conformément au Règlement Général sur la Protection des Données (RGPD), comment JP2FR traite vos données personnelles.",
+    sections: [
+      {
+        heading: 'Responsable du traitement',
+        body: '<span class="ph">[PLACEHOLDER: raison sociale et adresse du responsable de traitement]</span>. Contact dédié : <span class="ph">[PLACEHOLDER: e-mail RGPD]</span>.',
+      },
+      {
+        heading: 'Données collectées',
+        body: "Données de commande transmises à notre prestataire de paiement Stripe (nom, adresse de livraison, e-mail) ; votre choix de consentement aux cookies ; le contenu de votre panier, conservé uniquement dans le stockage local (localStorage) de votre navigateur.",
+      },
+      {
+        heading: 'Finalités et bases légales',
+        body: "Traitement des commandes (exécution du contrat) ; mesure d'audience si vous l'acceptez (consentement) ; obligations comptables et fiscales (obligation légale).",
+      },
+      {
+        heading: 'Destinataires',
+        body: 'Stripe, Inc. (prestataire de paiement). <span class="ph">[PLACEHOLDER: le mécanisme de transfert encadré entre l\'UE et le Japon pour les données partagées avec les artisans partenaires reste à confirmer]</span>.',
+      },
+      {
+        heading: 'Durées de conservation',
+        body: '<span class="ph">[PLACEHOLDER: durées précises par catégorie de donnée — commande, comptabilité, cookies]</span>.',
+      },
+      {
+        heading: 'Vos droits',
+        body: "Vous disposez d'un droit d'accès, de rectification, d'effacement, de portabilité et d'opposition sur vos données. Vous pouvez également introduire une réclamation auprès de la CNIL (www.cnil.fr).",
+      },
+      {
+        heading: 'Contact',
+        body: '<span class="ph">[PLACEHOLDER: e-mail dédié aux demandes RGPD]</span>.',
+      },
+    ],
+  },
+  en: {
+    title: 'Privacy policy',
+    intro:
+      'This policy describes, in accordance with the General Data Protection Regulation (GDPR), how JP2FR processes your personal data.',
+    sections: [
+      {
+        heading: 'Data controller',
+        body: '<span class="ph">[PLACEHOLDER: company name and address of the data controller]</span>. Dedicated contact: <span class="ph">[PLACEHOLDER: GDPR e-mail]</span>.',
+      },
+      {
+        heading: 'Data collected',
+        body: 'Order data passed to our payment processor Stripe (name, delivery address, e-mail); your cookie-consent choice; your cart contents, kept only in your browser\'s local storage (localStorage).',
+      },
+      {
+        heading: 'Purposes and legal bases',
+        body: 'Order processing (contract performance); audience measurement if you accept it (consent); accounting and tax obligations (legal obligation).',
+      },
+      {
+        heading: 'Recipients',
+        body: 'Stripe, Inc. (payment processor). <span class="ph">[PLACEHOLDER: the EU–Japan data-transfer safeguard for data shared with partner artisans is still to be confirmed]</span>.',
+      },
+      {
+        heading: 'Retention periods',
+        body: '<span class="ph">[PLACEHOLDER: exact retention periods per data category — order, accounting, cookies]</span>.',
+      },
+      {
+        heading: 'Your rights',
+        body: 'You have a right of access, rectification, erasure, portability, and objection over your data. You may also lodge a complaint with the CNIL (www.cnil.fr), the French data-protection authority.',
+      },
+      {
+        heading: 'Contact',
+        body: '<span class="ph">[PLACEHOLDER: dedicated e-mail for GDPR requests]</span>.',
+      },
+    ],
+  },
+  ja: {
+    title: 'プライバシーポリシー（GDPR）',
+    intro: '本ポリシーは、EU一般データ保護規則（GDPR）に基づき、JP2FRが個人データをどのように取り扱うかを説明するものです。',
+    sections: [
+      {
+        heading: '管理者（データ管理責任者）',
+        body: '<span class="ph">[PLACEHOLDER: データ管理責任者の会社名・住所]</span>。専用連絡先：<span class="ph">[PLACEHOLDER: GDPR対応用メールアドレス]</span>。',
+      },
+      {
+        heading: '収集するデータ',
+        body: '決済代行会社Stripeへ送信される注文データ（氏名・配送先住所・メールアドレス）／クッキー同意の選択／ブラウザのローカルストレージ（localStorage）にのみ保存されるカート内容。',
+      },
+      {
+        heading: '利用目的と法的根拠',
+        body: '注文処理（契約の履行）／同意いただいた場合のアクセス解析（同意）／会計・税務上の義務（法的義務）。',
+      },
+      {
+        heading: '提供先',
+        body: 'Stripe, Inc.（決済代行会社）。<span class="ph">[PLACEHOLDER: 提携職人と共有するデータに関するEU-日本間の移転手当（標準契約条項等）は確認中]</span>。',
+      },
+      {
+        heading: '保存期間',
+        body: '<span class="ph">[PLACEHOLDER: データ区分ごとの正確な保存期間 — 注文・会計・クッキー]</span>。',
+      },
+      {
+        heading: 'お客様の権利',
+        body: 'アクセス権、訂正権、削除権、データポータビリティの権利、異議申立権を有します。フランスの個人データ保護監督機関CNIL（www.cnil.fr）への申立ても可能です。',
+      },
+      {
+        heading: 'お問い合わせ',
+        body: '<span class="ph">[PLACEHOLDER: GDPR関連のお問い合わせ専用メールアドレス]</span>。',
+      },
+    ],
+  },
+};
+
+const page = content[locale];
+const breadcrumbs = breadcrumbTrail(locale, t, [{ label: t('footer.privacy'), path: '/legal/privacy/' }]);
+---
+
+<Base locale={locale} title={page.title} path="/legal/privacy/" breadcrumbs={breadcrumbs}>
+  <article class="legal-article container">
+    <h1>{page.title}</h1>
+    <p class="legal-intro">{page.intro}</p>
+    {
+      page.sections.map((section) => (
+        <section class="legal-section">
+          <h2>{section.heading}</h2>
+          <p set:html={section.body} />
+        </section>
+      ))
+    }
+  </article>
+</Base>
+
+<style>
+  .legal-article {
+    max-width: 42rem;
+    padding-block: var(--space-10) var(--space-12);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .legal-intro {
+    color: var(--color-sumi-usu);
+    font-size: var(--text-sm);
+  }
+
+  .legal-section h2 {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-3);
+  }
+
+  .legal-section p {
+    color: var(--color-sumi);
+    font-size: var(--text-sm);
+  }
+
+  .legal-section :global(.ph) {
+    color: var(--color-shu);
+    border-bottom: 1px dashed var(--color-shu);
+  }
+</style>

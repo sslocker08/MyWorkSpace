@@ -1,0 +1,38 @@
+{
+  "slug": "stencil-tenugui",
+  "founder": "aizome-stencil",
+  "order": 2,
+  "published": true,
+  "name": {
+    "fr": "Serviette Type Pochoir",
+    "en": "Stencil-Pattern Tenugui",
+    "ja": "型紙手ぬぐい"
+  },
+  "description": {
+    "fr": "Serviette de coton teintée à l'indigo par pochoir, motif floral stylisé. Pratique et belle, elle peut être utilisée partout ou encadrée comme art mural.",
+    "en": "Cotton tenugui indigo-dyed through stencil, stylized floral pattern. Practical and beautiful, it works anywhere or framed as wall art.",
+    "ja": "型で藍を染めた綿の手ぬぐい。様式化された花の文様。実用的で美しく、どこにでも掛けるか額装できます。"
+  },
+  "materials": {
+    "fr": "Coton, teinture indigo pochoir",
+    "en": "Cotton, indigo stencil dye",
+    "ja": "綿・藍型染"
+  },
+  "price": {
+    "amount": 3900,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/stencil-tenugui/01.svg",
+    "/img/products/stencil-tenugui/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  },
+  "category": "textile"
+}

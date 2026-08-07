@@ -1,0 +1,431 @@
+---
+// Internal style guide — not part of the public site graph, no i18n.
+// Renders every token/utility from tokens.css + global.css as a static
+// reference sheet for the other build workers. Pure HTML/CSS, no JS.
+import '../styles/global.css';
+
+const colorTokens = [
+  { name: '--color-kinari', role: '生成り: 基調の紙地', note: '' },
+  { name: '--color-washi', role: '和紙: カード面', note: '' },
+  { name: '--color-sumi', role: '墨: 本文・見出し・暗幕', note: '' },
+  { name: '--color-sumi-usu', role: '薄墨: 補助テキスト', note: '' },
+  { name: '--color-ai', role: '藍: 主役。波・リンク・主要CTA', note: '' },
+  { name: '--color-asagi', role: '浅葱: 藍の淡色・hover・波の中間調', note: '' },
+  { name: '--color-shu', role: '朱: 落款・強調・バッジ・カーソル', note: '面積は全画面の5%未満' },
+  { name: '--color-moegi', role: '定式幕（イントロ専用）', note: '本編では使わない' },
+  { name: '--color-kaki', role: '定式幕（イントロ専用）', note: '本編では使わない' },
+];
+
+const semanticTokens = [
+  { name: '--color-bg', role: '= --color-kinari' },
+  { name: '--color-text', role: '= --color-sumi' },
+  { name: '--color-accent', role: '= --color-ai' },
+  { name: '--color-danger', role: '= --color-shu' },
+];
+
+const typeScale = [
+  { name: '--text-xs', sample: '0.75rem' },
+  { name: '--text-sm', sample: '0.875rem' },
+  { name: '--text-base', sample: '1rem' },
+  { name: '--text-lg', sample: '1.25rem' },
+  { name: '--text-xl', sample: '1.75rem' },
+  { name: '--text-2xl', sample: '2.5rem' },
+  { name: '--text-hero', sample: 'clamp(2.5rem, 6vw, 4.5rem)' },
+];
+---
+
+<!-- critique: P4 H4 E4 S4 R4 V3 -->
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Style Guide — JP2FR</title>
+    <meta name="robots" content="noindex, nofollow" />
+  </head>
+  <body>
+    <div class="grain-overlay" aria-hidden="true"></div>
+
+    <main class="container sg-page">
+      <header class="sg-section">
+        <p class="kicker">詞書 — style guide</p>
+        <h1>JP2FR デザイントークン</h1>
+        <p class="sg-lede">
+          木版画×和紙の物質世界（<code>/DESIGN.md</code>）を実装するトークン・ユーティリティの内部確認ページ。
+          本ページ自体は公開ページグラフに含まれない。
+        </p>
+      </header>
+
+      <section class="sg-section">
+        <h2>色 — Ink &amp; Paper</h2>
+        <p class="sg-note">
+          強調の序列: 藍ベタ面＋生成り抜き文字（最重要1要素のみ）→ 浅葱淡面 → 紙地＋墨罫線 → 藍文字 → 墨太字。
+        </p>
+        <div class="sg-swatch-grid">
+          {
+            colorTokens.map((t) => (
+              <div class="sg-swatch">
+                <span class="sg-swatch-color" style={`background: var(${t.name});`} />
+                <code>{t.name}</code>
+                <span class="sg-swatch-role">{t.role}</span>
+                {t.note && <span class="sg-swatch-flag">{t.note}</span>}
+              </div>
+            ))
+          }
+        </div>
+        <h3 class="sg-sub">意味論トークン</h3>
+        <div class="sg-swatch-grid">
+          {
+            semanticTokens.map((t) => (
+              <div class="sg-swatch">
+                <span class="sg-swatch-color" style={`background: var(${t.name});`} />
+                <code>{t.name}</code>
+                <span class="sg-swatch-role">{t.role}</span>
+              </div>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="sg-section">
+        <h2>タイポグラフィ</h2>
+        <p class="sg-note">
+          見出し = <code>--font-display</code>（明朝系スタック）・イタリック禁止。行間: 見出し 1.2 / 和文本文 1.9 /
+          欧文本文 1.65。
+        </p>
+        <div class="sg-type-scale">
+          {
+            typeScale.map((t) => (
+              <div class="sg-type-row">
+                <span class="sg-type-label">
+                  <code>{t.name}</code> <span class="sg-swatch-role">{t.sample}</span>
+                </span>
+                <span class="sg-type-sample" style={`font-size: var(${t.name});`}>
+                  越境ECで巡る、日本の手仕事
+                </span>
+              </div>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="sg-section">
+        <h2>ボタン — 8状態</h2>
+        <p class="sg-note">
+          hover は明るくせず浅葱へシフト。版ズレ（見当ズレ）演出はここでは使わない — DESIGN.md §3
+          によりファウンダーカード hover と署名見出しに限定。
+        </p>
+
+        <div class="sg-btn-grid">
+          <div class="sg-btn-cell">
+            <button class="btn btn--primary">default</button>
+            <span class="sg-btn-label">primary / default</span>
+          </div>
+          <div class="sg-btn-cell">
+            <button class="btn btn--primary sg-force-hover">hover-note</button>
+            <span class="sg-btn-label">primary / hover（実マウスhoverでも再現可）</span>
+          </div>
+          <div class="sg-btn-cell">
+            <button class="btn btn--primary sg-force-focus">focus</button>
+            <span class="sg-btn-label">primary / :focus-visible（実タブ操作でも再現可）</span>
+          </div>
+          <div class="sg-btn-cell">
+            <button class="btn btn--primary sg-force-active">active</button>
+            <span class="sg-btn-label">primary / active（実クリック中でも再現可）</span>
+          </div>
+          <div class="sg-btn-cell">
+            <button class="btn btn--primary" disabled>disabled</button>
+            <span class="sg-btn-label">primary / disabled</span>
+          </div>
+          <div class="sg-btn-cell">
+            <button class="btn btn--primary is-loading">loading</button>
+            <span class="sg-btn-label">primary / is-loading</span>
+          </div>
+          <div class="sg-btn-cell">
+            <button class="btn btn--primary is-error">error</button>
+            <span class="sg-btn-label">primary / is-error</span>
+          </div>
+          <div class="sg-btn-cell">
+            <button class="btn btn--primary is-success">success</button>
+            <span class="sg-btn-label">primary / is-success</span>
+          </div>
+        </div>
+
+        <div class="sg-btn-grid">
+          <div class="sg-btn-cell">
+            <button class="btn btn--secondary">default</button>
+            <span class="sg-btn-label">secondary / default</span>
+          </div>
+          <div class="sg-btn-cell">
+            <button class="btn btn--secondary sg-force-hover-secondary">hover-note</button>
+            <span class="sg-btn-label">secondary / hover</span>
+          </div>
+          <div class="sg-btn-cell">
+            <button class="btn btn--secondary sg-force-focus">focus</button>
+            <span class="sg-btn-label">secondary / :focus-visible</span>
+          </div>
+          <div class="sg-btn-cell">
+            <button class="btn btn--secondary sg-force-active">active</button>
+            <span class="sg-btn-label">secondary / active</span>
+          </div>
+          <div class="sg-btn-cell">
+            <button class="btn btn--secondary" disabled>disabled</button>
+            <span class="sg-btn-label">secondary / disabled</span>
+          </div>
+          <div class="sg-btn-cell">
+            <button class="btn btn--secondary is-loading">loading</button>
+            <span class="sg-btn-label">secondary / is-loading</span>
+          </div>
+          <div class="sg-btn-cell">
+            <button class="btn btn--secondary is-error">error</button>
+            <span class="sg-btn-label">secondary / is-error</span>
+          </div>
+          <div class="sg-btn-cell">
+            <button class="btn btn--secondary is-success">success</button>
+            <span class="sg-btn-label">secondary / is-success</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="sg-section">
+        <h2>カード</h2>
+        <div class="card sg-card-sample">
+          <p class="kicker">詞書 — sample</p>
+          <h3>和紙面カード</h3>
+          <p class="sg-note">
+            <code>--color-washi</code> 地・<code>--shadow-paper</code> 多層影・墨20%罫線 1px・角丸 2px。
+          </p>
+        </div>
+      </section>
+
+      <section class="sg-section">
+        <h2>影</h2>
+        <div class="sg-shadow-sample">shadow-paper</div>
+      </section>
+
+      <section class="sg-section">
+        <h2>質感・和柄</h2>
+        <div class="sg-texture-grid">
+          <div>
+            <div class="sg-texture-box sg-texture-grain" aria-hidden="true"></div>
+            <p class="sg-btn-label">washi-grain.svg（opacity .04 / soft-light 適用前提のプレビューは実際は .3 で拡大表示）</p>
+          </div>
+          <div>
+            <div class="sg-texture-box sg-texture-seigaiha" aria-hidden="true"></div>
+            <p class="sg-btn-label">seigaiha.svg（青海波・フッター/デバイダ線モチーフ）</p>
+          </div>
+        </div>
+        <div class="sg-kasumi-wrap">
+          <img src="/textures/kasumi.svg" alt="" width="1440" height="220" class="sg-kasumi-img" />
+        </div>
+        <p class="sg-btn-label">kasumi.svg（霞 — セクション区切りの帯。直線ボーダーの代替）</p>
+      </section>
+    </main>
+
+    <style>
+      .sg-page {
+        padding-block: var(--space-10) var(--space-12);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-12);
+      }
+
+      .sg-section {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+      }
+
+      .sg-lede {
+        color: var(--color-sumi-usu);
+        max-width: 60ch;
+      }
+
+      .sg-note {
+        color: var(--color-sumi-usu);
+        font-size: var(--text-sm);
+      }
+
+      .sg-sub {
+        font-size: var(--text-lg);
+        margin-top: var(--space-4);
+      }
+
+      .sg-swatch-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(0, 1fr));
+        gap: var(--space-4);
+      }
+
+      @media (min-width: 480px) {
+        .sg-swatch-grid {
+          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        }
+      }
+
+      .sg-swatch {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-1);
+        border: var(--border-hairline);
+        border-radius: var(--radius);
+        padding: var(--space-3);
+        background: var(--color-kinari);
+      }
+
+      .sg-swatch-color {
+        display: block;
+        width: 100%;
+        height: var(--space-9);
+        border-radius: var(--radius);
+        border: var(--border-hairline);
+      }
+
+      .sg-swatch-role {
+        color: var(--color-sumi-usu);
+        font-size: var(--text-xs);
+      }
+
+      .sg-swatch-flag {
+        color: var(--color-shu);
+        font-size: var(--text-xs);
+      }
+
+      .sg-type-scale {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+      }
+
+      .sg-type-row {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-1);
+        border-bottom: var(--border-hairline);
+        padding-bottom: var(--space-4);
+      }
+
+      .sg-type-label {
+        display: flex;
+        gap: var(--space-2);
+        align-items: baseline;
+      }
+
+      .sg-type-sample {
+        font-family: var(--font-display);
+        line-height: var(--leading-heading);
+      }
+
+      .sg-btn-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(0, 1fr));
+        gap: var(--space-5);
+      }
+
+      @media (min-width: 480px) {
+        .sg-btn-grid {
+          grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        }
+      }
+
+      .sg-btn-cell {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+      }
+
+      .sg-btn-label {
+        font-size: var(--text-xs);
+        color: var(--color-sumi-usu);
+      }
+
+      /* Static demo-only equivalents of pseudo-classes, for a screenshot
+         that can't itself hover/focus/press a button. Values are copied
+         1:1 from the real :hover/:focus-visible/:active rules in
+         global.css — nothing new is invented here. */
+      .sg-force-hover {
+        background: var(--color-asagi) !important;
+        border-color: var(--color-asagi) !important;
+      }
+
+      .sg-force-hover-secondary {
+        background: var(--color-washi) !important;
+        border-color: var(--color-ai) !important;
+        color: var(--color-ai) !important;
+      }
+
+      .sg-force-focus {
+        outline: 2px solid var(--color-shu);
+        outline-offset: 2px;
+      }
+
+      .sg-force-active {
+        transform: translateY(1px) scale(0.98);
+      }
+
+      .sg-card-sample {
+        max-width: 32rem;
+      }
+
+      .sg-shadow-sample {
+        width: 12rem;
+        height: 8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--color-washi);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-paper);
+        font-size: var(--text-sm);
+        color: var(--color-sumi-usu);
+      }
+
+      .sg-texture-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(0, 1fr));
+        gap: var(--space-5);
+      }
+
+      @media (min-width: 480px) {
+        .sg-texture-grid {
+          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        }
+      }
+
+      .sg-texture-box {
+        width: 100%;
+        height: 8rem;
+        border-radius: var(--radius);
+        border: var(--border-hairline);
+        background-color: var(--color-kinari);
+      }
+
+      .sg-texture-grain {
+        background-image: url('/textures/washi-grain.svg');
+        background-size: 160px 160px;
+        background-repeat: repeat;
+        opacity: 0.3;
+      }
+
+      .sg-texture-seigaiha {
+        background-image: url('/textures/seigaiha.svg');
+        background-size: 40px 40px;
+        background-repeat: repeat;
+      }
+
+      .sg-kasumi-wrap {
+        width: 100%;
+        overflow: hidden;
+        border-radius: var(--radius);
+        border: var(--border-hairline);
+      }
+
+      .sg-kasumi-img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+    </style>
+  </body>
+</html>

@@ -1,0 +1,136 @@
+---
+// critique: P4 H4 E4 S4 R4 V4
+import type { CollectionEntry } from 'astro:content';
+import type { Locale } from '../lib/i18n';
+import { useT } from '../lib/i18n';
+import { localePath } from '../lib/routes';
+import { formatPrice } from '../lib/format';
+
+export interface Props {
+  product: CollectionEntry<'products'>['data'];
+  founderName: string;
+  locale: Locale;
+}
+
+const { product, founderName, locale } = Astro.props;
+const t = useT(locale);
+const href = localePath(locale, `/products/${product.slug}/`);
+const price = formatPrice(product.price.amount, locale);
+const isSoldOut = product.stock.soldOut;
+const isUnique = product.stock.kind === 'unique';
+const coverImage = product.images[0];
+---
+
+<a href={href} class="product-card" class:list={{ 'is-sold-out': isSoldOut }} data-category={product.category}>
+  <span class="product-media">
+    {coverImage && (
+      <img src={coverImage} width="480" height="360" alt="" loading="lazy" decoding="async" />
+    )}
+    {isSoldOut && <span class="badge badge-sold-out">{t('products.soldOut')}</span>}
+    {!isSoldOut && isUnique && <span class="badge badge-unique">{t('products.unique')}</span>}
+  </span>
+  <span class="product-copy">
+    <span class="product-name">{product.name[locale]}</span>
+    <span class="product-founder">{t('products.by', { name: founderName })}</span>
+    <span class="product-price price">{price}</span>
+  </span>
+</a>
+
+<style>
+  .product-card {
+    display: block;
+    background: var(--color-washi);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-paper);
+    text-decoration: none;
+    color: inherit;
+    padding: var(--space-4);
+    transition: transform var(--duration-ui) var(--ease-mie);
+  }
+
+  .product-card:hover,
+  .product-card:focus-visible {
+    transform: translateY(-2px);
+  }
+
+  .product-card:focus-visible {
+    outline: 2px solid var(--color-shu);
+    outline-offset: 3px;
+  }
+
+  .product-card:active {
+    transform: translateY(0);
+  }
+
+  .product-media {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background: var(--color-kinari);
+  }
+
+  .product-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .product-card.is-sold-out .product-media img {
+    filter: grayscale(0.85);
+  }
+
+  .badge {
+    position: absolute;
+    top: var(--space-2);
+    left: var(--space-2);
+    border-radius: var(--radius);
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-xs);
+    font-family: var(--font-mono);
+  }
+
+  .badge-unique {
+    background: transparent;
+    border: 1px solid var(--color-shu);
+    color: var(--color-shu);
+  }
+
+  .badge-sold-out {
+    background: var(--color-sumi);
+    color: var(--color-kinari);
+  }
+
+  .product-copy {
+    display: block;
+    margin-top: var(--space-4);
+  }
+
+  .product-name {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    color: var(--color-sumi);
+  }
+
+  .product-founder {
+    display: block;
+    margin-top: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--color-sumi-usu);
+  }
+
+  .product-price {
+    display: block;
+    margin-top: var(--space-2);
+    font-size: var(--text-base);
+    color: var(--color-ai);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .product-card {
+      transition: none;
+    }
+  }
+</style>

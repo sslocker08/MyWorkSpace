@@ -1,0 +1,38 @@
+{
+  "slug": "kusaki-bowl-unique",
+  "founder": "atelier-tanaka-ceramic",
+  "order": 3,
+  "published": true,
+  "name": {
+    "fr": "Bol Kusaki Pièce Unique",
+    "en": "Kusaki One-of-a-Kind Bowl",
+    "ja": "草木染め一点物碗"
+  },
+  "description": {
+    "fr": "Une pièce unique en céramique raku, peinte aux pigments de plantes. La coloration naturelle et les marques du bois reflètent l'âme du four et l'essence du matériau.",
+    "en": "A one-of-a-kind raku ceramic bowl, hand-painted with plant pigments. Natural coloring and wood-fire marks reveal the furnace's soul and material essence.",
+    "ja": "植物顔料で彩色した楽焼きの一点物。天然の色合いと薪窯の痕跡が、焔の精と素材の命を映し出します。"
+  },
+  "materials": {
+    "fr": "Céramique raku, pigments botaniques",
+    "en": "Raku ceramic, botanical pigments",
+    "ja": "楽焼き陶土・草木顔料"
+  },
+  "price": {
+    "amount": 12000,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/kusaki-bowl-unique/01.svg",
+    "/img/products/kusaki-bowl-unique/02.svg"
+  ],
+  "stock": {
+    "kind": "unique",
+    "soldOut": false
+  },
+  "category": "ceramique"
+}

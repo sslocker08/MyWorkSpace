@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <!--
+    和紙グレイン (DESIGN.md §3): fractal-noise fiber texture, reduced to a
+    monochrome alpha channel so it can be overlaid at opacity .04 with
+    mix-blend-mode: soft-light (see .grain-overlay in global.css).
+    Tileable 400x400; stitchTiles avoids seams at the repeat boundary.
+  -->
+  <filter id="washi-grain-filter" x="0" y="0" width="100%" height="100%">
+    <feTurbulence
+      type="fractalNoise"
+      baseFrequency="0.9"
+      numOctaves="2"
+      stitchTiles="stitch"
+      seed="7"
+      result="noise"
+    />
+    <feColorMatrix
+      in="noise"
+      type="matrix"
+      values="0 0 0 0 0
+              0 0 0 0 0
+              0 0 0 0 0
+              0.33 0.33 0.33 0 0"
+    />
+  </filter>
+  <rect width="400" height="400" filter="url(#washi-grain-filter)" />
+</svg>

@@ -1,0 +1,31 @@
+{
+  "slug": "atelier-tanaka-ceramic",
+  "order": 1,
+  "published": true,
+  "name": {
+    "fr": "Atelier Tanaka",
+    "en": "Atelier Tanaka",
+    "ja": "田中陶房"
+  },
+  "title": {
+    "fr": "Céramiste",
+    "en": "Ceramic artist",
+    "ja": "陶芸家"
+  },
+  "bio": {
+    "fr": "Établi à Kyoto depuis trente ans, l'Atelier Tanaka travaille l'argile selon les traditions kyotoïtes. Chaque pièce est façonnée à la main et cuite au four à bois, révélant des teintes naturelles et des textures uniques. Le studio privilégie la sobriété et l'usage quotidien.",
+    "en": "Based in Kyoto for three decades, Atelier Tanaka crafts ceramics following traditional Kyoto techniques. Each piece is hand-thrown and wood-fired, revealing natural tones and unique textures. The studio values simplicity and daily use.",
+    "ja": "京都を拠点として三十年、田中陶房は伝統的な京焼の技法で陶芸を続けています。ひとつひとつ手ろくろで成形し、薪窯で焼成されます。素朴さと日用性を大切にしています。"
+  },
+  "region": {
+    "fr": "Kyoto",
+    "en": "Kyoto",
+    "ja": "京都"
+  },
+  "portrait": "/img/founders/atelier-tanaka-ceramic/portrait.webp",
+  "sns": {
+    "instagram": "https://instagram.com/atelier.tanaka.kyoto",
+    "x": ""
+  },
+  "craft": "ceramique"
+}

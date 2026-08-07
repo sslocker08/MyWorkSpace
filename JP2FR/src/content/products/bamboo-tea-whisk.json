@@ -1,0 +1,38 @@
+{
+  "slug": "bamboo-tea-whisk",
+  "founder": "nakamura-bamboo",
+  "order": 2,
+  "published": true,
+  "name": {
+    "fr": "Fouet à Matcha Bambou",
+    "en": "Bamboo Matcha Whisk",
+    "ja": "竹製抹茶泡立て"
+  },
+  "description": {
+    "fr": "Fouet traditionnel en bambou pour préparer le matcha, avec plus de 100 brins délicatement taillés. Son mouvement fluide crée une mousse riche et silencieuse.",
+    "en": "Traditional bamboo whisk for matcha preparation, with over 100 delicately carved tines. Its fluid motion creates rich, silky foam.",
+    "ja": "100本以上の細かく削られた竹の穂を持つ抹茶泡立て。滑らかな動きで、豊かで絹のようなクリームを立てます。"
+  },
+  "materials": {
+    "fr": "Bambou blanc naturel, taille traditionnelle",
+    "en": "Natural white bamboo, hand-carved",
+    "ja": "天然白竹・手彫り"
+  },
+  "price": {
+    "amount": 3200,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/bamboo-tea-whisk/01.svg",
+    "/img/products/bamboo-tea-whisk/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  },
+  "category": "objets"
+}

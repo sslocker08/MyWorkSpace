@@ -1,0 +1,38 @@
+{
+  "slug": "gold-repaired-bowl",
+  "founder": "yamazaki-gold-kintsugi",
+  "order": 1,
+  "published": true,
+  "name": {
+    "fr": "Bol Réparé à l'Or",
+    "en": "Gold-Repaired Bowl",
+    "ja": "金継ぎ碗"
+  },
+  "description": {
+    "fr": "Un bol en céramique ancienne réparé avec du fil d'or et de la résine naturelle. La ligne dorée suit la fracture, célébrant la beauté de la rupture et la continuité de la vie.",
+    "en": "An antique ceramic bowl repaired with gold thread and natural resin. The golden line traces the fracture, celebrating the beauty of breakage and life's continuity.",
+    "ja": "古い陶芸品を金の糸と漆で修復した碗。割れた線が金色に輝き、破壊と再生の物語を語ります。"
+  },
+  "materials": {
+    "fr": "Céramique ancienne, fil d'or, résine naturelle",
+    "en": "Antique ceramic, gold thread, natural resin",
+    "ja": "古陶磁・金糸・漆"
+  },
+  "price": {
+    "amount": 14500,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/gold-repaired-bowl/01.svg",
+    "/img/products/gold-repaired-bowl/02.svg"
+  ],
+  "stock": {
+    "kind": "unique",
+    "soldOut": false
+  },
+  "category": "ceramique"
+}

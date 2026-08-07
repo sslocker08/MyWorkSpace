@@ -1,0 +1,338 @@
+---
+// critique: P4 H4 E4 S4 R4 V4
+//
+// Concept section — SIGNATURE moment: a horizontal 絵巻 (handscroll) pan
+// through three real ukiyo-e prints (The Met, CC0 — assetgen/SOURCES.md),
+// telling the JP→FR journey (出発 → 渡り → 海越え) while the section is
+// pinned and scrubbed. Replaces the previous procedural wave-canvas
+// placeholder (removed) now that real prints exist under
+// public/img/sections + public/media/hero (DESIGN.md §8 asset-swap
+// contract). Static/no-JS state: the track sits at x=0 (scene 1, 出発,
+// visible), viewport overflow is hidden (acceptable per brief — the
+// concept lines below remain fully visible either way), reveals are
+// JS-driven only (no opacity:0 on anything above the fold, per DESIGN.md
+// §4 — the viewport itself is below-fold on every real viewport).
+import { useT } from '../../lib/i18n';
+import type { Locale } from '../../lib/i18n';
+import { sectionPrints } from '../../lib/assets';
+
+export interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useT(locale);
+
+const lineKeys = ['lp.concept.line1', 'lp.concept.line2', 'lp.concept.line3'] as const;
+
+// AD v2 §3: 4 line-icon features, each sourced from an existing lp2 i18n
+// pair (no new keys added — "keep them" per the brief). Icons are hand-drawn
+// inline SVGs (stroke=currentColor, viewBox 24, fill none) — NOT emoji/
+// filled clip-art (DESIGN.md §3 anti-slop gate).
+const features = [
+  { titleKey: 'lp2.concept_feat1_t', bodyKey: 'lp2.concept_feat1_b', icon: 'seal' },
+  { titleKey: 'lp2.concept_feat2_t', bodyKey: 'lp2.concept_feat2_b', icon: 'fan' },
+  { titleKey: 'lp2.concept_feat3_t', bodyKey: 'lp2.concept_feat3_b', icon: 'boat' },
+  { titleKey: 'lp2.concept_feat4_t', bodyKey: 'lp2.concept_feat4_b', icon: 'knotLock' },
+] as const;
+
+// Inline SVG inner-markup, keyed by feature.icon — hand-drawn line glyphs
+// (①落款/判子 seal, ②扇 fan, ③帆掛け舟 sailboat, ④組紐錠前 corded lock),
+// rendered via set:html below onto a shared <svg> shell (stroke=currentColor,
+// stroke-width 1.5, viewBox 24, fill=none — set once on the shell, not
+// repeated per icon). Content is fully static/authored here, never
+// user-supplied, so set:html carries no injection risk.
+const iconMarkup: Record<(typeof features)[number]['icon'], string> = {
+  // 落款/判子 — a carved seal face with three engraved script rows.
+  seal: '<rect x="5" y="5" width="14" height="14" rx="1.5"/><path d="M9 9.5h6M9 12.5h6M9 15.5h3.5"/>',
+  // 扇 — five ribs converging on a rivet, capped by the fan's top arc.
+  fan: '<path d="M5 10a9 9 0 0 1 14 0"/><path d="M12 20V4M12 20 6.5 10M12 20 9 8.5M12 20 15 8.5M12 20 17.5 10"/><circle cx="12" cy="20" r="1"/>',
+  // 帆掛け舟 — hull curve, mast, single sail.
+  boat: '<path d="M3 17.5c3 2.5 15 2.5 18 0"/><path d="M12 17V4"/><path d="M12 5 18 15H12"/>',
+  // 組紐錠前 — a shackle + body, with an abstract braided-cord knot in
+  // place of a modern keyhole dot-and-slot.
+  knotLock:
+    '<path d="M8 10V7.5a4 4 0 0 1 8 0V10"/><rect x="5.5" y="10" width="13" height="9" rx="1.5"/><path d="M10 14.2c0-1 .9-1.6 2-1.6s2 .6 2 1.6-.9 1.6-2 1.6-2 .6-2 1.6.9 1.6 2 1.6 2-.6 2-1.6"/>',
+};
+
+// Fixed captions — identical across all locales (real provenance, not
+// translated copy; DESIGN.md §6 honesty gate). Dimensions are the actual
+// source-file aspect ratios (assetgen/SOURCES.md), set explicitly so CLS=0.
+const panels = [
+  {
+    src: sectionPrints.bridge,
+    width: 1600,
+    height: 1089,
+    alt: '歌川広重《東海道五十三次 日本橋》— Morning View of Nihonbashi',
+    caption: '広重《東海道五十三次 日本橋》· The Met (CC0)',
+  },
+  {
+    src: sectionPrints.crane,
+    width: 1600,
+    height: 3553,
+    alt: '葛飾北斎《雪松に鶴》— Cranes on Branch of Snow-covered Pine',
+    caption: '北斎《雪松に鶴》· The Met (CC0)',
+  },
+  {
+    src: sectionPrints.waveDetail,
+    width: 1600,
+    height: 1087,
+    alt: '歌川広重《東海道五十三次 荒井 渡舟ノ図》— Arai: Ferryboats crossing',
+    caption: '広重《荒井 渡舟ノ図》· The Met (CC0)',
+  },
+] as const;
+---
+
+<section data-concept class="concept">
+  <div data-emaki class="emaki">
+    <div data-emaki-track class="emaki-track">
+      {
+        panels.map((panel, index) => (
+          <figure class="emaki-panel">
+            <img
+              src={panel.src}
+              width={panel.width}
+              height={panel.height}
+              alt={panel.alt}
+              loading={index === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+            />
+            <span class="emaki-frame" aria-hidden="true" />
+            <figcaption class="emaki-caption">{panel.caption}</figcaption>
+          </figure>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="concept-inner">
+    <div class="concept-kasumi" aria-hidden="true"></div>
+
+    {/* AD v2 §3: enlarged Cormorant heading, roman (no italic — AI-tell).
+       Copy source is unchanged (lp.concept.kicker) — only the visual
+       register is promoted from small eyebrow-label to a real <h2>. */}
+    <h2 class="concept-heading">{t('lp.concept.kicker')}</h2>
+
+    <div class="concept-lines">
+      {
+        lineKeys.map((key) => (
+          <p data-concept-line class="concept-line">
+            {t(key)}
+          </p>
+        ))
+      }
+    </div>
+
+    <div class="concept-features">
+      {
+        features.map((feature) => (
+          <div class="concept-feature">
+            <svg
+              class="concept-feature-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              set:html={iconMarkup[feature.icon]}
+            />
+            <p class="concept-feature-title">{t(feature.titleKey)}</p>
+            <p class="concept-feature-body">{t(feature.bodyKey)}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .concept {
+    padding-block: var(--space-12);
+  }
+
+  /* ── The emaki viewport: full-bleed (edge to edge of the section, which
+     itself has no inline padding), washi ground beneath the panels. ── */
+  .emaki {
+    position: relative;
+    width: 100%;
+    height: 62vh;
+    overflow: hidden;
+    background: var(--color-washi);
+  }
+
+  @media (max-width: 767px) {
+    .emaki {
+      height: 46vh;
+    }
+  }
+
+  .emaki-track {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    height: 100%;
+    width: max-content;
+    /* Enough inline padding that scene 1 doesn't start flush against the
+       viewport edge and scene 3 doesn't end flush either — both the first
+       and last panel get breathing room to settle toward center at the
+       extremes of the pan. */
+    padding-inline: clamp(4rem, 12vw, 16rem);
+  }
+
+  .emaki-panel {
+    position: relative;
+    flex: none;
+    height: 100%;
+    width: auto;
+    margin: 0;
+  }
+
+  .emaki-panel img {
+    height: 100%;
+    width: auto;
+    display: block;
+  }
+
+  /* Frame line + 版ズレ offset — exact language of Hero.astro's
+     .hero-frame/.hero-frame::before, panel-scoped. */
+  .emaki-frame {
+    position: absolute;
+    inset: var(--space-3);
+    border: 1px solid oklch(0.955 0.012 95 / 0.85);
+    pointer-events: none;
+  }
+
+  .emaki-frame::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    translate: 3px 3px;
+    border: 1px solid oklch(0.55 0.185 32 / 0.5);
+  }
+
+  /* Caption chip — exact language of Hero.astro's .hero-caption. */
+  .emaki-caption {
+    position: absolute;
+    left: var(--space-3);
+    bottom: var(--space-3);
+    margin: 0;
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    color: var(--color-sumi);
+    background: oklch(0.955 0.012 95 / 0.92);
+    border-left: 2px solid var(--color-shu);
+  }
+
+  .concept-inner {
+    position: relative;
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--space-5);
+    text-align: center;
+  }
+
+  /* Kasumi (霞) texture, extremely subdued — a signature wa-motif wash
+     behind the copy block, never a competing pattern (DESIGN.md §3/§8: the
+     asset path is data-driven, never hardcoded inline). */
+  .concept-kasumi {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: url('/textures/kasumi.svg');
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: cover;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  /* AD v2 §3: this section's "heading" is lp.concept.kicker's own copy,
+     promoted from the small eyebrow-label register to a real Cormorant
+     display heading — no italic (AI-tell), size intentionally exceeds
+     --text-2xl. */
+  .concept-heading {
+    position: relative;
+    z-index: 1;
+    margin-top: var(--space-9);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-style: normal;
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: var(--leading-heading);
+    color: var(--color-sumi);
+  }
+
+  .concept-lines {
+    position: relative;
+    z-index: 1;
+    margin-top: var(--space-9);
+    display: grid;
+    gap: var(--space-6);
+    max-width: 40rem;
+    margin-inline: auto;
+    text-align: left;
+  }
+
+  .concept-line {
+    /* No line-height override here on purpose: these are body sentences,
+       not headings, so they must keep inheriting global.css's
+       :lang(ja) 1.9 / default 1.65 leading rather than the tighter
+       --leading-heading (a component-scoped override would win the
+       specificity fight against that global rule and re-tighten JA
+       text that wraps to 2+ lines). */
+    font-size: var(--text-lg);
+    color: var(--color-sumi);
+    padding-left: var(--space-5);
+    border-left: var(--border-hairline);
+  }
+
+  @media (max-width: 480px) {
+    .concept-line {
+      font-size: var(--text-base);
+    }
+  }
+
+  /* ── 4-feature icon row (AD v2 §3) — 2×2 mobile / 4-col desktop. ──── */
+  .concept-features {
+    position: relative;
+    z-index: 1;
+    margin-top: var(--space-11);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-8) var(--space-5);
+    max-width: 40rem;
+    margin-inline: auto;
+    text-align: left;
+  }
+
+  @media (min-width: 768px) {
+    .concept-features {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      max-width: none;
+      gap: var(--space-6);
+    }
+  }
+
+  .concept-feature-icon {
+    width: 2rem;
+    height: 2rem;
+    color: var(--color-ai);
+  }
+
+  .concept-feature-title {
+    margin-top: var(--space-3);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: var(--text-base);
+    color: var(--color-sumi);
+  }
+
+  .concept-feature-body {
+    margin-top: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--color-sumi-usu);
+  }
+</style>

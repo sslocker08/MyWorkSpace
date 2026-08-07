@@ -1,0 +1,38 @@
+{
+  "slug": "stencil-dyed-cloth",
+  "founder": "aizome-stencil",
+  "order": 1,
+  "published": true,
+  "name": {
+    "fr": "Tissu Teinture au Pochoir",
+    "en": "Stencil-Dyed Cloth",
+    "ja": "型染め布"
+  },
+  "description": {
+    "fr": "Tissu coton blanc teinté à l'indigo par pochoir, motif géométrique composé. La technique crée des contours nets et une profondeur subtile.",
+    "en": "White cotton cloth indigo-dyed through stencil, with geometric composite pattern. The technique creates crisp outlines and subtle depth.",
+    "ja": "白い綿布に藍を型で染めた、幾何学的な複合文様。技法が鮮やかな輪郭と微妙な奥行きを生み出します。"
+  },
+  "materials": {
+    "fr": "Coton blanc, teinture indigo, pochoir washi",
+    "en": "White cotton, indigo dye, washi stencil",
+    "ja": "白綿・藍染・和紙型"
+  },
+  "price": {
+    "amount": 6400,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/stencil-dyed-cloth/01.svg",
+    "/img/products/stencil-dyed-cloth/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  },
+  "category": "textile"
+}

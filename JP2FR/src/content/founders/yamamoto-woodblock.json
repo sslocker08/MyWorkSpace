@@ -1,0 +1,31 @@
+{
+  "slug": "yamamoto-woodblock",
+  "order": 13,
+  "published": true,
+  "name": {
+    "fr": "Hanga Studio",
+    "en": "Hanga Studio",
+    "ja": "版画工房"
+  },
+  "title": {
+    "fr": "Maître de gravure sur bois",
+    "en": "Woodblock print master",
+    "ja": "木版画職人"
+  },
+  "bio": {
+    "fr": "À Tokyo, l'héritage de la gravure sur bois classique perdure au studio Hanga. Yamamoto grave minutieusement chaque bloc et imprime à la main, perpétuant l'art ukiyo-e avec sensibilité contemporaine.",
+    "en": "In Tokyo, the heritage of classical woodblock printing endures at Hanga Studio. Yamamoto meticulously carves each block and hand-prints with contemporary sensitivity to traditional ukiyo-e techniques.",
+    "ja": "東京の版画工房で、山本は古き木版画の技を手彫りで表現し、手刷りで仕上げます。江戸の浮世絵の精神を、現代の視点で蘇らせています。"
+  },
+  "region": {
+    "fr": "Tokyo",
+    "en": "Tokyo",
+    "ja": "東京"
+  },
+  "portrait": "/img/founders/yamamoto-woodblock/portrait.webp",
+  "sns": {
+    "instagram": "https://instagram.com/hanga.studio.tokyo",
+    "x": ""
+  },
+  "craft": "illustration"
+}

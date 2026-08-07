@@ -1,0 +1,38 @@
+{
+  "slug": "maple-leaf-box",
+  "founder": "studio-kizuki-wood",
+  "order": 1,
+  "published": true,
+  "name": {
+    "fr": "Boîte Feuille d'Érable",
+    "en": "Maple Leaf Box",
+    "ja": "紅葉箱"
+  },
+  "description": {
+    "fr": "Boîte en bois dur fabriquée à partir d'érable local, gravée avec une feuille d'automne. Son ajustement parfait et son fini lisse la rendent idéale pour ranger des trésors ou des bijoux.",
+    "en": "Hardwood box crafted from local maple, carved with an autumn leaf design. Its perfect fit and smooth finish make it ideal for storing treasures or jewelry.",
+    "ja": "地元の楓で製作した木製の箱に、紅葉が彫られています。完璧な計算と滑らかな仕上げが、大切なものを守ります。"
+  },
+  "materials": {
+    "fr": "Bois d'érable, finition naturelle",
+    "en": "Maple wood, natural finish",
+    "ja": "楓材・自然仕上げ"
+  },
+  "price": {
+    "amount": 9500,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/maple-leaf-box/01.svg",
+    "/img/products/maple-leaf-box/02.svg"
+  ],
+  "stock": {
+    "kind": "unique",
+    "soldOut": true
+  },
+  "category": "objets"
+}

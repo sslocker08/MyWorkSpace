@@ -1,0 +1,38 @@
+{
+  "slug": "sashiko-indigo-cloth",
+  "founder": "matsuda-sashiko",
+  "order": 1,
+  "published": true,
+  "name": {
+    "fr": "Tissu Sashiko Indigo",
+    "en": "Sashiko Indigo Cloth",
+    "ja": "刺し子藍布"
+  },
+  "description": {
+    "fr": "Tissu indigo épais avec motif sashiko géométrique cousu à la main. Chaque point révèle le travail minutieux et la patience de l'artisan, rendant la pièce unique.",
+    "en": "Thick indigo cloth with hand-sewn geometric sashiko pattern. Each stitch reveals the artisan's meticulous work and patience, making each piece unique.",
+    "ja": "厚い藍色の布に手刺しされた幾何学的な刺し子文様。ひとつひとつの針目が職人の丹念さを物語ります。"
+  },
+  "materials": {
+    "fr": "Coton indigo, couture à la main",
+    "en": "Indigo cotton, hand-sewn",
+    "ja": "藍綿・手刺し"
+  },
+  "price": {
+    "amount": 7200,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/sashiko-indigo-cloth/01.svg",
+    "/img/products/sashiko-indigo-cloth/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  },
+  "category": "textile"
+}

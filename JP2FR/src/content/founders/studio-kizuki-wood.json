@@ -1,0 +1,31 @@
+{
+  "slug": "studio-kizuki-wood",
+  "order": 3,
+  "published": true,
+  "name": {
+    "fr": "Studio Kizuki",
+    "en": "Studio Kizuki",
+    "ja": "スタジオ木梯"
+  },
+  "title": {
+    "fr": "Menuisier",
+    "en": "Woodworker",
+    "ja": "木工職人"
+  },
+  "bio": {
+    "fr": "Niché dans les montagnes de Takayama, Studio Kizuki façonne le bois local avec des outils traditionnels. Chaque meuble et objet raconte l'histoire de la forêt d'où il provient, révélant les veinures naturelles et la chaleur de la matière.",
+    "en": "Nestled in Takayama's mountains, Studio Kizuki shapes local wood with traditional hand tools. Each piece tells the story of the forest it came from, revealing natural grain and warmth of the material.",
+    "ja": "高山の山並みに佇むスタジオ木梯は、地元の木材を伝統的な手工具で仕上げています。家具や道具のひとつひとつに、その木が育った森の物語があります。"
+  },
+  "region": {
+    "fr": "Takayama",
+    "en": "Takayama",
+    "ja": "高山"
+  },
+  "portrait": "/img/founders/studio-kizuki-wood/portrait.webp",
+  "sns": {
+    "instagram": "https://instagram.com/studio.kizuki",
+    "x": ""
+  },
+  "craft": "objets"
+}

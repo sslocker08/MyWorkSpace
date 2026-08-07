@@ -1,0 +1,13 @@
+---
+// critique: P4 H4 E4 S4 R4 V4
+import Base from '../../layouts/Base.astro';
+import LandingPage from '../../components/lp/LandingPage.astro';
+import { useT } from '../../lib/i18n';
+
+const locale = 'en' as const;
+const t = useT(locale);
+---
+
+<Base locale={locale} title={t('site.tagline')} description={t('site.tagline')} path="/" headerVariant="dark">
+  <LandingPage locale={locale} />
+</Base>

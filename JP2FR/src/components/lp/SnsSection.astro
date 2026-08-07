@@ -1,0 +1,138 @@
+---
+// critique: P4 H4 E4 S4 R4 V4
+//
+// SNS closer — dark-zone rewrite per docs/ART-DIRECTION-LP-V2.md §4-7: a
+// line-drawn torii (鳥居) in --color-shu, heading + sub, and an inert icon
+// row. No site-wide social accounts are defined in content today (only
+// per-founder sns.instagram/x exist), so — same honesty-gate reasoning the
+// old SnsSection and Footer.astro both already applied — the icon row stays
+// visually present but inert: plain <span>s, not <a> links, and the whole
+// row is aria-hidden (DESIGN.md §6: don't dress up placeholders as working
+// links).
+import { useT } from '../../lib/i18n';
+import type { Locale } from '../../lib/i18n';
+
+export interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useT(locale);
+---
+
+<section data-sns class="sns">
+  <div class="sns-inner">
+    {/* 鳥居 — line silhouette, kasagi (top beam) drawn with the upturned-end
+        flare, shimaki tie-beam, two pillars, nuki cross-beam. Single stroke
+        color (--color-shu) per DESIGN.md §1 palette contract; fill:none so
+        it's pure line art, not a filled glyph. */}
+    {/* 明神鳥居 — filled silhouette (not thin strokes): curved 笠木+島木,
+        貫 passing through the pillars, 額束, inward-leaning pillars. */}
+    <svg class="sns-torii" viewBox="0 0 140 120" width="180" height="154" fill="var(--color-shu)" aria-hidden="true">
+      {/* 笠木 (top beam, gentle upward curve at ends) + 島木 below it */}
+      <path d="M6 22 Q70 10 134 22 L131 30 Q70 19.5 9 30 Z" />
+      <path d="M14 33 L126 33 L124.5 41 L15.5 41 Z" />
+      {/* 額束 (center strut between 島木 and 貫) */}
+      <path d="M66 41 L74 41 L74 56 L66 56 Z" />
+      {/* 貫 (tie beam, protrudes past the pillars) */}
+      <path d="M18 56 L122 56 L122 63 L18 63 Z" />
+      {/* pillars (slight inward lean, footed) */}
+      <path d="M30 41 L40 41 L43 114 L31 114 Z" />
+      <path d="M100 41 L110 41 L109 114 L97 114 Z" />
+    </svg>
+
+    <h2 class="sns-title">{t('lp2.sns_title')}</h2>
+    <p class="sns-sub">{t('lp2.sns_sub')}</p>
+
+    <div class="sns-icons" aria-hidden="true">
+      <span class="sns-icon" title="Instagram">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="5" />
+          <circle cx="12" cy="12" r="4" />
+          <circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none" />
+        </svg>
+      </span>
+      <span class="sns-icon" title="TikTok">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M14 4v10.8a3.4 3.4 0 1 1-3.4-3.4" />
+          <path d="M14 4c.5 2.5 2.4 4.2 5 4.5" />
+        </svg>
+      </span>
+      <span class="sns-icon" title="YouTube">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2.5" y="5.5" width="19" height="13" rx="4" />
+          <path d="M10.5 9.2l5 2.8-5 2.8z" fill="currentColor" stroke="none" />
+        </svg>
+      </span>
+      <span class="sns-icon" title="X">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M4.5 4.5l15 15M19.5 4.5l-15 15" />
+        </svg>
+      </span>
+      <span class="sns-icon" title="Pinterest">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M9.6 17c.9-3 1.3-5.7 2-8.5a2.6 2.6 0 1 1 3 2.1c-.3 1.4-1 2.6-2.4 2.6-1.2 0-1.8-.9-1.6-2" />
+        </svg>
+      </span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .sns {
+    padding-block: var(--space-12);
+    text-align: center;
+  }
+
+  .sns-inner {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .sns-torii {
+    display: block;
+    margin-bottom: var(--space-6);
+  }
+
+  .sns-title {
+    font-size: clamp(2rem, 4.5vw, var(--text-2xl));
+    color: var(--on-dark);
+  }
+
+  .sns-sub {
+    margin-top: var(--space-4);
+    max-width: 32rem;
+    font-size: var(--text-lg);
+    color: var(--on-dark-dim);
+  }
+
+  .sns-icons {
+    margin-top: var(--space-8);
+    display: flex;
+    gap: var(--space-6);
+    color: var(--on-dark-dim);
+  }
+
+  /* Decorative-only: no cursor:pointer, no focus ring — these are plain
+     <span>s (not links), so a per-icon hover tint is a harmless visual
+     touch, not a fake affordance (DESIGN.md §6 honesty gate). */
+  .sns-icon {
+    display: inline-flex;
+    transition: color var(--duration-ui) var(--ease-mie);
+  }
+
+  .sns-icon:hover {
+    color: var(--on-dark);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sns-icon {
+      transition: none;
+    }
+  }
+</style>

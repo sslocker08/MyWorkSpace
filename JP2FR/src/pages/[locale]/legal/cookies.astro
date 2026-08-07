@@ -1,0 +1,154 @@
+---
+// critique: P4 H4 E4 S4 R4 V3
+//
+// Cookie policy. Content matches what src/components/CookieConsent.astro
+// actually does today: one localStorage consent record + the cart's own
+// localStorage entry, no third-party cookies. The "change your choice"
+// button reuses [data-cookie-settings] — CookieConsent.astro's script
+// already wires a click listener on every element with that attribute
+// site-wide, so no extra JS is needed on this page.
+import Base from '../../../layouts/Base.astro';
+import { locales, useT, type Locale } from '../../../lib/i18n';
+import { breadcrumbTrail, localePath } from '../../../lib/routes';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({ params: { locale } }));
+}
+
+const locale = Astro.params.locale as Locale;
+const t = useT(locale);
+const privacyHref = localePath(locale, '/legal/privacy/');
+
+interface Section {
+  heading: string;
+  body: string;
+}
+interface LegalContent {
+  title: string;
+  sections: Section[];
+  privacyLinkText: string;
+}
+
+const content: Record<Locale, LegalContent> = {
+  fr: {
+    title: 'Politique relative aux cookies',
+    sections: [
+      {
+        heading: 'Ce que nous stockons',
+        body: "Nous utilisons uniquement du stockage essentiel : votre choix de consentement aux cookies (accepté/refusé), et le contenu de votre panier, conservé dans le stockage local (localStorage) de votre navigateur pour que vos articles vous attendent d'une visite à l'autre.",
+      },
+      {
+        heading: 'Cookies tiers',
+        body: "Aucun cookie tiers (analytique, publicitaire) n'est déposé à ce jour. Si cela change, cette page sera mise à jour avant tout dépôt.",
+      },
+      {
+        heading: 'Modifier votre choix',
+        body: '__COOKIE_SETTINGS_BUTTON__',
+      },
+    ],
+    privacyLinkText: 'Voir aussi notre politique de confidentialité.',
+  },
+  en: {
+    title: 'Cookie policy',
+    sections: [
+      {
+        heading: 'What we store',
+        body: "We only use essential storage: your cookie-consent choice (accepted/rejected), and your cart contents, kept in your browser's local storage (localStorage) so your items are waiting for you between visits.",
+      },
+      {
+        heading: 'Third-party cookies',
+        body: 'No third-party (analytics, advertising) cookies are set today. If that changes, this page will be updated before anything is deployed.',
+      },
+      {
+        heading: 'Change your choice',
+        body: '__COOKIE_SETTINGS_BUTTON__',
+      },
+    ],
+    privacyLinkText: 'See also our privacy policy.',
+  },
+  ja: {
+    title: 'クッキーポリシー',
+    sections: [
+      {
+        heading: '保存している情報',
+        body: '必須のストレージのみを使用しています：クッキー同意の選択（受け入れる／拒否）と、次回もカート内容が残るようブラウザのローカルストレージ（localStorage）に保存されるカート内容です。',
+      },
+      {
+        heading: '第三者クッキー',
+        body: '現時点でアクセス解析や広告目的の第三者クッキーは使用していません。今後変更する場合は、実施前に本ページを更新します。',
+      },
+      {
+        heading: '設定の変更',
+        body: '__COOKIE_SETTINGS_BUTTON__',
+      },
+    ],
+    privacyLinkText: 'プライバシーポリシーもあわせてご覧ください。',
+  },
+};
+
+const page = content[locale];
+const breadcrumbs = breadcrumbTrail(locale, t, [{ label: t('footer.cookies'), path: '/legal/cookies/' }]);
+---
+
+<Base locale={locale} title={page.title} path="/legal/cookies/" breadcrumbs={breadcrumbs}>
+  <article class="legal-article container">
+    <h1>{page.title}</h1>
+    {
+      page.sections.map((section) =>
+        section.body === '__COOKIE_SETTINGS_BUTTON__' ? (
+          <section class="legal-section">
+            <h2>{section.heading}</h2>
+            <button type="button" class="btn btn--secondary" data-cookie-settings>
+              {t('cookie.settings')}
+            </button>
+          </section>
+        ) : (
+          <section class="legal-section">
+            <h2>{section.heading}</h2>
+            <p set:html={section.body} />
+          </section>
+        ),
+      )
+    }
+    <p class="legal-footnote">
+      <a href={privacyHref}>{page.privacyLinkText}</a>
+    </p>
+  </article>
+</Base>
+
+<style>
+  .legal-article {
+    max-width: 42rem;
+    padding-block: var(--space-10) var(--space-12);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .legal-section h2 {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-3);
+  }
+
+  .legal-section p {
+    color: var(--color-sumi);
+    font-size: var(--text-sm);
+  }
+
+  .legal-footnote {
+    font-size: var(--text-sm);
+  }
+
+  .legal-footnote a {
+    color: var(--color-ai);
+  }
+
+  .legal-footnote a:hover {
+    color: var(--color-shu);
+  }
+
+  .legal-footnote a:focus-visible {
+    outline: 2px solid var(--color-shu);
+    outline-offset: 2px;
+  }
+</style>

@@ -1,0 +1,38 @@
+{
+  "slug": "indigo-cloth-wave",
+  "founder": "ai-no-wa-indigo",
+  "order": 1,
+  "published": true,
+  "name": {
+    "fr": "Tissu Indigo Vague",
+    "en": "Indigo Wave Cloth",
+    "ja": "藍波布"
+  },
+  "description": {
+    "fr": "Tissu de coton teint à l'indigo naturel, motif de vague traversant. Idéal pour un projet de couture, décoration ou encadrement, il respire l'authenticité.",
+    "en": "Cotton cloth dyed in natural indigo with flowing wave pattern. Ideal for sewing projects, decoration, or framing, breathing authentic tradition.",
+    "ja": "天然藍で染めた綿布に波の文様が描かれています。縫い物や装飾に適し、本物の藍の香りがします。"
+  },
+  "materials": {
+    "fr": "Coton teint à l'indigo naturel",
+    "en": "Cotton, natural indigo dye",
+    "ja": "綿・天然藍染"
+  },
+  "price": {
+    "amount": 5200,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/indigo-cloth-wave/01.svg",
+    "/img/products/indigo-cloth-wave/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  },
+  "category": "textile"
+}

@@ -1,0 +1,31 @@
+{
+  "slug": "ai-no-wa-indigo",
+  "order": 2,
+  "published": true,
+  "name": {
+    "fr": "Ai no Wa",
+    "en": "Ai no Wa",
+    "ja": "藍の輪"
+  },
+  "title": {
+    "fr": "Teinturière indigo",
+    "en": "Indigo dyer",
+    "ja": "藍染職人"
+  },
+  "bio": {
+    "fr": "Dans le cœur de la région de Tokushima, berceau de la teinture indigo au Japon, Ai no Wa perpétue l'art du fermentation naturelle. Les tissus sont trempés dans des bains anciens, accumulant couche après couche la profondeur intemporelle de l'indigo.",
+    "en": "In the heart of Tokushima, Japan's indigo heartland, Ai no Wa continues the craft of natural fermentation dyeing. Textiles are immersed in traditional vats, building depth through countless layers of timeless indigo.",
+    "ja": "徳島の藍染の中心地で、藍の輪は天然の藍建てによる伝統技法を守り続けています。布は古い染液に漬け込まれ、深い藍色が幾重にも重ねられていきます。"
+  },
+  "region": {
+    "fr": "Tokushima",
+    "en": "Tokushima",
+    "ja": "徳島"
+  },
+  "portrait": "/img/founders/ai-no-wa-indigo/portrait.webp",
+  "sns": {
+    "instagram": "https://instagram.com/ai.no.wa",
+    "x": "https://x.com/ainowaindigo"
+  },
+  "craft": "textile"
+}

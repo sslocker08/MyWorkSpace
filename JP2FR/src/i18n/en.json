@@ -1,0 +1,160 @@
+{
+  "site": {
+    "name": "JP2FR",
+    "tagline": "Japanese craftsmanship, from the workshop to your home"
+  },
+  "nav": {
+    "home": "Home",
+    "founders": "Founders",
+    "products": "Products",
+    "cart": "Cart",
+    "menu": "Menu",
+    "close": "Close"
+  },
+  "lp": {
+    "intro": {
+      "message": "Meet the hands that create. From Japan's heart to yours.",
+      "skip": "Skip intro"
+    },
+    "hero": {
+      "title": "The art of Japan, at home.",
+      "subtitle": "Daily objects, made with heart and tradition",
+      "scroll": "Explore"
+    },
+    "concept": {
+      "kicker": "Our philosophy",
+      "line1": "Every object tells a story — of the artisan, the materials, and generations of craft.",
+      "line2": "We connect Japanese creators directly to you, removing all middlemen.",
+      "line3": "Uncompromising quality. Lasting beauty. Shared responsibility."
+    },
+    "founders": {
+      "kicker": "The artisans",
+      "title": "15 masters, 15 regions, 15 traditions",
+      "cta": "Meet the founders"
+    },
+    "products": {
+      "kicker": "Our selections",
+      "title": "Unique pieces, made with intention",
+      "cta": "View all products"
+    },
+    "sns": {
+      "title": "Follow our story",
+      "follow": "Follow us"
+    }
+  },
+  "founders": {
+    "title": "Our founders",
+    "breadcrumb": "Founders",
+    "products_by": "Works by {name}",
+    "back": "Back to founders"
+  },
+  "products": {
+    "title": "Products",
+    "breadcrumb": "Products",
+    "by": "by {name}",
+    "materials": "Materials",
+    "soldOut": "Sold out",
+    "unique": "One-of-a-kind",
+    "addToCart": "Add to cart",
+    "added": "Added to cart",
+    "inCart": "Already in cart"
+  },
+  "cart": {
+    "title": "Your cart",
+    "empty": "Your cart is empty",
+    "empty_cta": "Continue shopping",
+    "count": "{count, plural, one {# item} other {# items}}",
+    "quantity": "Quantity",
+    "remove": "Remove",
+    "subtotal": "Subtotal",
+    "shipping_note": "Shipping costs calculated at checkout",
+    "tax_note": "Taxes included in displayed prices",
+    "confirm_title": "Review your order",
+    "confirm_delivery": "Delivery address",
+    "confirm_cancel": "Cancel and go back",
+    "checkout": "Proceed to checkout",
+    "processing": "Processing…",
+    "error": "An error occurred. Please try again."
+  },
+  "checkout": {
+    "success_title": "Thank you for your order",
+    "success_body": "Your order is being processed. A confirmation email has been sent to your address. You will soon receive shipping details.",
+    "cancel_title": "Payment cancelled",
+    "cancel_body": "Your payment has been cancelled. You may continue shopping or contact us if you need assistance.",
+    "back_home": "Back to home"
+  },
+  "footer": {
+    "legal": "Legal notice",
+    "mentions": "Legal mentions",
+    "privacy": "Privacy policy",
+    "cgv": "Terms and conditions",
+    "tokushoho": "Special law (Japan)",
+    "cookies": "Cookie policy",
+    "rights": "All rights reserved.",
+    "boutique": "Shop",
+    "aide": "Help",
+    "a_propos": "About",
+    "our_story": "Our story",
+    "payment_methods": "Payment methods"
+  },
+  "cookie": {
+    "title": "We use cookies",
+    "body": "We use cookies to improve your browsing experience, analyze site usage, and personalize content. You can accept all cookies or manage your preferences.",
+    "accept": "Accept",
+    "reject": "Reject",
+    "settings": "Settings",
+    "essential": "Essential cookies",
+    "analytics": "Analytics cookies"
+  },
+  "a11y": {
+    "skip_to_content": "Skip to main content",
+    "open_menu": "Open menu",
+    "close_menu": "Close menu",
+    "breadcrumb": "Breadcrumb"
+  },
+  "notfound": {
+    "title": "Page not found",
+    "body": "Sorry, the page you're looking for doesn't exist. Check the URL or return to home.",
+    "back": "Back to home"
+  },
+  "categories": {
+    "all": "All",
+    "ceramique": "Ceramics",
+    "textile": "Textiles",
+    "illustration": "Illustration",
+    "objets": "Objects",
+    "mode": "Fashion"
+  },
+  "filters": {
+    "results": "{count, plural, one {# result} other {# results}}",
+    "clear": "Clear filters"
+  },
+  "product": {
+    "tabs_description": "Description",
+    "tabs_details": "Details",
+    "tabs_shipping": "Shipping & Returns",
+    "quantity": "Quantity",
+    "label_founder": "Founder",
+    "label_category": "Category",
+    "label_stock": "Availability",
+    "stock_stocked": "In stock",
+    "shipping_delivery": "Shipped from Japan to metropolitan France. Estimated delivery: [PLACEHOLDER: 3–5 business days].",
+    "shipping_returns": "You have a 14-day right of withdrawal from receipt, per our terms and conditions."
+  },
+  "lp2": {
+    "hero_cta": "Discover the products",
+    "categories_kicker": "Our creations",
+    "categories_title": "Discover our creations",
+    "founders_meet": "Meet our founders",
+    "sns_title": "Follow us",
+    "sns_sub": "Inspiration, new arrivals and behind the scenes from Japan.",
+    "concept_feat1_t": "Authentic",
+    "concept_feat1_b": "Handmade in Japan",
+    "concept_feat2_t": "Curated",
+    "concept_feat2_b": "By our experts",
+    "concept_feat3_t": "Delivery to France",
+    "concept_feat3_b": "Fast and reliable",
+    "concept_feat4_t": "Secure payment",
+    "concept_feat4_b": "Stripe and 3D Secure"
+  }
+}

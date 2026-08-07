@@ -1,0 +1,38 @@
+{
+  "slug": "bamboo-basket",
+  "founder": "nakamura-bamboo",
+  "order": 1,
+  "published": true,
+  "name": {
+    "fr": "Panier Bambou Tressé",
+    "en": "Woven Bamboo Basket",
+    "ja": "竹編み篭"
+  },
+  "description": {
+    "fr": "Panier en bambou tressé à la main, motif losange géométrique. Léger et résistant, idéal pour ranger le linge, les fruits ou comme élément de décoration.",
+    "en": "Hand-woven bamboo basket with geometric diamond pattern. Light and durable, ideal for storing linens, fruit, or as a decorative accent.",
+    "ja": "幾何学的な菱模様に手で編まれた竹篭。軽くて丈夫。衣類や果物を入れるのに、また装飾として最適です。"
+  },
+  "materials": {
+    "fr": "Bambou naturel, tissage traditionnel",
+    "en": "Natural bamboo, traditional weaving",
+    "ja": "天然竹・伝統編み"
+  },
+  "price": {
+    "amount": 5800,
+    "currency": "EUR"
+  },
+  "stripe": {
+    "productId": "prod_PLACEHOLDER",
+    "priceId": "price_PLACEHOLDER"
+  },
+  "images": [
+    "/img/products/bamboo-basket/01.svg",
+    "/img/products/bamboo-basket/02.svg"
+  ],
+  "stock": {
+    "kind": "stocked",
+    "soldOut": false
+  },
+  "category": "objets"
+}
