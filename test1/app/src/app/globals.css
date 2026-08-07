@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-ivoire: #F8F4EE;
+    --color-encre: #1C1714;
+    --color-argile: #B8714A;
+    --color-vert: #3C5C41;
+    --color-brume: #B3ADA4;
+  }
+
+  html {
+    background-color: var(--color-ivoire);
+    color: var(--color-encre);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: var(--color-argile);
+    color: var(--color-ivoire);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  .font-cormorant-italic {
+    font-family: var(--font-cormorant), Georgia, serif;
+    font-style: italic;
+  }
+}
